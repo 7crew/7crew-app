@@ -604,9 +604,9 @@ checkNearby();
 var AKEY='';
 
 async function callClaude(system,user,useSearch){
-  var body={model:'claude-sonnet-4-20250514',max_tokens:2000,system:system,messages:[{role:'user',content:user}]};
+  var body={model:'claude-3-haiku-20240307',max_tokens:2000,system:system,messages:[{role:'user',content:user}]};
   if(useSearch)body.tools=[{type:'web_search_20250305',name:'web_search'}];
-  var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01'},body:JSON.stringify(body)});
   if(!r.ok){throw new Error('HTTP '+r.status);}
   var d=await r.json();
   if(d.error){throw new Error(d.error.message);}
@@ -616,9 +616,9 @@ async function callClaude(system,user,useSearch){
 }
 
 async function callClaudeLong(system,user,useSearch){
-  var body={model:'claude-sonnet-4-20250514',max_tokens:4000,system:system,messages:[{role:'user',content:user}]};
+  var body={model:'claude-3-haiku-20240307',max_tokens:4000,system:system,messages:[{role:'user',content:user}]};
   if(useSearch)body.tools=[{type:'web_search_20250305',name:'web_search'}];
-  var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01'},body:JSON.stringify(body)});
   if(!r.ok){throw new Error('HTTP '+r.status);}
   var d=await r.json();
   if(d.error){throw new Error(d.error.message);}
@@ -1141,8 +1141,8 @@ function fileToBase64(file){
 }
 
 async function callClaudeWithDoc(system,prompt,base64pdf){
-  var body={model:'claude-sonnet-4-20250514',max_tokens:8000,system:system,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64pdf}},{type:'text',text:prompt}]}]};
-  var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  var body={model:'claude-3-haiku-20240307',max_tokens:8000,system:system,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64pdf}},{type:'text',text:prompt}]}]};
+  var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01'},body:JSON.stringify(body)});
   if(!r.ok){throw new Error('HTTP '+r.status);}
   var d=await r.json();
   if(d.error){throw new Error('API: '+d.error.message);}
