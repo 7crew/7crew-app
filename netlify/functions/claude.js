@@ -7,7 +7,7 @@ exports.handler = async function(event) {
   if (!apiKey) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: { message: 'ANTHROPIC_API_KEY not set in Netlify environment variables.' } })
+      body: JSON.stringify({ error: { message: 'ANTHROPIC_API_KEY not set.' } })
     };
   }
 
@@ -20,29 +20,53 @@ exports.handler = async function(event) {
       messages: body.messages
     };
     if (body.system) request.system = body.system;
+
+    const hasWebSearch = body.tools && body.tools.some(function(t) {
+      return t.type === 'web_search_20250305';
+    });
     if (body.tools && body.tools.length > 0) request.tools = body.tools;
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    };
+    if (hasWebSearch) {
+      headers['anthropic-beta'] = 'web-search-2025-03-05';
+    }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'web-search-2025-03-05'
-      },
+      headers: headers,
       body: JSON.stringify(request)
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { raw: text }; }
+
+    // Surface the full Anthropic error so we can see it
+    if (!response.ok) {
+      return {
+        statusCode: response.status,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: {
+            message: 'Anthropic error ' + response.status + ': ' + JSON.stringify(data)
+          }
+        })
+      };
+    }
+
     return {
-      statusCode: response.status,
+      statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     };
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: { message: err.message } })
+      body: JSON.stringify({ error: { message: 'Function error: ' + err.message } })
     };
   }
 };
