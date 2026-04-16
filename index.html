@@ -665,7 +665,7 @@ async function renderDigest(){
   var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (75-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\nMetrics (week of 4/5/26): YTD $42.5M, run rate $182.3M, avg weekly $49,630/store, SSS +20.9%, avg ticket $9.73, 4,542 employees. WTX $52.3K (+23.7% SSS). OK $50.3K (+23.8%). SWFL $46.1K NEGATIVE SSS (-2.7%). Mature stores $58K (+28.7% YAG). Openings: Waco TX Apr 13, Norman OK Apr 13, Panama City FL Apr 20. Building drops: Canyon TX Apr 16, Lubbock TX Apr 20, Altus OK Apr 20, El Reno OK Apr 28. 19 under construction.\n\nReturn ONLY valid JSON, no markdown, no backticks, starting with { and ending with }:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and drops","watchout":"1-2 sentences on SWFL negative SSS","motivation":"specific non-cheesy motivational thought referencing the real business","board_prep":"one sentence on what to be ready to discuss with FEP"}';
 
   try{
-    var raw=await callClaudeLong(sysPrompt,'Generate the daily digest for Kendra. Return only the JSON object.',true);
+    var raw=await callClaudeLong(sysPrompt,'Generate the daily digest for Kendra. Return only the JSON object.',false);
 
     var d=safeJSON(raw);
 
