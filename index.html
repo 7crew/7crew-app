@@ -1141,7 +1141,7 @@ function fileToBase64(file){
 }
 
 async function callClaudeWithDoc(system,prompt,base64pdf){
-  var body={model:'claude-haiku-4-5-20251001',max_tokens:8000,system:system,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64pdf}},{type:'text',text:prompt}]}]};
+  var body={model:'claude-haiku-4-5-20251001',max_tokens:4000,system:system,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64pdf}},{type:'text',text:prompt}]}]};
   var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(!r.ok){throw new Error('HTTP '+r.status);}
   var d=await r.json();
