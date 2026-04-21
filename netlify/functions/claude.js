@@ -1,8 +1,9 @@
 const https = require('https');
 
+// Netlify sync functions max out at ~26s regardless of timeout setting.
+// For large PDFs we compress the request aggressively to stay under the limit.
 exports.handler = async function(event, context) {
 
-  // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -24,7 +25,7 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: { message: 'ANTHROPIC_API_KEY not set in Netlify environment variables.' } })
+      body: JSON.stringify({ error: { message: 'ANTHROPIC_API_KEY not set.' } })
     };
   }
 
@@ -37,6 +38,11 @@ exports.handler = async function(event, context) {
       headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: { message: 'Invalid JSON body' } })
     };
+  }
+
+  // Cap max_tokens at 4096 to ensure response comes back within 26s
+  if (requestBody.max_tokens && requestBody.max_tokens > 4096) {
+    requestBody.max_tokens = 4096;
   }
 
   try {
@@ -78,15 +84,14 @@ function makeRequest(apiKey, body) {
     const req = https.request(options, (res) => {
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        resolve({ status: res.statusCode, body: data });
-      });
+      res.on('end', () => resolve({ status: res.statusCode, body: data }));
     });
 
-    req.on('error', (e) => { reject(e); });
-    req.setTimeout(60000, () => {
+    req.on('error', (e) => reject(e));
+    // 24 second hard timeout - just under Netlify's 26s limit
+    req.setTimeout(24000, () => {
       req.destroy();
-      reject(new Error('Request timed out after 60s'));
+      reject(new Error('Request timed out - PDF too large for single request'));
     });
 
     req.write(postData);
