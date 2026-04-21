@@ -1183,19 +1183,83 @@ async function processWBR(input){
   if(!input.files||!input.files[0]) return;
   var file=input.files[0];
   document.getElementById('wbr-filename').textContent=file.name;
-  document.getElementById('wbr-content').innerHTML='<div class="loading-dots" style="padding:20px 0"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>Reading WBR — please wait up to 60 seconds...</span></div>';
+
+  var setStatus=function(msg){ document.getElementById('wbr-content').innerHTML='<div class="loading-dots" style="padding:20px 0"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>'+msg+'</span></div>'; };
+
   try{
     var b64=await fileToBase64(file);
-    var sys='Parse a 7Crew WBR PDF. Return ONLY a raw HTML table — no markdown, no explanation. Include EVERY store row, do not stop early. Format: <p style="font-size:11px;margin-bottom:8px"><b>KPIs:</b> [all key metrics pipe-separated]</p><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#111;color:#fff"><th style="padding:4px 6px">Rk</th><th style="padding:4px 6px">Store</th><th style="padding:4px 6px">WE1</th><th style="padding:4px 6px">WE2</th><th style="padding:4px 6px">WE3</th><th style="padding:4px 6px">WE4</th><th style="padding:4px 6px">SSS%</th><th style="padding:4px 6px">L4A</th><th style="padding:4px 6px">ARR</th></tr></thead><tbody>[ONE <tr bgcolor=#e8f5e8 or #e8f0fb or #fdf3e3 or #fff3e0 or #fdecea per store, tds with padding:3px 6px]</tbody></table></div>. Use bgcolor on tr not style. Every store must appear.';
-    var html=await callClaudeWithDoc(sys,'Output complete WBR HTML table with ALL stores. Do not stop early or truncate.',b64);
+
+    /* ── PASS 1: Extract raw store data as JSON (small, fast, <20s) ── */
+    setStatus('Step 1 of 2 — Extracting store data...');
+    var sys1='Extract ALL data from this 7Crew WBR PDF. Return ONLY valid JSON, no markdown: {"kpis":{"ytd":"","daily":"","run_rate":"","ticket":"","employees":"","l4a":"","arr":""},"week_dates":["","","",""],"stores":[{"rank":1,"name":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. Include every single store. Do not stop early.';
+    var rawJson=await callClaudeWithDoc(sys1,'Extract all store rows and KPIs. Return complete JSON with every store.',b64);
+
+    var parsed;
+    try{ parsed=safeJSON(rawJson); }
+    catch(e){ throw new Error('Could not parse store data: '+e.message); }
+
+    if(!parsed.stores||!parsed.stores.length) throw new Error('No store data found in PDF');
+
+    /* ── PASS 2: Extract metrics for digest (small separate call) ── */
+    setStatus('Step 2 of 2 — Building report ('+ parsed.stores.length +' stores found)...');
+    extractMetricsFromWBR(b64); // fire and forget
+
+    /* ── Build HTML client-side from JSON — no token limit issues ── */
+    var kp=parsed.kpis||{};
+    var html='<p style="font-size:11px;margin-bottom:10px;padding:8px 12px;background:#f8f8f8;border-radius:4px;line-height:1.8">';
+    html+='<strong>YTD:</strong> '+esc(kp.ytd||'—')+' &nbsp;|&nbsp; ';
+    html+='<strong>Daily Avg:</strong> '+esc(kp.daily||'—')+' &nbsp;|&nbsp; ';
+    html+='<strong>Run Rate:</strong> '+esc(kp.run_rate||'—')+' &nbsp;|&nbsp; ';
+    html+='<strong>Avg Ticket:</strong> '+esc(kp.ticket||'—')+' &nbsp;|&nbsp; ';
+    html+='<strong>Employees:</strong> '+esc(kp.employees||'—')+' &nbsp;|&nbsp; ';
+    html+='<strong>L4A:</strong> '+esc(kp.l4a||'—')+' &nbsp;|&nbsp; ';
+    html+='<strong>ARR:</strong> '+esc(kp.arr||'—')+'</p>';
+
+    var dates=parsed.week_dates||['W.E 1','W.E 2','W.E 3','W.E 4'];
+    html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html+='<thead><tr style="background:#0c0a0a;color:#fff">';
+    ['Rank','Store Name',dates[0]||'W.E 1',dates[1]||'W.E 2',dates[2]||'W.E 3',dates[3]||'W.E 4','SSS%','L4A Total','ARR/T13'].forEach(function(h){
+      html+='<th style="padding:6px 8px;text-align:left;white-space:nowrap">'+h+'</th>';
+    });
+    html+='</tr></thead><tbody>';
+
+    parsed.stores.forEach(function(s,i){
+      /* Color by L4A weekly average (L4A total / 4) */
+      var l4aNum=parseFloat((s.l4a||'').toString().replace(/[$,]/g,''))||0;
+      var weekly=l4aNum/4;
+      var bg;
+      if(s.is_new)              bg='#ffffff';
+      else if(weekly>=57500)    bg='#e8f5e8';  // Elite
+      else if(weekly>=52500)    bg='#e8f0fb';  // High Perform
+      else if(weekly>=47500)    bg='#fdf3e3';  // On Track
+      else if(weekly>=42500)    bg='#fff3e0';  // Needs Growth
+      else                      bg='#fdecea';  // At Risk
+
+      var rowBg=i%2===0?bg:shadeColor(bg,-3);
+      html+='<tr style="background:'+rowBg+'">';
+      [s.rank,s.name,s.we1,s.we2,s.we3,s.we4,s.sss,s.l4a,s.arr].forEach(function(v){
+        html+='<td style="padding:5px 8px;border-bottom:1px solid #efefef">'+esc(String(v||'—'))+'</td>';
+      });
+      html+='</tr>';
+    });
+
+    html+='</tbody></table></div>';
+    html+='<div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">'+parsed.stores.length+' stores · Built from PDF '+new Date().toLocaleTimeString()+'</div>';
+
     wbrData=html; wbrLoaded=true;
     document.getElementById('wbr-content').innerHTML=html;
     saveReportToSupa('wbr',html,file.name);
-    extractMetricsFromWBR(b64);
     digestCache=null;
+
   }catch(e){
-    document.getElementById('wbr-content').innerHTML='<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280"><strong style="color:var(--red);display:block;margin-bottom:6px">Could not process PDF</strong>'+esc(e.message)+'<br><br>Ensure the Netlify function is deployed and the PDF is a valid WBR.</div>';
+    console.error('WBR error:',e);
+    document.getElementById('wbr-content').innerHTML='<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280"><strong style="color:var(--red);display:block;margin-bottom:6px">Could not process PDF</strong>'+esc(e.message)+'</div>';
   }
+}
+
+function shadeColor(hex,pct){
+  /* Slightly darken alternating rows */
+  return hex; // keep simple — alternating rows same color
 }
 
 async function extractMetricsFromWBR(b64){
