@@ -130,10 +130,9 @@ a{color:inherit;text-decoration:none}
   <button class="stab" id="stab-debrief" onclick="switchSub('debrief')" style="flex:1;padding:8px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;text-transform:uppercase;letter-spacing:.06em;display:inline-block;width:50%">Debrief</button>
 </div>
 <div id="sub-nav-financial" style="display:none;background:#f8f8f8;border-bottom:1px solid var(--border)">
-  <button class="stab active" id="stab-dashboard" onclick="switchSub('dashboard')" style="padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;text-transform:uppercase;letter-spacing:.05em;display:inline-block;width:25%">Dashboard</button>
-  <button class="stab" id="stab-wbr" onclick="switchSub('wbr')" style="padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;text-transform:uppercase;letter-spacing:.05em;display:inline-block;width:25%">WBR</button>
-  <button class="stab" id="stab-development" onclick="switchSub('development')" style="padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;text-transform:uppercase;letter-spacing:.05em;display:inline-block;width:25%">Dev Report</button>
-  <button class="stab" id="stab-construction" onclick="switchSub('construction')" style="padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;text-transform:uppercase;letter-spacing:.05em;display:inline-block;width:25%">Pipeline</button>
+  <button class="stab active" id="stab-dashboard" onclick="switchSub('dashboard')" style="padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;text-transform:uppercase;letter-spacing:.05em;display:inline-block;width:33.333%">Dashboard</button>
+  <button class="stab" id="stab-wbr" onclick="switchSub('wbr')" style="padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;text-transform:uppercase;letter-spacing:.05em;display:inline-block;width:33.333%">WBR</button>
+  <button class="stab" id="stab-development" onclick="switchSub('development')" style="padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;text-transform:uppercase;letter-spacing:.05em;display:inline-block;width:33.333%">Dev Report</button>
 </div>
 <div class="search-wrap" id="search-bar">
   <input type="search" id="search-input" placeholder="Search..." oninput="renderAll()">
@@ -146,7 +145,6 @@ a{color:inherit;text-decoration:none}
   <div class="section" id="sec-dashboard"></div>
   <div class="section" id="sec-wbr"></div>
   <div class="section" id="sec-development"></div>
-  <div class="section" id="sec-construction"></div>
   <div class="section" id="sec-meetingprep"></div>
   <div class="section" id="sec-debrief"></div>
 </div>
@@ -519,6 +517,7 @@ function handleNearbyTap(){if(nearbyOrgId)viewOrg(nearbyOrgId);}
 loadData();
 renderAll();
 checkNearby();
+loadLiveMetrics();
 </script>
 
 <style>
@@ -662,7 +661,9 @@ async function renderDigest(){
   if(hour>=12&&hour<17)greeting='Good afternoon';
   else if(hour>=17)greeting='Good evening';
 
-  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (75-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\nMetrics (week of 4/5/26): YTD $42.5M, run rate $182.3M, avg weekly $49,630/store, SSS +20.9%, avg ticket $9.73, 4,542 employees. WTX $52.3K (+23.7% SSS). OK $50.3K (+23.8%). SWFL $46.1K NEGATIVE SSS (-2.7%). Mature stores $58K (+28.7% YAG). Openings: Waco TX Apr 13, Norman OK Apr 13, Panama City FL Apr 20. Building drops: Canyon TX Apr 16, Lubbock TX Apr 20, Altus OK Apr 20, El Reno OK Apr 28. 19 under construction.\n\nReturn ONLY valid JSON, no markdown, no backticks, starting with { and ending with }:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and drops","watchout":"1-2 sentences on SWFL negative SSS","motivation":"specific non-cheesy motivational thought referencing the real business","board_prep":"one sentence on what to be ready to discuss with FEP"}';
+  var mx=liveMetrics||{ytd_sales:'$42.5M',run_rate:'$182.3M',avg_weekly:'$49,630',sss_overall:'+20.9%',avg_ticket:'$9.73',employees:'4,542',wtx_weekly:'$52.3K',wtx_sss:'+23.7%',ok_weekly:'$50.3K',ok_sss:'+23.8%',swfl_weekly:'$46.1K',swfl_sss:'-2.7%',mature_weekly:'$58K',mature_sss:'+28.7%',week_ending:'Apr 5, 2026',raw_summary:''};
+  var metricsContext='LIVE METRICS (week ending '+mx.week_ending+'):\nYTD Sales: '+mx.ytd_sales+'\nRun Rate: '+mx.run_rate+'\nAvg Weekly Per Store: '+mx.avg_weekly+'\nOverall SSS: '+mx.sss_overall+'\nAvg Ticket: '+mx.avg_ticket+'\nEmployees: '+mx.employees+'\nWTX Region: '+mx.wtx_weekly+' weekly (SSS '+mx.wtx_sss+')\nOK Region: '+mx.ok_weekly+' weekly (SSS '+mx.ok_sss+')\nSWFL Region: '+mx.swfl_weekly+' weekly (SSS '+mx.swfl_sss+')\nMature Stores: '+mx.mature_weekly+' weekly (SSS '+mx.mature_sss+')'+(mx.raw_summary?'\nSummary: '+mx.raw_summary:'');
+  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (75-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings: Waco TX Apr 13, Norman OK Apr 13, Panama City FL Apr 20. Building drops: Canyon TX Apr 16, Lubbock TX Apr 20, Altus OK Apr 20, El Reno OK Apr 28. 19 under construction.\n\nReturn ONLY valid JSON, no markdown, no backticks, starting with { and ending with }:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and drops","watchout":"1-2 sentences on SWFL negative SSS","motivation":"specific non-cheesy motivational thought referencing the real business","board_prep":"one sentence on what to be ready to discuss with FEP"}';
 
   try{
     var raw=await callClaudeLong(sysPrompt,'Generate the daily digest for Kendra. Return only the JSON object.',true);
@@ -677,6 +678,7 @@ async function renderDigest(){
     html+='<div style="margin-bottom:16px">'+
       '<div style="font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">'+dateStr+'</div>'+
       '<div style="font-size:20px;font-weight:800;color:var(--black);line-height:1.2">'+greeting+', Kendra.</div>'+
+      (liveMetrics?'<div style="display:inline-flex;align-items:center;gap:5px;background:#e8f5e8;border:1px solid #a8d5a2;border-radius:4px;padding:3px 9px;font-size:10px;font-weight:700;color:#1a7a1a;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">&#9889; Live WBR &mdash; Week ending '+(liveMetrics.week_ending||'')+'</div>':'<div style="display:inline-flex;align-items:center;gap:5px;background:#fff8f8;border:1px solid #f5c6c6;border-radius:4px;padding:3px 9px;font-size:10px;font-weight:700;color:#cb2026;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">&#9888; Default data &mdash; upload WBR to go live</div>')+
       '<div style="font-size:13px;color:#6b7280;margin-top:6px;line-height:1.5;font-weight:500">'+d.headline+'</div>'+
     '</div>';
 
@@ -968,7 +970,7 @@ function saveBriefToContact(){
 
 function renderDebrief(){
   var el=document.getElementById('sec-debrief');
-  if(el.innerHTML.trim())return;
+  if(!el)return;
   el.innerHTML='<div class="ai-section">'+
   '<h2>Meeting Debrief</h2>'+
   '<div class="research-note"><span style="font-size:14px">&#128203;</span><span>Paste the Otter transcript or summary. AI extracts action items, decisions, people notes, and drafts the follow-up email.</span></div>'+
@@ -979,6 +981,7 @@ function renderDebrief(){
   '<div class="ai-form-row"><label>Paste Otter transcript or summary</label><textarea id="db-transcript" placeholder="Paste the Otter transcript here. Even rough bullet notes work well..." style="min-height:120px"></textarea></div>'+
   '<button class="btn-gen" id="db-btn" onclick="processDebrief()">Process transcript &#8599;</button>'+
   '<div id="db-out"></div>'+
+  '<div style="margin-top:24px">'+'<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">&#128203; Debrief History</div>'+'<div class="ai-card">'+'<div class="ai-card-head" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="toggleDebriefHistory()">'+'<span>Saved Debriefs</span>'+'<span id="debrief-hist-toggle" style="font-size:18px;line-height:1">&#8964;</span>'+'</div>'+'<div id="debrief-history-panel" style="display:none"><div id="debrief-history-list"></div></div>'+'</div>'+'</div>'+
   '</div>';
 }
 
@@ -1014,7 +1017,25 @@ async function processDebrief(){
     }
     html+='<div class="ai-card"><div class="ai-card-head">Follow-up Email — Ready to Send<button class="ai-btn-sec" style="width:auto;padding:5px 14px;margin:0" onclick="copyEmailDB()">Copy</button></div><div class="ai-card-body"><div class="email-subj">Subject: '+d.email_subject+'</div><div class="email-body-pre" id="email-db-body">'+d.email_body+'</div></div></div>';
     html+='</div>';
-    document.getElementById('db-out').innerHTML=html;
+    var topicVal=(document.getElementById('db-topic').value||'').trim();
+    var attendeesVal=(document.getElementById('db-attendees').value||'').trim();
+    var outEl=document.getElementById('db-out');
+    outEl.innerHTML=html;
+    var saveWrap=document.createElement('div');
+    saveWrap.style.cssText='display:flex;gap:8px;margin-top:12px';
+    var saveBtn=document.createElement('button');
+    saveBtn.className='btn-gen';
+    saveBtn.style.flex='1';
+    saveBtn.textContent='Save debrief';
+    saveBtn.onclick=(function(t,a,h){
+      return function(){
+        saveDebrief(t,a,h);
+        saveBtn.textContent='Saved ✓';
+        saveBtn.disabled=true;
+      };
+    })(topicVal,attendeesVal,html);
+    saveWrap.appendChild(saveBtn);
+    outEl.appendChild(saveWrap);
   }catch(e){console.error('Debrief error:',e);document.getElementById('db-out').innerHTML='<div style="padding:12px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:12px;color:#6b7280"><strong style="color:var(--red)">Error:</strong> '+e.message+'</div>';}
   btn.disabled=false;btn.textContent='Process transcript ↗';
 }
@@ -1058,6 +1079,9 @@ function renderConstruction(){
 
 var wbrData=null;
 var devData=null;
+var wbrLoaded=false;
+var devLoaded=false;
+var liveMetrics=null;
 
 // Supabase table needed — run once in Supabase SQL editor:
 // create table if not exists reports (
@@ -1083,17 +1107,19 @@ function loadReportsFromSupa(){
       rows.forEach(function(r){
         if(r.id==='wbr' && r.html){
           wbrData=r.html;
+          wbrLoaded=true;
           var el=document.getElementById('wbr-content');
-          if(el)el.innerHTML=r.html;
+          if(el){ el.innerHTML=r.html; }
           var fn=document.getElementById('wbr-filename');
-          if(fn)fn.textContent=r.filename||'Last upload loaded';
+          if(fn){ fn.textContent=r.filename||'Last report loaded'; }
         }
         if(r.id==='dev' && r.html){
           devData=r.html;
+          devLoaded=true;
           var el=document.getElementById('dev-content');
-          if(el)el.innerHTML=r.html;
+          if(el){ el.innerHTML=r.html; }
           var fn=document.getElementById('dev-filename');
-          if(fn)fn.textContent=r.filename||'Last upload loaded';
+          if(fn){ fn.textContent=r.filename||'Last report loaded'; }
         }
       });
     })
@@ -1103,7 +1129,9 @@ function loadReportsFromSupa(){
 function renderWBR(){
   var el=document.getElementById('sec-wbr');
   if(!el)return;
-  el.innerHTML='<div class="ai-section"><h2>Weekly Business Review</h2>'+buildUploadCard('wbr','wbrData','processWBR')+'<div id="wbr-content">'+buildWBRDefault()+'</div></div>';
+  var loaded=wbrLoaded||wbrData!=null;
+  var uploadCard='<div class="ai-card" style="margin-bottom:14px">'+'<div class="ai-card-head" style="display:flex;justify-content:space-between;align-items:center">'+'<span>Upload New Report</span>'+'<span>'+(loaded?'<span class="badge-r">&#10003; Loaded</span>':'<span style="font-size:10px;color:#aaa;font-weight:600">No file loaded</span>')+'</span>'+'</div>'+'<div class="ai-card-body" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+'<label style="display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;padding:10px 18px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:inherit">'+'&#128196; Choose PDF<input type="file" accept=".pdf" style="display:none" onchange="processWBR(this)"></label>'+'<span id="wbr-filename" style="font-size:12px;color:#6b7280;font-weight:600">'+(loaded?'Report loaded — upload new to replace':'No file chosen')+'</span>'+'</div></div>';
+  el.innerHTML='<div class="ai-section"><h2>Weekly Business Review</h2>'+uploadCard+'<div id="wbr-content">'+(wbrData||buildUploadPrompt('Upload your WBR PDF to see the full store rankings and performance data.'))+'</div></div>';
 }
 
 function buildWBRDefault(){
@@ -1114,7 +1142,9 @@ function buildWBRDefault(){
 function renderDevelopment(){
   var el=document.getElementById('sec-development');
   if(!el)return;
-  el.innerHTML='<div class="ai-section"><h2>Development Report</h2>'+buildUploadCard('dev','devData','processDev')+'<div id="dev-content">'+buildDevDefault()+'</div></div>';
+  var loaded=devLoaded||devData!=null;
+  var uploadCard='<div class="ai-card" style="margin-bottom:14px">'+'<div class="ai-card-head" style="display:flex;justify-content:space-between;align-items:center">'+'<span>Upload New Report</span>'+'<span>'+(loaded?'<span class="badge-r">&#10003; Loaded</span>':'<span style="font-size:10px;color:#aaa;font-weight:600">No file loaded</span>')+'</span>'+'</div>'+'<div class="ai-card-body" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+'<label style="display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;padding:10px 18px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:inherit">'+'&#128196; Choose PDF<input type="file" accept=".pdf" style="display:none" onchange="processDev(this)"></label>'+'<span id="dev-filename" style="font-size:12px;color:#6b7280;font-weight:600">'+(loaded?'Report loaded — upload new to replace':'No file chosen')+'</span>'+'</div></div>';
+  el.innerHTML='<div class="ai-section"><h2>Development Report</h2>'+uploadCard+'<div id="dev-content">'+(devData||buildUploadPrompt('Upload your Weekly Development Review PDF to see the full pipeline.'))+'</div></div>';
 }
 
 function buildDevDefault(){
@@ -1160,8 +1190,12 @@ async function processWBR(input){
     var sys='You are parsing a 7Crew Enterprises Weekly Business Review PDF. Return ONLY raw HTML, no markdown, no backticks, no explanation. Be as concise as possible with HTML — use minimal attributes and short inline styles to maximize how many stores fit. Structure: 1) One line of KPI spans showing YTD Sales, Run Rate, Avg Daily, Avg Ticket, Employees, AUV L4A, ARR — styled with inline CSS. 2) A legend line for Elite/HP/OT/NG/At Risk. 3) Week label. 4) A single HTML table with ALL stores — every single store from rank 1 to the last. Use style attribute on each tr for row color: Elite(>2.3) #e8f5e8, HP(2.10-2.30) #e8f0fb, OT(1.90-2.10) #fdf3e3, NG(1.60-1.90) #fff3e0, AtRisk(<1.60) #fdecea, NewStore #fff. Columns: Rank, Store Name, W.E dates (4 cols), SSS%, L4A Total, ARR/T13. Font-size:11px on all td/th. Wrap in overflow-x:auto div. Include ALL stores — do not stop early. This is critical — every store must appear.';
     var html=await callClaudeWithDoc(sys,'Parse this entire WBR PDF. Return the full HTML display with all stores.',b64);
     wbrData=html;
+    wbrLoaded=true;
     document.getElementById('wbr-content').innerHTML=html;
     saveReportToSupa('wbr', html, file.name);
+    extractMetricsFromWBR(b64);
+    digestCache=null;
+    if(document.getElementById('sec-dashboard').classList.contains('active')){renderDashboard();}
   }catch(e){
     document.getElementById('wbr-content').innerHTML='<div style="padding:12px;color:var(--red);font-size:13px;font-weight:600">Error: '+e.message+'</div>';
     console.error('WBR error:',e);
@@ -1178,8 +1212,10 @@ async function processDev(input){
     var sys='You are parsing a 7Crew Enterprises Weekly Development Review PDF. Return ONLY raw HTML, no markdown, no backticks, no explanation. IMPORTANT: Exclude any rows where the developer or contact company is "Red Sky" — they are only the lease broker and should not appear. Format rules: never truncate text, no overflow:hidden, all table cells wrap naturally, use full city names. Structure: 1) Stat boxes using <div class="dev-row"><div class="dev-box"><div class="dev-num">N</div><div class="dev-lbl">Label</div></div>...</div> for: Projects Out to Bid, Bid Accepted Not Under Construction, Projects Under Construction. 2) Bold section heading then table for "Building Drops — Next 4 Weeks" — columns: City, State, Drop Date. 3) Bold section heading then table for "Recent & Upcoming Openings" — columns: City, State, Open Date. 4) Bold section heading then table for "Full Construction Pipeline" — columns: City, State, Est. Open Date — color dates within 30 days style="color:#cb2026;font-weight:700", within 60 days style="color:#854F0B;font-weight:700". 5) Bold section heading then table for "Stand Count by Phase" — columns: Phase, Count. All section headings: <div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px">Heading</div>. All tables: <table style="width:100%;border-collapse:collapse;margin-bottom:4px"> — th style="background:#0c0a0a;color:#fff;padding:8px 10px;font-size:11px;font-weight:700;text-align:left" — td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #f1f1f1" — odd rows add background:#fafafa. Include every single location without exception.';
     var html=await callClaudeWithDoc(sys,'Parse this entire Development Review PDF. Return the full HTML display.',b64);
     devData=html;
+    devLoaded=true;
     document.getElementById('dev-content').innerHTML=html;
     saveReportToSupa('dev', html, file.name);
+    if(document.getElementById('sec-dashboard').classList.contains('active')){renderDashboard();}
   }catch(e){
     document.getElementById('dev-content').innerHTML='<div style="padding:12px;color:var(--red);font-size:13px;font-weight:600">Error: '+e.message+'</div>';
     console.error('Dev error:',e);
@@ -1187,6 +1223,65 @@ async function processDev(input){
 }
 
 
+function loadLiveMetrics(){
+  supa('metrics?id=eq.wbr_current&select=*')
+    .then(function(rows){if(!rows||!rows.length)return;liveMetrics=rows[0];})
+    .catch(function(e){console.log('Metrics load:',e);});
+}
+function saveMetricsToSupa(metricsObj){
+  var row=Object.assign({id:'wbr_current',updated_at:new Date().toISOString()},metricsObj);
+  supa('metrics?id=eq.wbr_current','DELETE').catch(function(){}).then(function(){return supa('metrics','POST',row);}).then(function(){liveMetrics=row;toast('Metrics updated — Digest will use live data');}).catch(function(e){console.error('Save metrics:',e);});
+}
+async function extractMetricsFromWBR(b64){
+  var sys='You are extracting key financial metrics from a 7Brew Coffee franchisee WBR for 7Crew Enterprises. Return ONLY valid JSON with these exact keys (use null if not found): ytd_sales, run_rate, avg_weekly, sss_overall, avg_ticket, employees, wtx_weekly, wtx_sss, ok_weekly, ok_sss, swfl_weekly, swfl_sss, mature_weekly, mature_sss, week_ending, raw_summary (2-3 sentence plain English summary). All values as strings like "$42.5M" or "+20.9%". No markdown, no backticks.';
+  try{
+    var body={model:'claude-haiku-4-5-20251001',max_tokens:1000,system:sys,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:'Extract the metrics from this WBR. Return only the JSON.'}]}]};
+    var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var d=await r.json();
+    var raw=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    var metrics=safeJSON(raw);saveMetricsToSupa(metrics);
+  }catch(e){console.error('Metrics extraction failed (non-fatal):',e);}
+}
+function toggleDebriefHistory(){
+  var p=document.getElementById('debrief-history-panel');var t=document.getElementById('debrief-hist-toggle');
+  if(!p)return;
+  if(p.style.display==='none'){p.style.display='block';if(t)t.innerHTML='&#8963;';loadDebriefHistory(document.getElementById('debrief-history-list'));}
+  else{p.style.display='none';if(t)t.innerHTML='&#8964;';}
+}
+function loadDebriefHistory(container){
+  if(!container)return;
+  container.innerHTML='<div class="loading-dots" style="padding:14px"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>Loading...</span></div>';
+  supa('debriefs?select=id,created_at,topic,attendees&order=created_at.desc&limit=30')
+    .then(function(rows){
+      if(!rows||!rows.length){container.innerHTML='<div style="padding:20px 14px;text-align:center;font-size:12px;color:#6b7280;font-weight:600">No saved debriefs yet.</div>';return;}
+      var h='';
+      rows.forEach(function(r){
+        var dt=new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        var tm=new Date(r.created_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+        h+='<div style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer" onclick="loadSavedDebrief(''+r.id+'')"><div style="display:flex;justify-content:space-between"><div><div style="font-size:13px;font-weight:700">'+r.topic+'</div>'+(r.attendees?'<div style="font-size:11px;color:#6b7280">'+r.attendees+'</div>':'')+'</div><div style="text-align:right"><div style="font-size:11px;color:#6b7280">'+dt+'</div><div style="font-size:11px;color:var(--red);font-weight:700">'+tm+'</div></div></div></div>';
+      });
+      container.innerHTML=h;
+    })
+    .catch(function(){container.innerHTML='<div style="padding:12px 14px;font-size:12px;color:#6b7280">Could not load history.</div>';});
+}
+function loadSavedDebrief(id){
+  supa('debriefs?id=eq.'+id+'&select=*')
+    .then(function(rows){
+      if(!rows||!rows.length){toast('Debrief not found');return;}
+      var r=rows[0];
+      var dt=new Date(r.created_at).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+      var header='<div style="background:var(--black);color:#fff;border-radius:6px 6px 0 0;padding:10px 14px"><div style="font-size:10px;color:#c0c2c4;font-weight:700;text-transform:uppercase">Saved Debrief — '+dt+'</div><div style="font-size:14px;font-weight:800;margin-top:2px">'+r.topic+'</div></div>';
+      var out=document.getElementById('db-out');
+      if(out){out.innerHTML=header+r.html;out.scrollIntoView({behavior:'smooth',block:'start'});}
+    })
+    .catch(function(){toast('Could not load debrief');});
+}
+function saveDebrief(topic,attendees,htmlContent){
+  var row={topic:topic||'Untitled',attendees:attendees||'',html:htmlContent};
+  supa('debriefs','POST',row)
+    .then(function(){toast('Debrief saved!');var p=document.getElementById('debrief-history-panel');if(p&&p.style.display!=='none'){loadDebriefHistory(document.getElementById('debrief-history-list'));}})
+    .catch(function(){toast('Save failed');});
+}
 function copyEmailDB(){
   var subj=document.querySelector('.email-subj');
   var body=document.getElementById('email-db-body');
@@ -1227,7 +1322,7 @@ function switchPrimary(p){
 
 function switchSub(t){
   var tab_=t;
-  var allSections=['digest','contacts','organizations','dashboard','meetingprep','debrief','construction','wbr','development'];
+  var allSections=['digest','contacts','organizations','dashboard','meetingprep','debrief','wbr','development'];
   allSections.forEach(function(id){
     var sc=document.getElementById('sec-'+id);
     if(sc)sc.className='section'+(tab_===id?' active':'');
@@ -1243,7 +1338,6 @@ function switchSub(t){
   if(tab_==='dashboard')renderDashboard();
   if(tab_==='meetingprep')renderMeetingPrep();
   if(tab_==='debrief')renderDebrief();
-  if(tab_==='construction')renderConstruction();
   if(tab_==='wbr')renderWBR();
   if(tab_==='development')renderDevelopment();
   if(tab_==='contacts'||tab_==='organizations')renderAll();
