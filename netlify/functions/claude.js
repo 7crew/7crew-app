@@ -1,5 +1,20 @@
+const https = require('https');
+
 exports.handler = async function(event, context) {
-  // Only allow POST
+
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin':  '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
+      body: ''
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
@@ -8,7 +23,8 @@ exports.handler = async function(event, context) {
   if (!ANTHROPIC_KEY) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: { message: 'ANTHROPIC_API_KEY environment variable not set in Netlify dashboard.' } })
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: { message: 'ANTHROPIC_API_KEY not set in Netlify environment variables.' } })
     };
   }
 
@@ -16,36 +32,64 @@ exports.handler = async function(event, context) {
   try {
     requestBody = JSON.parse(event.body);
   } catch (e) {
-    return { statusCode: 400, body: JSON.stringify({ error: { message: 'Invalid JSON body' } }) };
+    return {
+      statusCode: 400,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: { message: 'Invalid JSON body' } })
+    };
   }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type':         'application/json',
-        'x-api-key':            ANTHROPIC_KEY,
-        'anthropic-version':    '2023-06-01',
-        'anthropic-beta':       'pdfs-2024-09-25,web-search-2025-03-05'
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    const data = await response.json();
-
+    const result = await makeRequest(ANTHROPIC_KEY, requestBody);
     return {
-      statusCode: response.status,
+      statusCode: result.status,
       headers: {
-        'Content-Type':                 'application/json',
-        'Access-Control-Allow-Origin':  '*'
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify(data)
+      body: result.body
     };
-
   } catch (err) {
     return {
       statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: { message: err.message } })
     };
   }
 };
+
+function makeRequest(apiKey, body) {
+  return new Promise((resolve, reject) => {
+    const postData = JSON.stringify(body);
+    const options = {
+      hostname: 'api.anthropic.com',
+      port: 443,
+      path: '/v1/messages',
+      method: 'POST',
+      headers: {
+        'Content-Type':      'application/json',
+        'Content-Length':    Buffer.byteLength(postData),
+        'x-api-key':         apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-beta':    'pdfs-2024-09-25,web-search-2025-03-05'
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        resolve({ status: res.statusCode, body: data });
+      });
+    });
+
+    req.on('error', (e) => { reject(e); });
+    req.setTimeout(60000, () => {
+      req.destroy();
+      reject(new Error('Request timed out after 60s'));
+    });
+
+    req.write(postData);
+    req.end();
+  });
+}
