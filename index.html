@@ -768,7 +768,8 @@ async function callClaudeLong(system, user, useSearch){
 }
 
 async function callClaudeWithDoc(system, prompt, base64pdf){
-  var body={model:'claude-haiku-4-5-20251001',max_tokens:4000,system:system,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64pdf}},{type:'text',text:prompt}]}]};
+  /* Sonnet + high token limit — Haiku at 4k truncates large store tables */
+  var body={model:'claude-sonnet-4-5',max_tokens:16000,system:system,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64pdf}},{type:'text',text:prompt}]}]};
   var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(!r.ok) throw new Error('HTTP '+r.status);
   var d=await r.json();
@@ -1185,8 +1186,8 @@ async function processWBR(input){
   document.getElementById('wbr-content').innerHTML='<div class="loading-dots" style="padding:20px 0"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>Reading WBR — this takes about 20 seconds...</span></div>';
   try{
     var b64=await fileToBase64(file);
-    var sys='You are parsing a 7Crew Enterprises Weekly Business Review PDF. Return ONLY raw HTML, no markdown, no backticks, no explanation. Structure: 1) One line of KPI spans. 2) A single HTML table with ALL stores. Use style attribute on each tr for row color: Elite(>2.3) #e8f5e8, HP(2.10-2.30) #e8f0fb, OT(1.90-2.10) #fdf3e3, NG(1.60-1.90) #fff3e0, AtRisk(<1.60) #fdecea, NewStore #fff. Columns: Rank, Store Name, W.E dates (4 cols), SSS%, L4A Total, ARR/T13. Font-size:11px on all td/th. Wrap in overflow-x:auto div. Include ALL stores.';
-    var html=await callClaudeWithDoc(sys,'Parse this entire WBR PDF. Return the full HTML display with all stores.',b64);
+    var sys='Parse a 7Crew Enterprises WBR PDF. Return ONLY raw HTML — zero markdown, zero explanation, zero backticks. CRITICAL: You MUST include every single store row. Do NOT stop early. If the PDF has 75 stores, output 75 tr rows. Output format: (1) One <p> tag with pipe-separated KPIs: YTD Sales | Avg Daily | Run Rate | Avg Ticket | Employees | L4A | ARR. (2) <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#0c0a0a;color:#fff"><th>Rank</th><th>Store</th><th>W.E 1</th><th>W.E 2</th><th>W.E 3</th><th>W.E 4</th><th>SSS%</th><th>L4A Total</th><th>ARR/T13</th></tr></thead><tbody> then one <tr> per store with background color on the tr style: Elite(L4A/wk>$57500)=#e8f5e8, HighPerform($52500-57500)=#e8f0fb, OnTrack($47500-52500)=#fdf3e3, NeedsGrowth($42500-47500)=#fff3e0, AtRisk(<$42500)=#fdecea, NewStore(opened<13wks)=#fff. Each td style="padding:5px 8px;border-bottom:1px solid #f0f0f0". Output ALL stores from rank 1 to the last rank shown in the PDF without exception.';
+    var html=await callClaudeWithDoc(sys,'Output ALL stores from this WBR PDF as a complete HTML table. Every single store must appear. Do not truncate.',b64);
     wbrData=html; wbrLoaded=true;
     document.getElementById('wbr-content').innerHTML=html;
     saveReportToSupa('wbr',html,file.name);
@@ -1232,8 +1233,8 @@ async function processDev(input){
   document.getElementById('dev-content').innerHTML='<div class="loading-dots" style="padding:20px 0"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>Reading Development Report...</span></div>';
   try{
     var b64=await fileToBase64(file);
-    var sys='You are parsing a 7Crew Enterprises Weekly Development Review PDF. Return ONLY raw HTML. Exclude any rows where the developer/contact company is "Red Sky". Structure: stat boxes, building drops table, openings table, full pipeline table (color dates within 30 days red, 60 days orange), stand count table. Include every location without exception.';
-    var html=await callClaudeWithDoc(sys,'Parse this entire Development Review PDF. Return the full HTML display.',b64);
+    var sys='Parse a 7Crew Enterprises Weekly Development Review PDF. Return ONLY raw HTML — zero markdown, zero backticks. Exclude rows where developer/contact is "Red Sky". CRITICAL: Include every single location — do not stop early. Structure: (1) Three stat boxes side by side (Out to Bid, Under Construction, Dropped/Opened) using inline-block divs. (2) Section heading then compact table for "Building Drops Next 4 Weeks": columns City|State|Drop Date. (3) Section heading then table for "Recent/Upcoming Openings": City|State|Open Date. (4) Section heading then full pipeline table: City|State|Est Open Date — color tr background: within 30 days #fdecea, within 60 days #fff3e0, else #fff. (5) Stand count by phase table. All tables: border-collapse:collapse, font-size:12px, td padding:6px 10px, alternating row #fafafa. Bold section headings in red uppercase 10px. Output every location without exception.';
+    var html=await callClaudeWithDoc(sys,'Output the complete Development Review HTML. Every location must appear. Do not truncate.',b64);
     devData=html; devLoaded=true;
     document.getElementById('dev-content').innerHTML=html;
     saveReportToSupa('dev',html,file.name);
