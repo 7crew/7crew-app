@@ -996,21 +996,29 @@ function renderDashboard(){
     '<div id="dash-ai-out"></div>'+
   '</div>';
 
-  var regions=[{n:'WTX',w:52.3,s:23.7},{n:'OK',w:50.3,s:23.8},{n:'NM',w:49.9,s:null},{n:'CTX',w:48.3,s:17.6},{n:'PFL',w:47.5,s:21.8},{n:'SWFL',w:46.1,s:-2.7}];
+  var regions=[
+    {n:'WTX', full:'West Texas',    w:52.3, s:23.7},
+    {n:'OK',  full:'Oklahoma',      w:50.3, s:23.8},
+    {n:'NM',  full:'New Mexico',    w:49.9, s:null},
+    {n:'CTX', full:'Central Texas', w:48.3, s:17.6},
+    {n:'PFL', full:'Panhandle FL',  w:47.5, s:21.8},
+    {n:'SWFL',full:'SW Florida',    w:46.1, s:-2.7}
+  ];
   var max=52.3; var rh='';
+  rh+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
   regions.forEach(function(r){
-    var pct=Math.round((r.w/max)*100);
-    /* SSS color: green=strong, blue=positive, amber=low positive, red=negative */
-    var sc=r.s===null?'#9ca3af':r.s>=20?'#16a34a':r.s>=10?'#0056B4':r.s>=0?'#d97706':'#cb2026';
-    var st=r.s===null?'—':(r.s>0?'+':'')+r.s.toFixed(1)+'%';
+    var sc=r.s===null?'#6b7280':r.s>=20?'#16a34a':r.s>=10?'#0056B4':r.s>=0?'#d97706':'#cb2026';
     var sssBg=r.s===null?'#f3f4f6':r.s>=20?'#dcfce7':r.s>=10?'#dbeafe':r.s>=0?'#fef3c7':'#fee2e2';
-    rh+='<div class="region-bar-row" style="background:#fff;border-radius:6px;padding:8px 10px;margin-bottom:6px;border:1px solid #f0f0f0">'+
-        '<span class="region-name" style="width:42px;font-size:11px;font-weight:800;color:#0c0a0a">'+r.n+'</span>'+
-        '<div class="region-track" style="flex:1;margin:0 10px"><div class="region-fill" style="width:'+pct+'%"></div></div>'+
-        '<span style="font-size:12px;font-weight:700;color:#374151;width:50px;text-align:right">$'+r.w.toFixed(1)+'K</span>'+
-        '<span style="font-size:11px;font-weight:800;color:'+sc+';background:'+sssBg+';padding:2px 7px;border-radius:4px;margin-left:8px;min-width:52px;text-align:center;display:inline-block">'+st+'</span>'+
-        '</div>';
+    var st=r.s===null?'—':(r.s>0?'+':'')+r.s.toFixed(1)+'%';
+    var borderColor=r.s===null?'#e2e2e2':r.s>=20?'#86efac':r.s>=10?'#93c5fd':r.s>=0?'#fcd34d':'#fca5a5';
+    rh+='<div style="background:#fff;border:1px solid '+borderColor+';border-top:3px solid '+sc+';border-radius:6px;padding:12px">';
+    rh+='<div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">'+r.full+'</div>';
+    rh+='<div style="font-size:18px;font-weight:800;color:#0c0a0a;line-height:1">$'+r.w.toFixed(1)+'K</div>';
+    rh+='<div style="font-size:10px;color:#6b7280;margin-top:1px;margin-bottom:8px">avg weekly/store</div>';
+    rh+='<span style="font-size:12px;font-weight:800;color:'+sc+';background:'+sssBg+';padding:3px 10px;border-radius:4px;display:inline-block">'+st+' SSS</span>';
+    rh+='</div>';
   });
+  rh+='</div>';
   document.getElementById('db-regions').innerHTML=rh;
 }
 
@@ -1186,6 +1194,8 @@ function renderWBR(){
   var el=document.getElementById('sec-wbr');
   if(!el) return;
   var loaded=wbrLoaded||wbrData!=null;
+  /* Don't re-render if content already showing */
+  if(loaded && document.getElementById('wbr-content') && document.getElementById('wbr-content').innerHTML.length > 500) return;
   el.innerHTML='<div class="ai-section"><h2>Weekly Business Review</h2>'+
     '<div class="ai-card" style="margin-bottom:14px"><div class="ai-card-head" style="display:flex;justify-content:space-between;align-items:center"><span>Upload New Report</span>'+(loaded?'<span class="badge-r">✓ Loaded</span>':'<span style="font-size:10px;color:#aaa;font-weight:600">No file loaded</span>')+'</div>'+
     '<div class="ai-card-body" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
@@ -1468,6 +1478,8 @@ function renderDevelopment(){
   var el=document.getElementById('sec-development');
   if(!el) return;
   var loaded=devLoaded||devData!=null;
+  /* Don't re-render upload card if content is already showing */
+  if(loaded && el.innerHTML.indexOf('dev-content')>-1 && document.getElementById('dev-content') && document.getElementById('dev-content').innerHTML.length > 100) return;
   el.innerHTML='<div class="ai-section"><h2>Development Report</h2>'+
     '<div class="ai-card" style="margin-bottom:14px"><div class="ai-card-head" style="display:flex;justify-content:space-between;align-items:center"><span>Upload New Report</span>'+(loaded?'<span class="badge-r">✓ Loaded</span>':'<span style="font-size:10px;color:#aaa;font-weight:600">No file loaded</span>')+'</div>'+
     '<div class="ai-card-body" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
@@ -1482,16 +1494,120 @@ async function processDev(input){
   if(!input.files||!input.files[0]) return;
   var file=input.files[0];
   document.getElementById('dev-filename').textContent=file.name;
-  document.getElementById('dev-content').innerHTML='<div class="loading-dots" style="padding:20px 0"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>Reading Development Report...</span></div>';
+
+  var setDevStatus=function(msg){
+    document.getElementById('dev-content').innerHTML=
+      '<div class="loading-dots" style="padding:20px 0">'+
+      '<div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div>'+
+      '<span>'+msg+'</span></div>';
+  };
+
   try{
-    var b64=await fileToBase64(file);
-    var sys='Parse a 7Crew Enterprises Weekly Development Review PDF. Return ONLY raw HTML — zero markdown, zero backticks. Exclude rows where developer/contact is "Red Sky". CRITICAL: Include every single location — do not stop early. Structure: (1) Three stat boxes side by side (Out to Bid, Under Construction, Dropped/Opened) using inline-block divs. (2) Section heading then compact table for "Building Drops Next 4 Weeks": columns City|State|Drop Date. (3) Section heading then table for "Recent/Upcoming Openings": City|State|Open Date. (4) Section heading then full pipeline table: City|State|Est Open Date — color tr background: within 30 days #fdecea, within 60 days #fff3e0, else #fff. (5) Stand count by phase table. All tables: border-collapse:collapse, font-size:12px, td padding:6px 10px, alternating row #fafafa. Bold section headings in red uppercase 10px. Output every location without exception.';
-    var html=await callClaudeWithDoc(sys,'Output the complete Development Review HTML. Every location must appear. Do not truncate.',b64);
+    var devText='';
+    if(file.name.toLowerCase().endsWith('.txt')){
+      setDevStatus('Reading text file...');
+      devText=await new Promise(function(resolve,reject){
+        var reader=new FileReader();
+        reader.onload=function(e){ resolve(e.target.result); };
+        reader.onerror=reject;
+        reader.readAsText(file);
+      });
+    } else {
+      setDevStatus('Reading PDF...');
+      devText=await extractPDFText(file);
+    }
+
+    if(!devText||devText.length<50) throw new Error('Could not extract text — try saving as .txt first');
+
+    setDevStatus('Parsing development report (~15 seconds)...');
+
+    var body={
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:4096,
+      system:'You are parsing a 7Crew Enterprises Weekly Development Review. Return ONLY valid JSON, no markdown: {"stats":{"out_to_bid":0,"under_construction":0,"recent_openings":0},"building_drops":[{"city":"","state":"","date":""}],"openings":[{"city":"","state":"","date":""}],"pipeline":[{"city":"","state":"","est_open":"","days_out":0}],"stand_count":[{"phase":"","count":0}]}. Exclude any entries where the developer is Red Sky. Include every location.',
+      messages:[{role:'user',content:'Parse this development report: '+devText.slice(0,50000)}]
+    };
+
+    var r=await fetch('/.netlify/functions/claude',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    var rawText=await r.text();
+    var d=JSON.parse(rawText);
+    if(d.error) throw new Error('API error: '+JSON.stringify(d.error));
+
+    var jsonText=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    var parsed=safeJSON(jsonText);
+
+    /* Build HTML client-side */
+    var html='';
+
+    /* Stat boxes */
+    var st=parsed.stats||{};
+    html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">';
+    [{l:'Out to Bid',v:st.out_to_bid||0},{l:'Under Construction',v:st.under_construction||0},{l:'Recent Openings',v:st.recent_openings||0}].forEach(function(b){
+      html+='<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center">'+
+            '<div style="font-size:28px;font-weight:800;color:var(--black)">'+b.v+'</div>'+
+            '<div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px">'+b.l+'</div></div>';
+    });
+    html+='</div>';
+
+    function makeTable(title, rows, cols, colorFn){
+      if(!rows||!rows.length) return '';
+      var h='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">'+title+'</div>';
+      h+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">';
+      h+='<thead><tr style="background:#0c0a0a;color:#fff">';
+      cols.forEach(function(c){h+='<th style="padding:6px 10px;text-align:left;font-weight:700">'+c+'</th>';});
+      h+='</tr></thead><tbody>';
+      rows.forEach(function(row,i){
+        var bg=colorFn?colorFn(row):(i%2===0?'#fff':'#fafafa');
+        h+='<tr style="background:'+bg+'">';
+        Object.values(row).forEach(function(v){
+          if(typeof v==='number'&&cols.indexOf('Days Out')>=0) return; // skip days_out raw number
+          h+='<td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">'+esc(String(v||'—'))+'</td>';
+        });
+        h+='</tr>';
+      });
+      h+='</tbody></table>';
+      return h;
+    }
+
+    html+=makeTable('Building Drops — Next 4 Weeks', parsed.building_drops, ['City','State','Drop Date'], null);
+    html+=makeTable('Recent & Upcoming Openings', parsed.openings, ['City','State','Open Date'], null);
+
+    /* Pipeline with color coding */
+    if(parsed.pipeline&&parsed.pipeline.length){
+      html+='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">Full Construction Pipeline ('+parsed.pipeline.length+' locations)</div>';
+      html+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">';
+      html+='<thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Est. Open</th></tr></thead><tbody>';
+      parsed.pipeline.forEach(function(p,i){
+        var bg=p.days_out<=30?'#fdecea':p.days_out<=60?'#fff3e0':(i%2===0?'#fff':'#fafafa');
+        html+='<tr style="background:'+bg+'"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">'+esc(p.city||'')+'</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">'+esc(p.state||'')+'</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:'+(p.days_out<=30?'#cb2026':p.days_out<=60?'#b35c00':'#374151')+';font-weight:'+(p.days_out<=60?'700':'400')+'">'+esc(p.est_open||'')+'</td></tr>';
+      });
+      html+='</tbody></table>';
+    }
+
+    if(parsed.stand_count&&parsed.stand_count.length){
+      html+=makeTable('Stand Count by Phase', parsed.stand_count, ['Phase','Count'], null);
+    }
+
+    html+='<div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">'+
+          (parsed.pipeline?parsed.pipeline.length:0)+' in pipeline · Built '+new Date().toLocaleTimeString()+'</div>';
+
     devData=html; devLoaded=true;
     document.getElementById('dev-content').innerHTML=html;
     saveReportToSupa('dev',html,file.name);
+    toast('Development report loaded!');
+
   }catch(e){
-    document.getElementById('dev-content').innerHTML='<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280"><strong style="color:var(--red);display:block;margin-bottom:6px">Could not process PDF</strong>'+esc(e.message)+'</div>';
+    console.error('Dev error:',e);
+    document.getElementById('dev-content').innerHTML=
+      '<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px">'+
+      '<strong style="color:var(--red);display:block;margin-bottom:6px;font-size:13px">Could not process report</strong>'+
+      '<div style="font-size:12px;color:#6b7280;font-family:monospace;word-break:break-all">'+esc(e.message)+'</div>'+
+      '<div style="font-size:12px;color:#6b7280;margin-top:8px">Tip: Save the PDF as a .txt file first for best results.</div>'+
+      '</div>';
   }
 }
 
