@@ -293,7 +293,7 @@ var wbrLoaded         = true;
 var devLoaded         = true;
 var digestCache       = null; /* cleared — new WBR + dev data loaded */
 var digestDate        = null;
-var selectedMeetType  = 'Board meeting';
+
 var nearbyOrgId       = null;
 
 /* ─── SUPABASE ─── */
@@ -1148,9 +1148,6 @@ function renderMeetingPrep(){
   var el=document.getElementById('sec-meetingprep');
   if(!el||el.innerHTML.trim()) return;
   window._researchContactId=null; /* clear any stale research link */
-  var types=['Board meeting','Investor check-in','Operations review','Nonprofit / Red Raider','New partner / vendor','Media / PR','1-on-1 leadership'];
-  var tags=types.map(function(t){ return '<button class="ai-tag'+(t===selectedMeetType?' active':'')+'" onclick="selectMeetType(this,\''+t.replace(/'/g,"\\'")+'\')" >'+t+'</button>'; }).join('');
-
   /* Build contact dropdown */
   var ctOpts='<option value="">-- Select an existing contact --</option>';
   var sorted=contacts.slice().sort(function(a,b){return(a.name||'').localeCompare(b.name||'');});
@@ -1165,7 +1162,6 @@ function renderMeetingPrep(){
     '<div style="text-align:center;font-size:11px;color:var(--muted);margin:2px 0 10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">— or enter manually below —</div>'+
     '<div class="ai-form-row"><label>Full name</label><input type="text" id="mp-person" placeholder="e.g. John Smith"></div>'+
     '<div class="ai-form-row"><label>Their company or organization</label><input type="text" id="mp-company" placeholder="e.g. Franchise Equity Partners"></div>'+
-    '<div class="ai-form-row"><label>Meeting type</label><div class="tag-row">'+tags+'</div></div>'+
     '<div class="ai-form-row"><label>Anything you know (optional)</label><textarea id="mp-notes" placeholder="e.g. Board holdover from Masked Rider Capital, focused on labor costs..."></textarea></div>'+
     '<div class="ai-form-row"><label>Meeting goal (optional)</label><input type="text" id="mp-goal" placeholder="e.g. Q1 review, expansion discussion"></div>'+
     '<button class="btn-gen" id="mp-btn" onclick="generateBrief()">Research &amp; build brief ↗</button>'+
@@ -1217,7 +1213,6 @@ function fillFromContact(id){
     '</div>';
 }
 
-function selectMeetType(el,t){ selectedMeetType=t; document.querySelectorAll('.ai-tag').forEach(function(b){b.classList.remove('active');}); el.classList.add('active'); }
 
 async function generateBrief(){
   var person=(document.getElementById('mp-person').value||'').trim();
@@ -1228,7 +1223,7 @@ async function generateBrief(){
   var btn=document.getElementById('mp-btn');
   btn.disabled=true; btn.textContent='Researching & building...';
   document.getElementById('mp-out').innerHTML='<div class="loading-dots" style="margin-top:12px"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>Researching '+esc(person)+'...</span></div>';
-  var sys='You are a sharp executive research assistant for Kendra Burris, CEO of 7Crew Enterprises (75-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Use web search to research the person and BUILD ON any existing notes provided — do not repeat what is already known, add to it. Return ONLY valid JSON starting with { ending with }: {"researched_bio":"string — combine web research with existing notes into one updated bio","snapshot":"string — why THIS meeting matters right now","talking_points":["string — specific, actionable, reference existing relationship context"],"numbers_to_know":[{"label":"string","value":"string"}],"things_to_watch":"string","suggested_questions":["string — build on prior conversations if notes exist"],"research_sources":["string"]}. No markdown, no backticks.';
+  var sys='You are a sharp executive research assistant for Kendra Burris, CEO of 7Crew Enterprises (75-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Use web search to research the person and BUILD ON any existing notes provided — do not repeat what is already known, add to it. Return ONLY valid JSON starting with { ending with }: {"researched_bio":"string — combine web research with existing notes into one updated bio","snapshot":"string — why this person matters and what to focus on","talking_points":["string — specific, actionable, reference existing relationship context"],"numbers_to_know":[{"label":"string","value":"string"}],"things_to_watch":"string","suggested_questions":["string — build on prior conversations if notes exist"],"research_sources":["string"]}. No markdown, no backticks.';
   /* Pull existing contact data if one is selected */
   var existingContact = window._researchContactId ? gc(window._researchContactId) : null;
   var existingNotes = existingContact && existingContact.notes ? existingContact.notes : (notes||'');
@@ -1238,7 +1233,7 @@ async function generateBrief(){
   var user='Research and build a meeting prep brief. Use the existing notes as the foundation — build on them, do not repeat what we already know.'+
     '\nName: '+person+
     '\nCompany: '+(company||'Unknown')+
-    '\nMeeting type: '+selectedMeetType+
+    
     '\nMeeting goal: '+(goal||'General')+
     (existingMetAt ? '\nHow we know them: '+existingMetAt : '')+
     (existingLastContact ? '\nLast contact: '+existingLastContact : '')+
@@ -1248,7 +1243,7 @@ async function generateBrief(){
     var raw=await callClaudeLong(sys,user,true);
     var d=safeJSON(raw);
     var now=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    var html='<div class="brief-out"><div class="brief-head"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><h3>'+esc(person)+'</h3><p>'+esc(selectedMeetType)+(company?' · '+esc(company):'')+'</p></div><span style="background:var(--red);font-size:10px;padding:2px 8px;border-radius:3px;font-weight:700;color:#fff;flex-shrink:0">'+now+'</span></div></div><div class="brief-body">';
+    var html='<div class="brief-out"><div class="brief-head"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><h3>'+esc(person)+'</h3>'+(company?'<p>'+esc(company)+'</p>':'')+'</div><span style="background:var(--red);font-size:10px;padding:2px 8px;border-radius:3px;font-weight:700;color:#fff;flex-shrink:0">'+now+'</span></div></div><div class="brief-body">';
     if(d.research_sources&&d.research_sources.length) html+='<div style="font-size:10px;color:#6b7280;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">🔍 AI-researched · '+d.research_sources.join(', ')+'</div>';
     html+='<div class="brief-sec-label">Who they are</div><p class="brief-text">'+d.researched_bio+'</p>';
     html+='<div class="brief-sec-label">Why this meeting matters</div><p class="brief-text">'+d.snapshot+'</p>';
