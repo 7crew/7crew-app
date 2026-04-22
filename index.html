@@ -340,7 +340,8 @@ function fetchFromSupa(){
             photo:r.photo||'', metAt:r.met_at||'', lastContact:r.last_contact||'',
             notes:r.notes||'',
             companies: Array.isArray(r.companies)?r.companies:(r.companies?JSON.parse(r.companies):[]),
-            assistants:Array.isArray(r.assistants)?r.assistants:(r.assistants?JSON.parse(r.assistants):[])
+            assistants:Array.isArray(r.assistants)?r.assistants:(r.assistants?JSON.parse(r.assistants):[]),
+            documents:Array.isArray(r.documents)?r.documents:(r.documents?JSON.parse(r.documents):[])
           };
         });
       }
@@ -370,7 +371,7 @@ function fetchFromSupa(){
 function upsertContact(c){
   var row={id:c.id,name:c.name,role:c.role,phone:c.phone,email:c.email,linkedin:c.linkedin,
     website:c.website,photo:c.photo,met_at:c.metAt,last_contact:c.lastContact,
-    notes:c.notes,companies:c.companies,assistants:c.assistants};
+    notes:c.notes,companies:c.companies,assistants:c.assistants,documents:c.documents||[]};
   return supa('contacts?id=eq.'+c.id,'DELETE').catch(function(){}).then(function(){ return supa('contacts','POST',row); });
 }
 function upsertOrg(o){
@@ -585,6 +586,22 @@ function viewContact(id){
     /* Assistants */
     ah+
 
+    /* Documents */
+    (c.documents&&c.documents.length?
+      '<div style="margin-top:4px"><div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-bottom:8px;border-top:1px solid var(--border);padding-top:14px">Documents &amp; Links</div>'+
+      c.documents.map(function(doc){
+        return '<a href="'+doc.url+'" target="_blank" style="display:flex;align-items:center;gap:10px;background:#f8f8f8;border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:8px;text-decoration:none;color:var(--black)">'+
+          '<span style="font-size:20px;flex-shrink:0">📄</span>'+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="font-size:13px;font-weight:700;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(doc.title)+'</div>'+
+            '<div style="font-size:11px;color:var(--blue);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(doc.url)+'</div>'+
+          '</div>'+
+          '<span style="font-size:18px;color:var(--blue);flex-shrink:0">↗</span>'+
+        '</a>';
+      }).join('')+
+      '</div>'
+    : '')+
+
     /* Bottom actions */
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">'+
       '<button class="btn-sec" onclick="openEdit('+c.id+')" style="margin-top:0">✎ Edit</button>'+
@@ -645,6 +662,8 @@ function buildCF(c){
   var assts=c?(c.assistants||[]):[];
   var ch=''; for(var i=0;i<comps.length;i++) ch+=mAB(comps[i],i);
   var ah=''; for(var i=0;i<assts.length;i++) ah+=mBB(assts[i],i);
+  var docsArr=c?(c.documents||[]):[];
+  var dh=''; for(var i=0;i<docsArr.length;i++) dh+=mDB(docsArr[i],i);
   document.getElementById('sheet-body').innerHTML=
     '<div class="form-2col"><div class="form-row"><label>Full name</label><input id="fn" value="'+esc(c?c.name:'')+'" placeholder="First Last"></div><div class="form-row"><label>Role / title</label><input id="fr" value="'+esc(c?c.role||'':'')+'" placeholder="CEO, COO..."></div></div>'+
     '<div class="form-2col"><div class="form-row"><label>Phone</label><input id="fp" type="tel" value="'+esc(c?c.phone||'':'')+'" placeholder="555-000-0000"></div><div class="form-row"><label>Email</label><input id="fe" type="email" value="'+esc(c?c.email||'':'')+'" placeholder="name@co.com"></div></div>'+
@@ -655,8 +674,18 @@ function buildCF(c){
     '<div class="form-row"><label>Last contact date</label><input id="flc" type="text" value="'+esc(c?c.lastContact||'':'')+'" placeholder="e.g. Talked at 7Brew Conference"></div>'+
     '<div class="form-row"><label>Notes</label><textarea id="fno">'+esc(c?c.notes||'':'')+'</textarea></div>'+
     '<div class="divider">Assistants / Additional contacts</div><div id="asst-list">'+ah+'</div><button class="add-more" onclick="addB()">+ Add assistant or contact</button>'+
+    '<div class="divider">Documents &amp; Links</div><div id="docs-list">'+dh+'</div><button class="add-more" onclick="addDoc()">+ Add document or link</button>'+
     '<button class="btn-save" onclick="saveC()">Save contact</button>';
 }
+function mDB(doc,i){
+  return '<div class="sub-block doc-block" id="d'+i+'">'+
+    '<button class="sub-remove" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">x</button>'+
+    '<div class="form-row"><label>Title</label><input class="doc-title" value="'+esc((doc&&doc.title)||'')+'" placeholder="e.g. Q1 Report, Franchise Agreement..."></div>'+
+    '<div class="form-row"><label>Google Drive / Dropbox link</label><input class="doc-url" type="url" value="'+esc((doc&&doc.url)||'')+'" placeholder="https://drive.google.com/..."></div>'+
+  '</div>';
+}
+var dIdx=200;
+function addDoc(){ var l=document.getElementById('docs-list'); var d=document.createElement('div'); d.innerHTML=mDB({title:'',url:''},dIdx++); l.appendChild(d.firstChild); }
 function addA(){ var l=document.getElementById('assoc-list'); var d=document.createElement('div'); d.innerHTML=mAB({name:'',type:'Franchisee'},aIdx++); l.appendChild(d.firstChild); }
 function addB(){ var l=document.getElementById('asst-list'); var d=document.createElement('div'); d.innerHTML=mBB({name:'',role:'',phone:'',email:''},bIdx++); l.appendChild(d.firstChild); }
 
@@ -681,7 +710,14 @@ function saveC(){
     var an=(bb[i].querySelector('.asst-name')||{value:''}).value.trim(); if(!an) continue;
     assts.push({name:an,role:(bb[i].querySelector('.asst-role')||{value:''}).value.trim(),phone:(bb[i].querySelector('.asst-phone')||{value:''}).value.trim(),email:(bb[i].querySelector('.asst-email')||{value:''}).value.trim()});
   }
-  var data={name:name,role:(document.getElementById('fr').value||'').trim(),phone:(document.getElementById('fp').value||'').trim(),email:(document.getElementById('fe').value||'').trim(),linkedin:(document.getElementById('fli').value||'').trim(),website:(document.getElementById('fweb').value||'').trim(),photo:(document.getElementById('fph').value||'').trim(),metAt:(document.getElementById('fm').value||'').trim(),lastContact:(document.getElementById('flc').value||'').trim(),notes:(document.getElementById('fno').value||'').trim(),companies:cos,assistants:assts};
+  var docs=[];
+  var db=document.querySelectorAll('#docs-list .doc-block');
+  for(var i=0;i<db.length;i++){
+    var dtitle=(db[i].querySelector('.doc-title')||{value:''}).value.trim();
+    var durl=(db[i].querySelector('.doc-url')||{value:''}).value.trim();
+    if(durl) docs.push({title:dtitle||durl,url:durl});
+  }
+  var data={name:name,role:(document.getElementById('fr').value||'').trim(),phone:(document.getElementById('fp').value||'').trim(),email:(document.getElementById('fe').value||'').trim(),linkedin:(document.getElementById('fli').value||'').trim(),website:(document.getElementById('fweb').value||'').trim(),photo:(document.getElementById('fph').value||'').trim(),metAt:(document.getElementById('fm').value||'').trim(),lastContact:(document.getElementById('flc').value||'').trim(),notes:(document.getElementById('fno').value||'').trim(),companies:cos,assistants:assts,documents:docs};
   var cid;
   if(editId){ for(var k=0;k<contacts.length;k++){ if(contacts[k].id===editId){ contacts[k]=Object.assign({},contacts[k],data); break; } } cid=editId; }
   else{ data.id=nid++; contacts.push(data); cid=data.id; }
