@@ -668,8 +668,18 @@ function buildCF(c){
     '<div class="form-2col"><div class="form-row"><label>Full name</label><input id="fn" value="'+esc(c?c.name:'')+'" placeholder="First Last"></div><div class="form-row"><label>Role / title</label><input id="fr" value="'+esc(c?c.role||'':'')+'" placeholder="CEO, COO..."></div></div>'+
     '<div class="form-2col"><div class="form-row"><label>Phone</label><input id="fp" type="tel" value="'+esc(c?c.phone||'':'')+'" placeholder="555-000-0000"></div><div class="form-row"><label>Email</label><input id="fe" type="email" value="'+esc(c?c.email||'':'')+'" placeholder="name@co.com"></div></div>'+
     '<div class="form-2col"><div class="form-row"><label>LinkedIn</label><input id="fli" type="url" value="'+esc(c?c.linkedin||'':'')+'" placeholder="linkedin.com/in/name"></div><div class="form-row"><label>Website</label><input id="fweb" type="url" value="'+esc(c?c.website||'':'')+'" placeholder="www.company.com"></div></div>'+
-    '<div class="form-row"><label>Photo URL</label><input id="fph" value="'+esc(c?c.photo||'':'')+'" placeholder="https://..."></div>'+
-    '<div class="divider">Company affiliations</div><div id="assoc-list">'+ch+'</div><button class="add-more" onclick="addA()">+ Add another company</button>'+
+    '<div class="form-row"><label>Photo</label>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'+
+      '<div id="fph-preview" style="width:56px;height:56px;border-radius:50%;background:var(--black);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;overflow:hidden;flex-shrink:0;border:2px solid var(--border)">'+(c&&c.photo?'<img src="'+esc(c.photo||'')+'" style="width:100%;height:100%;object-fit:cover">':'📷')+'</div>'+
+      '<div style="flex:1">'+
+        '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">'+
+          '📷 Upload photo'+
+          '<input type="file" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">'+
+        '</label>'+
+        '<div style="font-size:11px;color:var(--muted);margin-top:5px">JPG, PNG · Will be stored as link</div>'+
+      '</div>'+
+    '</div>'+
+    '<input type="hidden" id="fph" value="'+esc(c?c.photo||'':'')+'">'+'</div>'+    '<div class="divider">Company affiliations</div><div id="assoc-list">'+ch+'</div><button class="add-more" onclick="addA()">+ Add another company</button>'+
     '<div class="form-row"><label>Where you met</label><input id="fm" value="'+esc(c?c.metAt||'':'')+'" placeholder="e.g. Franchisee Summit 2024"></div>'+
     '<div class="form-row"><label>Last contact date</label><input id="flc" type="text" value="'+esc(c?c.lastContact||'':'')+'" placeholder="e.g. Talked at 7Brew Conference"></div>'+
     '<div class="form-row"><label>Notes</label><textarea id="fno">'+esc(c?c.notes||'':'')+'</textarea></div>'+
@@ -686,6 +696,22 @@ function mDB(doc,i){
 }
 var dIdx=200;
 function addDoc(){ var l=document.getElementById('docs-list'); var d=document.createElement('div'); d.innerHTML=mDB({title:'',url:''},dIdx++); l.appendChild(d.firstChild); }
+function handlePhotoUpload(input){
+  if(!input.files||!input.files[0]) return;
+  var file=input.files[0];
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var dataUrl=e.target.result;
+    /* Store in hidden input */
+    var fph=document.getElementById('fph');
+    if(fph) fph.value=dataUrl;
+    /* Update preview */
+    var preview=document.getElementById('fph-preview');
+    if(preview) preview.innerHTML='<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  };
+  reader.readAsDataURL(file);
+}
+
 function addA(){ var l=document.getElementById('assoc-list'); var d=document.createElement('div'); d.innerHTML=mAB({name:'',type:'Franchisee'},aIdx++); l.appendChild(d.firstChild); }
 function addB(){ var l=document.getElementById('asst-list'); var d=document.createElement('div'); d.innerHTML=mBB({name:'',role:'',phone:'',email:''},bIdx++); l.appendChild(d.firstChild); }
 
