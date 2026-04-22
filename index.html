@@ -1173,7 +1173,7 @@ function renderWBR(){
   el.innerHTML='<div class="ai-section"><h2>Weekly Business Review</h2>'+
     '<div class="ai-card" style="margin-bottom:14px"><div class="ai-card-head" style="display:flex;justify-content:space-between;align-items:center"><span>Upload New Report</span>'+(loaded?'<span class="badge-r">✓ Loaded</span>':'<span style="font-size:10px;color:#aaa;font-weight:600">No file loaded</span>')+'</div>'+
     '<div class="ai-card-body" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
-    '<label style="display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;padding:10px 18px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:inherit">📄 Choose PDF<input type="file" accept=".pdf" style="display:none" onchange="processWBR(this)"></label>'+
+    '<label style="display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;padding:10px 18px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:inherit">📄 Choose PDF or TXT<input type="file" accept=".pdf,.txt,text/plain" style="display:none" onchange="processWBR(this)"></label>'+
     '<span id="wbr-filename" style="font-size:12px;color:#6b7280;font-weight:600">'+(loaded?'Report loaded — upload new to replace':'No file chosen')+'</span>'+
     '</div></div>'+
     '<div id="wbr-content">'+(wbrData||buildUploadPrompt('Upload your WBR PDF to see the full store rankings and performance data.'))+'</div>'+
@@ -1193,11 +1193,24 @@ async function processWBR(input){
   };
 
   try{
-    setStatus('Step 1 of 3 — Reading PDF...');
+    var pdfText = '';
 
-    /* Extract text from PDF using PDF.js — avoids sending binary to API */
-    var pdfText = await extractPDFText(file);
-    if(!pdfText || pdfText.length < 100) throw new Error('Could not extract text from PDF — is it a scanned image?');
+    if(file.name.toLowerCase().endsWith('.txt')){
+      /* TXT file — read directly, no PDF extraction needed */
+      setStatus('Step 1 of 3 — Reading text file...');
+      pdfText = await new Promise(function(resolve,reject){
+        var reader=new FileReader();
+        reader.onload=function(e){ resolve(e.target.result); };
+        reader.onerror=reject;
+        reader.readAsText(file);
+      });
+    } else {
+      /* PDF file — extract text with PDF.js */
+      setStatus('Step 1 of 3 — Reading PDF...');
+      pdfText = await extractPDFText(file);
+    }
+
+    if(!pdfText || pdfText.length < 100) throw new Error('Could not extract text from file — try copying and pasting the WBR content into a .txt file.');
 
     setStatus('Step 2 of 3 — Parsing store data (this takes ~15 seconds)...');
 
