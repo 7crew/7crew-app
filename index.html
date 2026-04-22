@@ -31,12 +31,12 @@ a{color:inherit;text-decoration:none}
 .btn-add{padding:10px 18px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.04em}
 .content{padding:12px 16px 40px}
 .section{display:none}.section.active{display:block}
-.contact-card{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:8px;padding:14px;margin-bottom:10px;cursor:pointer}
+.contact-card{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:10px;padding:16px;margin-bottom:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 .card-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;background:var(--black);color:#fff;overflow:hidden;border:2px solid var(--blue)}
+.avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0;background:var(--black);color:#fff;overflow:hidden;border:2px solid var(--blue)}
 .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.card-name{font-size:15px;font-weight:700;color:var(--black)}
-.card-role{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.card-name{font-size:16px;font-weight:800;color:var(--black)}
+.card-role{font-size:12px;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
 .tag{font-size:11px;padding:3px 9px;border-radius:4px;border:1px solid var(--border);color:var(--muted);background:#f8f8f8;font-weight:500}
 .tag.co{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:600;cursor:pointer}
@@ -60,7 +60,7 @@ a{color:inherit;text-decoration:none}
 .view-btn{font-size:10px;color:var(--blue);font-weight:700;padding:4px 10px;border-radius:4px;background:#fff;border:1px solid var(--blue);cursor:pointer;margin-left:auto;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em;font-family:inherit}
 .overlay{position:fixed;inset:0;background:rgba(12,10,10,0.6);z-index:100;display:none}
 .overlay.open{display:block}
-.sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:16px 16px 0 0;padding:16px 18px 40px;max-height:92vh;overflow-y:auto;z-index:101;transform:translateY(100%);transition:transform 0.3s ease}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:16px 16px 0 0;padding:16px 18px 50px;max-height:96vh;overflow-y:auto;z-index:101;transform:translateY(100%);transition:transform 0.3s ease}
 .sheet.open{transform:translateY(0)}
 .sheet-handle{width:36px;height:4px;background:var(--gray);border-radius:2px;margin:0 auto 16px}
 .sheet-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:2px solid var(--blue);padding-bottom:12px}
@@ -83,7 +83,7 @@ a{color:inherit;text-decoration:none}
 .info-lbl{color:var(--muted);flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
 .info-val{color:var(--black);font-weight:600;text-align:right;margin-left:12px}
 .info-val a{color:var(--red)}
-.notes-box{background:#f8f8f8;border-radius:6px;padding:12px;font-size:13px;color:var(--muted);line-height:1.6;border-left:3px solid var(--blue-light);margin-top:4px}
+.notes-box{background:#f8f8f8;border-radius:8px;padding:14px 16px;font-size:14px;color:#374151;line-height:1.8;border-left:3px solid var(--blue-light);margin-top:4px}
 .back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;font-size:11px;color:var(--blue);cursor:pointer;margin-bottom:16px;font-weight:700;padding:0;text-transform:uppercase;letter-spacing:.05em;font-family:inherit}
 .detail-av{width:64px;height:64px;border-radius:50%;background:var(--black);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0;overflow:hidden;border:3px solid var(--blue)}
 .detail-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
@@ -483,52 +483,96 @@ function openMap(q){ window.open('https://www.google.com/maps/search/?api=1&quer
 
 function viewContact(id){
   var c=gc(id); if(!c) return;
-  var av=c.photo?'<img src="'+c.photo+'">':ini(c.name);
+  var av=c.photo?'<img src="'+c.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':ini(c.name);
+
+  /* Company tags */
   var tg='';
   for(var j=0;j<(c.companies||[]).length;j++){
     var coName=c.companies[j].name; var oid=findOrg(coName);
-    tg += oid ? '<span class="tag co linked" onclick="viewOrg('+oid+')" style="cursor:pointer">'+coName+' &rsaquo;</span>' : '<span class="tag co">'+coName+'</span>';
+    tg += oid
+      ? '<span class="tag co linked" onclick="viewOrg('+oid+')" style="cursor:pointer">'+coName+' &rsaquo;</span>'
+      : '<span class="tag co">'+coName+'</span>';
   }
-  var inf='';
-  if(c.phone) inf+='<div class="info-row"><span class="info-lbl">Phone</span><span class="info-val"><a href="tel:'+c.phone+'">'+c.phone+'</a></span></div>';
-  if(c.email) inf+='<div class="info-row"><span class="info-lbl">Email</span><span class="info-val" style="font-size:12px"><a href="mailto:'+c.email+'">'+c.email+'</a></span></div>';
-  if(c.linkedin) inf+='<div class="info-row"><span class="info-lbl">LinkedIn</span><span class="info-val"><a href="'+c.linkedin+'" target="_blank" style="color:var(--red)">View Profile</a></span></div>';
-  if(c.website) inf+='<div class="info-row"><span class="info-lbl">Website</span><span class="info-val" style="font-size:12px"><a href="'+c.website+'" target="_blank" style="color:var(--red)">'+c.website+'</a></span></div>';
-  if(c.metAt) inf+='<div class="info-row"><span class="info-lbl">Where met</span><span class="info-val">'+c.metAt+'</span></div>';
-  if(c.lastContact) inf+='<div class="info-row"><span class="info-lbl">Last contacted</span><span class="info-val">'+c.lastContact+'</span></div>';
-  var nt=c.notes?'<div style="font-size:10px;color:var(--red);margin-top:14px;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">Notes</div><div class="notes-box">'+c.notes+'</div>':'';
+
+  /* Quick-action contact buttons */
+  var actions='<div style="display:flex;gap:8px;margin:14px 0;flex-wrap:wrap">';
+  if(c.phone)  actions+='<a href="tel:'+c.phone+'" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:11px 8px;font-size:12px;font-weight:700;color:#16a34a;text-decoration:none;font-family:inherit">📞 Call</a>';
+  if(c.email)  actions+='<a href="mailto:'+c.email+'" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:11px 8px;font-size:12px;font-weight:700;color:#0056B4;text-decoration:none;font-family:inherit">✉ Email</a>';
+  if(c.linkedin) actions+='<a href="'+c.linkedin+'" target="_blank" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;background:#f8faff;border:1px solid #c7d2fe;border-radius:8px;padding:11px 8px;font-size:12px;font-weight:700;color:#4f46e5;text-decoration:none;font-family:inherit">🔗 LinkedIn</a>';
+  actions+='</div>';
+
+  /* Info pills row */
+  var pills='';
+  if(c.metAt)       pills+='<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:8px"><div style="font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Where we met</div><div style="font-size:13px;color:var(--black);font-weight:600">'+esc(c.metAt)+'</div></div>';
+  if(c.lastContact) pills+='<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:8px"><div style="font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Last contact</div><div style="font-size:13px;color:var(--black);font-weight:600">'+esc(c.lastContact)+'</div></div>';
+  if(c.website)     pills+='<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:8px"><div style="font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Website</div><a href="'+c.website+'" target="_blank" style="font-size:13px;color:var(--blue);font-weight:600;word-break:break-all">'+esc(c.website)+'</a></div>';
+
+  /* Notes — rendered as readable paragraphs */
+  var nt='';
+  if(c.notes){
+    var paras=c.notes.trim().split(/\n\n+/);
+    var rendered=paras.map(function(p){
+      return '<p style="margin:0 0 10px;font-size:13px;color:#374151;line-height:1.7">'+esc(p.trim()).replace(/\n/g,'<br>')+'</p>';
+    }).join('');
+    nt='<div style="margin-top:4px">'+
+       '<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--red)">Notes</div>'+
+       '<div style="line-height:1.7">'+rendered+'</div>'+
+       '</div>';
+  }
+
+  /* Assistants */
   var ah='';
   if(c.assistants&&c.assistants.length){
-    ah='<div class="divider">Assistants / Additional Contacts</div>';
+    ah='<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">'+
+       '<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Assistants & Additional Contacts</div>';
     for(var k=0;k<c.assistants.length;k++){
       var a=c.assistants[k];
-      ah+='<div class="sub-block"><div style="font-size:14px;font-weight:700;margin-bottom:4px">'+a.name+'</div>';
-      if(a.role) ah+='<div style="font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">'+a.role+'</div>';
-      if(a.phone) ah+='<div style="font-size:13px;color:var(--muted)"><a href="tel:'+a.phone+'" style="color:var(--red)">'+a.phone+'</a></div>';
-      if(a.email) ah+='<div style="font-size:12px;color:var(--muted)"><a href="mailto:'+a.email+'" style="color:var(--red)">'+a.email+'</a></div>';
-      ah+='</div>';
+      ah+='<div style="background:#f8f8f8;border-radius:8px;padding:12px;margin-bottom:8px;border-left:3px solid var(--blue-mid)">';
+      ah+='<div style="font-size:14px;font-weight:700;color:var(--black)">'+esc(a.name)+'</div>';
+      if(a.role) ah+='<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px">'+esc(a.role)+'</div>';
+      ah+='<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">';
+      if(a.phone) ah+='<a href="tel:'+a.phone+'" style="font-size:12px;color:var(--red);font-weight:700;text-decoration:none">📞 '+esc(a.phone)+'</a>';
+      if(a.email) ah+='<a href="mailto:'+a.email+'" style="font-size:12px;color:var(--red);font-weight:700;text-decoration:none">✉ '+esc(a.email)+'</a>';
+      ah+='</div></div>';
     }
+    ah+='</div>';
   }
-  var coName = (c.companies&&c.companies.length) ? c.companies[0].name : '';
-  document.getElementById('sheet-title').textContent = c.name;
-  document.getElementById('sheet-body').innerHTML =
-    '<button class="back-btn" onclick="closeSheet()">&#8592; Back</button>'+
-    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">'+
-      '<div class="detail-av">'+av+'</div>'+
-      '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:19px;font-weight:800">'+c.name+'</div>'+
-        '<div style="font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.05em">'+c.role+'</div>'+
-        (coName?'<div style="font-size:12px;color:var(--blue);margin-top:2px;font-weight:600">'+coName+'</div>':'')+
-        '<div class="tags" style="margin-top:8px">'+tg+'</div>'+
+
+  document.getElementById('sheet-title').textContent='';
+  document.getElementById('sheet-body').innerHTML=
+
+    /* Header — full width hero */
+    '<div style="background:var(--black);margin:-16px -18px 0;padding:20px 18px 16px;border-radius:16px 16px 0 0">'+
+      '<button class="back-btn" onclick="closeSheet()" style="color:#c0c2c4;margin-bottom:12px">&#8592; Back</button>'+
+      '<div style="display:flex;align-items:center;gap:14px">'+
+        '<div style="width:72px;height:72px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;flex-shrink:0;overflow:hidden;border:3px solid rgba(255,255,255,0.2)">'+av+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:22px;font-weight:800;color:#fff;line-height:1.1">'+esc(c.name)+'</div>'+
+          '<div style="font-size:12px;color:#c0c2c4;margin-top:4px;text-transform:uppercase;letter-spacing:.05em">'+esc(c.role)+'</div>'+
+          '<div class="tags" style="margin-top:8px">'+tg+'</div>'+
+        '</div>'+
       '</div>'+
     '</div>'+
-    (inf||'<div style="padding:12px 0;font-size:13px;color:var(--muted)">No contact info saved yet.</div>')+
-    nt+ah+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">'+
+
+    /* Quick actions */
+    '<div style="padding:0 0 4px">'+actions+'</div>'+
+
+    /* Info pills */
+    (pills ? '<div style="margin-bottom:4px">'+pills+'</div>' : '')+
+
+    /* Notes section */
+    (nt ? '<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px">'+nt+'</div>' : '')+
+
+    /* Assistants */
+    ah+
+
+    /* Bottom actions */
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">'+
       '<button class="btn-sec" onclick="openEdit('+c.id+')" style="margin-top:0">✎ Edit</button>'+
       '<button class="btn-sec" onclick="researchContact('+c.id+')" style="margin-top:0;color:var(--blue);border-color:var(--blue)">🔍 Research</button>'+
     '</div>'+
     '<button class="btn-del" onclick="delContact('+c.id+')">Delete contact</button>';
+
   openSheet();
 }
 
@@ -1126,26 +1170,31 @@ function fillFromContact(id){
   if(noEl) noEl.placeholder='Add any specific context for THIS meeting (existing contact notes will be included automatically)...';
 
   /* Build rich context banner */
+  /* Build rich context banner */
   var hasNotes = c.notes && c.notes.trim().length > 0;
-  var noteLines = hasNotes ? c.notes.trim().split('\n').slice(0,3) : [];
-  var preview = noteLines.map(function(l){ return '<div style="font-size:10px;color:#374151;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(l)+'</div>'; }).join('');
+  var preview = hasNotes ? esc(c.notes.trim().slice(0,300))+(c.notes.length>300?'...':'') : '';
 
   var note=document.getElementById('mp-contact-note');
   if(note) note.innerHTML=
     '<div style="background:#e8f4fd;border:1px solid #93c5fd;border-radius:6px;padding:12px;margin-bottom:10px">'+
-      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'+
-        '<span style="font-size:16px">🔗</span>'+
-        '<div>'+
-          '<div style="font-size:12px;color:#0056B4;font-weight:700">Linked to: '+esc(c.name)+'</div>'+
-          '<div style="font-size:10px;color:#6b7280">Brief will auto-save · Existing notes included in research</div>'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+        '<span style="font-size:18px">🔗</span>'+
+        '<div style="flex:1">'+
+          '<div style="font-size:13px;color:#0056B4;font-weight:800">'+esc(c.name)+'</div>'+
+          '<div style="font-size:10px;color:#6b7280;margin-top:1px">Brief will auto-save to this contact &middot; Existing info included in research</div>'+
         '</div>'+
+        '<button onclick="window._researchContactId=null;document.getElementById(\'mp-contact-note\').innerHTML=\'\';document.getElementById(\'mp-person\').value=\'\';document.getElementById(\'mp-company\').value=\'\';document.getElementById(\'mp-contact-select\').value=\'\'" style="background:none;border:1px solid #93c5fd;border-radius:4px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;color:#0056B4;font-family:inherit">✕ Unlink</button>'+
       '</div>'+
-      (c.lastContact?'<div style="font-size:11px;color:#374151;margin-bottom:4px"><strong>Last contact:</strong> '+esc(c.lastContact)+'</div>':'')+
-      (c.metAt?'<div style="font-size:11px;color:#374151;margin-bottom:4px"><strong>Where met:</strong> '+esc(c.metAt)+'</div>':'')+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:11px">'+
+        (c.role?'<span style="background:#fff;border:1px solid #bfdbfe;padding:2px 8px;border-radius:3px;color:#374151"><strong>Role:</strong> '+esc(c.role)+'</span>':'')+
+        (c.companies&&c.companies.length?'<span style="background:#fff;border:1px solid #bfdbfe;padding:2px 8px;border-radius:3px;color:#374151"><strong>Co:</strong> '+esc(c.companies[0].name)+'</span>':'')+
+        (c.lastContact?'<span style="background:#fff;border:1px solid #bfdbfe;padding:2px 8px;border-radius:3px;color:#374151"><strong>Last contact:</strong> '+esc(c.lastContact)+'</span>':'')+
+        (c.metAt?'<span style="background:#fff;border:1px solid #bfdbfe;padding:2px 8px;border-radius:3px;color:#374151"><strong>Met at:</strong> '+esc(c.metAt)+'</span>':'')+
+      '</div>'+
       (hasNotes?
-        '<div style="font-size:10px;font-weight:700;color:#0056B4;text-transform:uppercase;letter-spacing:.05em;margin-top:6px;margin-bottom:3px">Existing notes ('+c.notes.length+' chars):</div>'+
-        '<div style="background:#fff;border-radius:4px;padding:6px 8px;border:1px solid #bfdbfe;max-height:60px;overflow:hidden">'+preview+'</div>'
-        : '<div style="font-size:11px;color:#9ca3af;font-style:italic">No prior notes — AI will research from scratch</div>')+
+        '<div style="font-size:10px;font-weight:700;color:#0056B4;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Existing notes (will be included in AI brief):</div>'+
+        '<div style="background:#fff;border-radius:4px;padding:8px 10px;border:1px solid #bfdbfe;font-size:12px;color:#374151;line-height:1.5;white-space:pre-wrap;max-height:100px;overflow-y:auto">'+preview+'</div>'
+        : '<div style="font-size:11px;color:#9ca3af;font-style:italic">No prior notes — AI will research from scratch and save results here.</div>')+
     '</div>';
 }
 
