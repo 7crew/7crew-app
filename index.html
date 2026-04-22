@@ -494,11 +494,30 @@ function viewContact(id){
       : '<span class="tag co">'+coName+'</span>';
   }
 
-  /* Quick-action contact buttons */
-  var actions='<div style="display:flex;gap:8px;margin:14px 0;flex-wrap:wrap">';
-  if(c.phone)  actions+='<a href="tel:'+c.phone+'" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:11px 8px;font-size:12px;font-weight:700;color:#16a34a;text-decoration:none;font-family:inherit">📞 Call</a>';
-  if(c.email)  actions+='<a href="mailto:'+c.email+'" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:11px 8px;font-size:12px;font-weight:700;color:#0056B4;text-decoration:none;font-family:inherit">✉ Email</a>';
-  if(c.linkedin) actions+='<a href="'+c.linkedin+'" target="_blank" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;background:#f8faff;border:1px solid #c7d2fe;border-radius:8px;padding:11px 8px;font-size:12px;font-weight:700;color:#4f46e5;text-decoration:none;font-family:inherit">🔗 LinkedIn</a>';
+  /* Quick-action contact buttons + visible info */
+  var actions='<div style="margin:14px 0">';
+
+  if(c.phone){
+    actions+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;margin-bottom:8px">';
+    actions+='<a href="tel:'+c.phone+'" style="display:flex;align-items:center;gap:6px;background:#16a34a;color:#fff;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;text-decoration:none;font-family:inherit;flex-shrink:0">📞 Call</a>';
+    actions+='<span style="font-size:14px;font-weight:600;color:#374151;font-family:inherit;user-select:all">'+esc(c.phone)+'</span>';
+    actions+='</div>';
+  }
+
+  if(c.email){
+    actions+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;margin-bottom:8px">';
+    actions+='<a href="mailto:'+c.email+'" style="display:flex;align-items:center;gap:6px;background:#0056B4;color:#fff;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;text-decoration:none;font-family:inherit;flex-shrink:0">✉ Email</a>';
+    actions+='<span style="font-size:13px;font-weight:600;color:#374151;word-break:break-all;user-select:all">'+esc(c.email)+'</span>';
+    actions+='</div>';
+  }
+
+  if(c.linkedin){
+    actions+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8faff;border:1px solid #c7d2fe;border-radius:8px;margin-bottom:8px">';
+    actions+='<a href="'+c.linkedin+'" target="_blank" style="display:flex;align-items:center;gap:6px;background:#4f46e5;color:#fff;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;text-decoration:none;font-family:inherit;flex-shrink:0">🔗 LinkedIn</a>';
+    actions+='<span style="font-size:12px;color:#374151;word-break:break-all;user-select:all">'+esc(c.linkedin)+'</span>';
+    actions+='</div>';
+  }
+
   actions+='</div>';
 
   /* Info pills row */
