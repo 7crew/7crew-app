@@ -1185,89 +1185,155 @@ async function processWBR(input){
   var file=input.files[0];
   document.getElementById('wbr-filename').textContent=file.name;
 
-  var setStatus=function(msg){ document.getElementById('wbr-content').innerHTML='<div class="loading-dots" style="padding:20px 0"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>'+msg+'</span></div>'; };
+  var setStatus=function(msg){
+    document.getElementById('wbr-content').innerHTML=
+      '<div class="loading-dots" style="padding:20px 0">'+
+      '<div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div>'+
+      '<span>'+msg+'</span></div>';
+  };
 
   try{
-    var b64=await fileToBase64(file);
+    setStatus('Step 1 of 3 — Reading PDF...');
 
-    /* ── PASS 1: Extract raw store data as JSON (small, fast, <20s) ── */
-    setStatus('Step 1 of 2 — Extracting store data...');
-    var sys1='Extract ALL data from this 7Crew WBR PDF. Return ONLY valid JSON, no markdown: {"kpis":{"ytd":"","daily":"","run_rate":"","ticket":"","employees":"","l4a":"","arr":""},"week_dates":["","","",""],"stores":[{"rank":1,"name":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. Include every single store. Do not stop early.';
-    var rawJson=await callClaudeWithDoc(sys1,'Extract all store rows and KPIs. Return complete JSON with every store.',b64);
+    /* Extract text from PDF using PDF.js — avoids sending binary to API */
+    var pdfText = await extractPDFText(file);
+    if(!pdfText || pdfText.length < 100) throw new Error('Could not extract text from PDF — is it a scanned image?');
+
+    setStatus('Step 2 of 3 — Parsing store data (this takes ~15 seconds)...');
+
+    /* Send TEXT not binary — much faster, no timeout */
+    var sys1='You are parsing a 7Crew Enterprises Weekly Business Review. Extract ALL store data. Return ONLY valid JSON with no markdown: {"kpis":{"ytd":"","daily":"","run_rate":"","ticket":"","employees":"","l4a":"","arr":"","week_ending":""},"week_dates":["","","",""],"stores":[{"rank":1,"name":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. Include every single store row — do not stop early.';
+
+    var body={
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:4096,
+      system:sys1,
+      messages:[{role:'user',content:'Parse this WBR report and return complete JSON with ALL stores:\n\n'+pdfText.slice(0,60000)}]
+    };
+
+    var r=await fetch('/.netlify/functions/claude',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    var rawText=await r.text();
+    var d;
+    try{ d=JSON.parse(rawText); }
+    catch(e){ throw new Error('Bad response from function: '+rawText.slice(0,200)); }
+    if(d.error) throw new Error('API error: '+JSON.stringify(d.error));
+    if(!d.content||!Array.isArray(d.content)) throw new Error('No content in response');
+
+    var jsonText=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
 
     var parsed;
-    try{ parsed=safeJSON(rawJson); }
-    catch(e){ throw new Error('Could not parse store data: '+e.message); }
+    try{ parsed=safeJSON(jsonText); }
+    catch(e){ throw new Error('Could not parse store JSON: '+e.message+' Raw: '+jsonText.slice(0,300)); }
 
-    if(!parsed.stores||!parsed.stores.length) throw new Error('No store data found in PDF');
+    if(!parsed.stores||!parsed.stores.length) throw new Error('No stores found in response');
 
-    /* ── PASS 2: Extract metrics for digest (small separate call) ── */
-    setStatus('Step 2 of 2 — Building report ('+ parsed.stores.length +' stores found)...');
-    extractMetricsFromWBR(b64); // fire and forget
+    setStatus('Step 3 of 3 — Building report ('+parsed.stores.length+' stores)...');
 
-    /* ── Build HTML client-side from JSON — no token limit issues ── */
+    /* Build HTML client-side */
     var kp=parsed.kpis||{};
-    var html='<p style="font-size:11px;margin-bottom:10px;padding:8px 12px;background:#f8f8f8;border-radius:4px;line-height:1.8">';
-    html+='<strong>YTD:</strong> '+esc(kp.ytd||'—')+' &nbsp;|&nbsp; ';
-    html+='<strong>Daily Avg:</strong> '+esc(kp.daily||'—')+' &nbsp;|&nbsp; ';
-    html+='<strong>Run Rate:</strong> '+esc(kp.run_rate||'—')+' &nbsp;|&nbsp; ';
-    html+='<strong>Avg Ticket:</strong> '+esc(kp.ticket||'—')+' &nbsp;|&nbsp; ';
-    html+='<strong>Employees:</strong> '+esc(kp.employees||'—')+' &nbsp;|&nbsp; ';
-    html+='<strong>L4A:</strong> '+esc(kp.l4a||'—')+' &nbsp;|&nbsp; ';
-    html+='<strong>ARR:</strong> '+esc(kp.arr||'—')+'</p>';
+    var html='<div style="font-size:11px;padding:8px 12px;background:#f8f8f8;border-radius:4px;margin-bottom:10px;line-height:2">';
+    if(kp.week_ending) html+='<strong style="color:var(--red)">Week Ending: '+esc(kp.week_ending)+'</strong> &nbsp;|&nbsp; ';
+    html+=[ ['YTD Sales',kp.ytd], ['Avg Daily',kp.daily], ['Run Rate',kp.run_rate],
+            ['Avg Ticket',kp.ticket], ['Employees',kp.employees], ['L4A',kp.l4a], ['ARR',kp.arr]
+          ].filter(function(p){return p[1];}).map(function(p){return '<strong>'+p[0]+':</strong> '+esc(p[1]);}).join(' &nbsp;|&nbsp; ');
+    html+='</div>';
+
+    /* Legend */
+    html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">';
+    [['Elite','#e8f5e8','#1a7a1a'],['High Perform','#e8f0fb','#0056B4'],['On Track','#fdf3e3','#854F0B'],['Needs Growth','#fff3e0','#b35c00'],['At Risk','#fdecea','#cb2026'],['New Store','#fff','#6b7280']].forEach(function(t){
+      html+='<span style="background:'+t[1]+';color:'+t[2]+';padding:3px 8px;border-radius:3px;border:1px solid #e2e2e2">'+t[0]+'</span>';
+    });
+    html+='</div>';
 
     var dates=parsed.week_dates||['W.E 1','W.E 2','W.E 3','W.E 4'];
     html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
     html+='<thead><tr style="background:#0c0a0a;color:#fff">';
-    ['Rank','Store Name',dates[0]||'W.E 1',dates[1]||'W.E 2',dates[2]||'W.E 3',dates[3]||'W.E 4','SSS%','L4A Total','ARR/T13'].forEach(function(h){
-      html+='<th style="padding:6px 8px;text-align:left;white-space:nowrap">'+h+'</th>';
+    ['Rank','Store Name',dates[0],dates[1],dates[2],dates[3],'SSS%','L4A Total','ARR/T13'].forEach(function(h){
+      html+='<th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">'+esc(h)+'</th>';
     });
     html+='</tr></thead><tbody>';
 
     parsed.stores.forEach(function(s,i){
-      /* Color by L4A weekly average (L4A total / 4) */
       var l4aNum=parseFloat((s.l4a||'').toString().replace(/[$,]/g,''))||0;
-      var weekly=l4aNum/4;
+      var wkly=l4aNum/4;
       var bg;
-      if(s.is_new)              bg='#ffffff';
-      else if(weekly>=57500)    bg='#e8f5e8';  // Elite
-      else if(weekly>=52500)    bg='#e8f0fb';  // High Perform
-      else if(weekly>=47500)    bg='#fdf3e3';  // On Track
-      else if(weekly>=42500)    bg='#fff3e0';  // Needs Growth
-      else                      bg='#fdecea';  // At Risk
+      if(s.is_new)           bg='#ffffff';
+      else if(wkly>=57500)   bg='#e8f5e8';
+      else if(wkly>=52500)   bg='#e8f0fb';
+      else if(wkly>=47500)   bg='#fdf3e3';
+      else if(wkly>=42500)   bg='#fff3e0';
+      else                   bg='#fdecea';
+      if(i%2!==0){ /* slightly stripe */ }
 
-      var rowBg=i%2===0?bg:shadeColor(bg,-3);
-      html+='<tr style="background:'+rowBg+'">';
+      html+='<tr style="background:'+bg+'">';
       [s.rank,s.name,s.we1,s.we2,s.we3,s.we4,s.sss,s.l4a,s.arr].forEach(function(v){
-        html+='<td style="padding:5px 8px;border-bottom:1px solid #efefef">'+esc(String(v||'—'))+'</td>';
+        html+='<td style="padding:5px 8px;border-bottom:1px solid #efefef">'+esc(String(v==null?'—':v))+'</td>';
       });
       html+='</tr>';
     });
 
     html+='</tbody></table></div>';
-    html+='<div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">'+parsed.stores.length+' stores · Built from PDF '+new Date().toLocaleTimeString()+'</div>';
+    html+='<div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">'+
+          parsed.stores.length+' stores · '+new Date().toLocaleTimeString()+'</div>';
 
     wbrData=html; wbrLoaded=true;
     document.getElementById('wbr-content').innerHTML=html;
     saveReportToSupa('wbr',html,file.name);
-    digestCache=null;
+
+    /* Extract metrics for digest in background */
+    var metricsBody={
+      model:'claude-haiku-4-5-20251001',max_tokens:800,
+      system:'Extract key metrics from this WBR text. Return ONLY valid JSON: {"ytd_sales":"","run_rate":"","avg_weekly":"","sss_overall":"","avg_ticket":"","employees":"","wtx_weekly":"","wtx_sss":"","ok_weekly":"","ok_sss":"","swfl_weekly":"","swfl_sss":"","mature_weekly":"","mature_sss":"","week_ending":"","raw_summary":""}',
+      messages:[{role:'user',content:pdfText.slice(0,20000)}]
+    };
+    fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(metricsBody)})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.content&&d.content[0]){
+          try{ var m=safeJSON(d.content[0].text); saveMetricsToSupa(m); digestCache=null; }catch(e){}
+        }
+      }).catch(function(){});
 
   }catch(e){
     console.error('WBR error:',e);
-    var errMsg=e.message||'Unknown error';
-    // Try to extract Anthropic error detail if present
-    try{
-      var errJson=JSON.parse(e.message);
-      if(errJson&&errJson.error) errMsg=errJson.error.message||errMsg;
-    }catch(x){}
     document.getElementById('wbr-content').innerHTML=
-      '<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280">'+
-      '<strong style="color:var(--red);display:block;margin-bottom:8px">Could not process PDF</strong>'+
-      '<div style="font-family:monospace;font-size:12px;background:#fff;border:1px solid #f5c6c6;border-radius:4px;padding:10px;word-break:break-word;white-space:pre-wrap">'+esc(errMsg)+'</div>'+
-      '<div style="margin-top:10px;font-size:11px;color:#999">Full error: '+esc(e.message)+'</div>'+
+      '<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px">'+
+      '<strong style="color:var(--red);display:block;margin-bottom:6px;font-size:13px">Could not process PDF</strong>'+
+      '<div style="font-size:12px;color:#6b7280;font-family:monospace;word-break:break-all">'+esc(e.message)+'</div>'+
       '</div>';
   }
 }
+
+/* Extract text from PDF using PDF.js loaded from CDN */
+async function extractPDFText(file){
+  /* Load PDF.js if not already loaded */
+  if(!window.pdfjsLib){
+    await new Promise(function(resolve,reject){
+      var s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload=resolve; s.onerror=reject;
+      document.head.appendChild(s);
+    });
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc=
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  var arrayBuffer=await file.arrayBuffer();
+  var pdf=await window.pdfjsLib.getDocument({data:arrayBuffer}).promise;
+  var fullText='';
+  for(var i=1;i<=pdf.numPages;i++){
+    var page=await pdf.getPage(i);
+    var tc=await page.getTextContent();
+    var pageText=tc.items.map(function(item){return item.str;}).join(' ');
+    fullText+=pageText+'\n';
+  }
+  return fullText;
+}
+
 
 function shadeColor(hex,pct){
   /* Slightly darken alternating rows */
