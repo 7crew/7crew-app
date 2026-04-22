@@ -1,7 +1,5 @@
 const https = require('https');
 
-// Netlify sync functions max out at ~26s regardless of timeout setting.
-// For large PDFs we compress the request aggressively to stay under the limit.
 exports.handler = async function(event, context) {
 
   if (event.httpMethod === 'OPTIONS') {
@@ -25,7 +23,7 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: { message: 'ANTHROPIC_API_KEY not set.' } })
+      body: JSON.stringify({ error: { message: 'ANTHROPIC_API_KEY not set in Netlify environment variables.' } })
     };
   }
 
@@ -36,17 +34,24 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 400,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: { message: 'Invalid JSON body' } })
+      body: JSON.stringify({ error: { message: 'Invalid JSON body: ' + e.message } })
     };
   }
 
-  // Cap max_tokens at 4096 to ensure response comes back within 26s
+  // Cap tokens to stay under Netlify's 26s hard limit
   if (requestBody.max_tokens && requestBody.max_tokens > 4096) {
     requestBody.max_tokens = 4096;
   }
 
   try {
     const result = await makeRequest(ANTHROPIC_KEY, requestBody);
+    
+    // Log status for debugging
+    console.log('Anthropic status:', result.status);
+    if (result.status !== 200) {
+      console.log('Anthropic error body:', result.body.substring(0, 500));
+    }
+
     return {
       statusCode: result.status,
       headers: {
@@ -56,6 +61,7 @@ exports.handler = async function(event, context) {
       body: result.body
     };
   } catch (err) {
+    console.log('Function error:', err.message);
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
@@ -88,10 +94,9 @@ function makeRequest(apiKey, body) {
     });
 
     req.on('error', (e) => reject(e));
-    // 24 second hard timeout - just under Netlify's 26s limit
     req.setTimeout(24000, () => {
       req.destroy();
-      reject(new Error('Request timed out - PDF too large for single request'));
+      reject(new Error('Anthropic API timed out after 24s — PDF may be too large'));
     });
 
     req.write(postData);
