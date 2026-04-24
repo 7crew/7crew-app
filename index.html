@@ -1875,22 +1875,25 @@ async function processDev(input){
 
 function promptForApiKey(retryFn){
   var overlay=document.createElement('div');
+  overlay.className='api-key-overlay';
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center';
-  overlay.innerHTML='<div style="background:#fff;border-radius:10px;padding:28px 24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18)">'+
-    '<div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--red);text-transform:uppercase;margin-bottom:6px">Anthropic API Key Required</div>'+
+  var box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:10px;padding:28px 24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18)';
+  box.innerHTML='<div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--red);text-transform:uppercase;margin-bottom:6px">Anthropic API Key Required</div>'+
     '<div style="font-size:13px;color:#374151;margin-bottom:16px">Enter your Anthropic API key to enable AI features. It will be saved in your browser.</div>'+
     '<input id="ak-input" type="password" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;margin-bottom:12px">'+
     '<div style="display:flex;gap:8px">'+
-    '<button onclick="saveApiKey()" style="flex:1;background:var(--red);color:#fff;border:none;border-radius:6px;padding:9px;font-weight:700;font-size:13px;cursor:pointer">Save & Continue</button>'+
-    '<button onclick="this.closest('div[style*=position\\:fixed]').remove()" style="flex:1;background:#f3f4f6;color:#374151;border:none;border-radius:6px;padding:9px;font-weight:600;font-size:13px;cursor:pointer">Cancel</button>'+
+    '<button id="ak-save" style="flex:1;background:var(--red);color:#fff;border:none;border-radius:6px;padding:9px;font-weight:700;font-size:13px;cursor:pointer">Save &amp; Continue</button>'+
+    '<button id="ak-cancel" style="flex:1;background:#f3f4f6;color:#374151;border:none;border-radius:6px;padding:9px;font-weight:600;font-size:13px;cursor:pointer">Cancel</button>'+
     '</div>'+
-    '<div style="font-size:11px;color:#9ca3af;margin-top:10px">Get your key at console.anthropic.com</div>'+
-    '</div>';
+    '<div style="font-size:11px;color:#9ca3af;margin-top:10px">Get your key at console.anthropic.com</div>';
+  overlay.appendChild(box);
   document.body.appendChild(overlay);
+  box.querySelector('#ak-save').addEventListener('click', saveApiKey);
+  box.querySelector('#ak-cancel').addEventListener('click', function(){ overlay.remove(); });
   setTimeout(function(){ var inp=document.getElementById('ak-input'); if(inp) inp.focus(); },100);
   window._apiKeyRetryFn = retryFn;
 }
-
 function saveApiKey(){
   var val=(document.getElementById('ak-input').value||'').trim();
   if(!val.startsWith('sk-')){ alert('Key should start with sk-'); return; }
