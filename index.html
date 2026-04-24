@@ -1100,9 +1100,9 @@ async function renderDigest(){
     el.innerHTML=aiHtml;
   }catch(e){
     /* AI unavailable — show static version, cache it so we don't retry every tab switch */
-    CLAUDE_AVAILABLE=false;
     digestCache=staticHtml; digestDate=today;
     el.innerHTML=staticHtml;
+    console.warn('Digest AI error:',e.message);
   }
 }
 
@@ -1176,7 +1176,8 @@ async function dashboardAI(){
     var r=await callClaude(sys,'Give me the top 4 talking points Kendra should lead with this week.',false);
     document.getElementById('dash-ai-out').innerHTML='<div class="brief-out" style="margin-top:12px"><div class="brief-head"><h3>Board Talking Points</h3><p>Week of April 5, 2026</p></div><div class="brief-body"><div class="brief-text">'+r.replace(/\n/g,'<br>')+'</div></div></div>';
   }catch(e){
-    document.getElementById('dash-ai-out').innerHTML='<div style="padding:10px;font-size:12px;color:#6b7280">AI unavailable in this environment. Deploy to Netlify to enable AI features.</div>';
+    document.getElementById('dash-ai-out').innerHTML='<div style="padding:10px;font-size:12px;color:#6b7280">AI feature error: '+(e&&e.message?e.message:'unknown')+'</div>';
+    console.error('Dashboard AI error:',e);
   }
   btn.disabled=false; btn.textContent='Ask AI about this week\'s numbers';
 }
@@ -1333,7 +1334,8 @@ async function generateBrief(){
     }
     document.getElementById('mp-out').innerHTML=html;
   }catch(e){
-    document.getElementById('mp-out').innerHTML='<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280"><strong style="color:var(--red);display:block;margin-bottom:6px">AI unavailable</strong>This feature requires the Netlify function to be deployed. When running locally as a static file, AI research is not available.</div>';
+    document.getElementById('mp-out').innerHTML='<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280"><strong style="color:var(--red);display:block;margin-bottom:6px">Research failed</strong>'+(e&&e.message?e.message:'Unknown error. Check console for details.')+'</div>';
+    console.error('Meeting Prep error:',e);
   }
   btn.disabled=false; btn.textContent='Research & build brief ↗';
 }
@@ -1418,7 +1420,8 @@ async function processDebrief(){
     saveBtn.onclick=(function(t,a,h){ return function(){ saveDebrief(t,a,h); saveBtn.textContent='Saved ✓'; saveBtn.disabled=true; }; })(topicVal,attendeesVal,html);
     saveWrap.appendChild(saveBtn); outEl.appendChild(saveWrap);
   }catch(e){
-    document.getElementById('db-out').innerHTML='<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280"><strong style="color:var(--red);display:block;margin-bottom:6px">AI unavailable</strong>Deploy to Netlify to enable transcript processing.</div>';
+    document.getElementById('db-out').innerHTML='<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280"><strong style="color:var(--red);display:block;margin-bottom:6px">Processing failed</strong>'+(e&&e.message?e.message:'Unknown error. Check console for details.')+'</div>';
+    console.error('Debrief error:',e);
   }
   btn.disabled=false; btn.textContent='Process transcript ↗';
 }
