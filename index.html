@@ -978,17 +978,17 @@ function buildDigestSkeleton(){
 /* Static fallback — always has real content, never blank */
 function staticDigestData(mx){
   return {
-    headline:'Run rate at '+mx.run_rate+' with SSS at '+mx.sss_overall+' overall. Three openings this month with 19 under construction.',
+    headline:'Run rate at '+mx.run_rate+' on YTD of '+mx.ytd_sales+'. Pipeline active with 20 under construction system-wide.',
     numbers_snapshot:[
-      {label:'YTD Sales',        value:mx.ytd_sales,   trend:'up',   note:'Avg daily $531K'},
-      {label:'Run Rate',         value:mx.run_rate,    trend:'up',   note:'+8.5% vs year ago'},
-      {label:'Avg Weekly/Store', value:mx.avg_weekly,  trend:'up',   note:'WTX leads at '+mx.wtx_weekly},
-      {label:'Overall SSS',      value:mx.sss_overall, trend:'up',   note:'OK +23.8% | SWFL -2.7%'}
+      {label:'YTD Sales',        value:mx.ytd_sales,    trend:'up',   note:'Avg daily '+mx.avg_daily},
+      {label:'Run Rate',         value:mx.run_rate,     trend:'up',   note:'Week ending '+mx.week_ending},
+      {label:'Avg Weekly/Store', value:mx.avg_weekly,   trend:'flat', note:'Avg ticket '+mx.avg_ticket},
+      {label:'Employees',        value:mx.employees,    trend:'up',   note:'Google Reviews 4.7★'}
     ],
-    openings_focus:'Panama City FL opens May 4; Killeen TX, Lawton OK, and Beverly Hills TX all open May 18. Building drops: Lubbock TX Apr 24, Holiday FL Apr 29. 20 under construction across all regions.',
-    watchout:'SWFL is the only region posting negative SSS ('+mx.swfl_sss+'). Every other region is posting 17–24% gains. Come to FEP with a specific diagnostic on staffing, execution, and local market conditions.',
-    motivation:'Mature stores averaging '+mx.mature_weekly+'/week ('+mx.mature_sss+' YAG). Every time you open a store, you are building something that will still be compounding years from now.',
-    board_prep:'Lead with OK region momentum (+23.8% SSS) as proof new markets scale well, then address SWFL decline directly with a mitigation plan.'
+    openings_focus:'Panama City FL opens May 4; Killeen TX, Lawton OK, and Beverly Hills TX all open May 18. Building drops: Holiday FL Apr 29, Fort Myers FL May 13, El Reno OK May 13, Granbury TX May 20. 20 under construction across all regions.',
+    watchout:mx.watchout_text||'Monitor stores with negative SSS week-over-week. Bring a specific diagnostic on staffing, execution, and local market conditions to FEP.',
+    motivation:'Mature stores averaging '+mx.mature_weekly+'/week. Every time you open a store you are building something that will still be compounding years from now.',
+    board_prep:'Lead with YTD '+mx.ytd_sales+' and run rate '+mx.run_rate+'. Address any negative-SSS stores directly before FEP asks.'
   };
 }
 
