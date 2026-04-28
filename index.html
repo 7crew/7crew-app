@@ -1626,88 +1626,56 @@ function shadeColor(hex,pct){
 /* Extract live metrics from parsed WBR JSON + raw text */
 function extractMetricsFromParsed(parsed, kp, rawText){
   var stores = parsed.stores || [];
-  var mature = stores.filter(function(s){ return !s.is_new && s.l4a; });
 
-  /* Calculate weekly averages from L4A totals */
-  function avgWeekly(storeList){
-    if(!storeList.length) return '';
-    var total = storeList.reduce(function(sum,s){
-      return sum + (parseFloat((s.l4a||'').toString().replace(/[$,]/g,''))||0);
-    },0);
-    var avg = (total/storeList.length/4);
-    return '$'+Math.round(avg).toLocaleString();
+  function regionAvgSSS(keywords){
+    var list=stores.filter(function(s){return keywords.some(function(k){return(s.name||'').toLowerCase().indexOf(k)>=0;})&&s.sss&&s.sss!=='';});
+    if(!list.length)return'';
+    var avg=list.reduce(function(sum,s){return sum+(parseFloat((s.sss||'').replace('%',''))||0);},0)/list.length;
+    return(avg>=0?'+':'')+avg.toFixed(1)+'%';
+  }
+  function regionAvgWeekly(keywords){
+    var list=stores.filter(function(s){return keywords.some(function(k){return(s.name||'').toLowerCase().indexOf(k)>=0;})&&s.l4a&&s.l4a!=='';});
+    if(!list.length)return'—';
+    var avg=list.reduce(function(sum,s){return sum+(parseFloat((s.l4a||'').replace(/[$,]/g,''))||0)/4;},0)/list.length;
+    return'$'+Math.round(avg/1000*10)/10+'K';
   }
 
-  /* Region SSS — look for region indicators in store names */
-  function regionSSS(keywords){
-    var regionStores = stores.filter(function(s){
-      return keywords.some(function(k){ return (s.name||'').toLowerCase().indexOf(k)>=0; });
-    }).filter(function(s){ return s.sss && s.sss !== ''; });
-    if(!regionStores.length) return '';
-    var avg = regionStores.reduce(function(sum,s){
-      return sum+(parseFloat((s.sss||'').replace('%',''))||0);
-    },0)/regionStores.length;
-    return (avg>0?'+':'')+avg.toFixed(1)+'%';
-  }
+  var wtxKeys=['lubbock','midland','odessa','abilene','san angelo','big spring','andrews','plainview','brownwood','stephenville','copperas cove','mineral wells','decatur','benbrook','burleson','wichita falls','pampa','levelland','dumas','cleburne','belton','waco','temple','bryan','weatherford'];
+  var okKeys=['edmond','norman','oklahoma city','lawton','ardmore','ada','yukon','enid','duncan','gatesville'];
+  var swflKeys=['bradenton','sarasota','port charlotte','leesburg','belleview','spring hill','tampa'];
+  var nmKeys=['hobbs','clovis','roswell','carlsbad','artesia','artesia'];
+  var ctxKeys=['amarillo','bellmead','bryan','burleson'];
+  var pflKeys=['pensacola','crestview','milton','navarre','niceville','gulf breeze','ft. walton','fort walton','pace'];
 
-  /* Parse overall SSS from raw text */
-  var sssMatch = rawText.match(/(\+?\-?[\d.]+)%.*?overall|overall.*?(\+?\-?[\d.]+)%/i);
-
-  /* Count mature stores (not new, have ARR) */
-  var matureStores = stores.filter(function(s){
-    return !s.is_new && s.arr && s.arr !== '';
-  });
-  var matureL4A = matureStores.filter(function(s){ return s.l4a; });
-
-  /* Build regions from store names */
-  var wtxStores = stores.filter(function(s){
-    var n=(s.name||'').toLowerCase();
-    return ['lubbock','midland','odessa','abilene','san angelo','big spring','andrews','plainview',
-            'brownwood','stephenville','copperas cove','mineral wells','decatur','benbrook',
-            'burleson','wichita falls','pampa','levelland','dumas','artesia','carlsbad',
-            'clovis','roswell','hobbs','cleburne','belton','waco','temple','bryan'].some(function(k){return n.indexOf(k)>=0;});
-  });
-  var okStores = stores.filter(function(s){
-    var n=(s.name||'').toLowerCase();
-    return ['edmond','norman','oklahoma city','lawton','ardmore','ada','yukon','enid','duncan','weatherford ok','gatesville'].some(function(k){return n.indexOf(k)>=0;});
-  });
-  var swflStores = stores.filter(function(s){
-    var n=(s.name||'').toLowerCase();
-    return ['bradenton','sarasota','port charlotte','leesburg','belleview','spring hill','tampa'].some(function(k){return n.indexOf(k)>=0;});
-  });
-
-  function regionAvgSSS(list){
-    var withSSS=list.filter(function(s){return s.sss&&s.sss!=='';});
-    if(!withSSS.length) return '';
-    var avg=withSSS.reduce(function(sum,s){return sum+(parseFloat((s.sss||'').replace('%',''))||0);},0)/withSSS.length;
-    return (avg>=0?'+':'')+avg.toFixed(1)+'%';
-  }
-  function regionAvgWeekly(list){
-    var withL4A=list.filter(function(s){return s.l4a&&s.l4a!=='';});
-    if(!withL4A.length) return '';
-    var avg=withL4A.reduce(function(sum,s){return sum+(parseFloat((s.l4a||'').replace(/[$,]/g,''))||0)/4;},0)/withL4A.length;
-    return '$'+Math.round(avg/1000*10)/10+'K';
-  }
-
-  var matureAvg = matureL4A.length ?
-    '$'+(Math.round(matureL4A.reduce(function(s,x){return s+(parseFloat((x.l4a||'').replace(/[$,]/g,''))||0)/4;},0)/matureL4A.length/1000*10)/10)+'K' : '';
+  /* Negative SSS stores for watchout */
+  var negStores=stores.filter(function(s){
+    var n=parseFloat((s.sss||'').replace('%',''));
+    return!isNaN(n)&&n<0;
+  }).map(function(s){return s.name+' ('+s.sss+')';});
+  var watchoutText=negStores.length?'Stores with negative SSS this week: '+negStores.slice(0,5).join(', ')+'. Bring a diagnostic to FEP.':'All regions posting positive SSS this week.';
 
   return {
-    ytd_sales:   kp.ytd    ? '$'+kp.ytd    : '',
-    run_rate:    kp.run_rate? '$'+kp.run_rate:'',
-    avg_weekly:  kp.l4a ? '$'+(Math.round(parseFloat((kp.l4a||'').replace(/[$,]/g,''))/stores.filter(function(s){return !s.is_new;}).length/4)).toLocaleString() : avgWeekly(mature),
-    sss_overall: '',
-    avg_ticket:  kp.ticket  ? '$'+kp.ticket  : '',
+    ytd_sales:   kp.ytd    ? '$'+kp.ytd     : '',
+    avg_daily:   kp.daily  ? '$'+kp.daily   : '',
+    run_rate:    kp.run_rate?'$'+kp.run_rate : '',
+    avg_weekly:  kp.l4a    ? '$'+Math.round(parseFloat((kp.l4a||'').replace(/[$,]/g,''))/Math.max(stores.filter(function(s){return!s.is_new;}).length,1)/4).toLocaleString() : '—',
+    avg_ticket:  kp.ticket ? '$'+kp.ticket  : '',
     employees:   kp.employees||'',
-    wtx_weekly:  regionAvgWeekly(wtxStores),
-    wtx_sss:     regionAvgSSS(wtxStores),
-    ok_weekly:   regionAvgWeekly(okStores),
-    ok_sss:      regionAvgSSS(okStores),
-    swfl_weekly: regionAvgWeekly(swflStores),
-    swfl_sss:    regionAvgSSS(swflStores),
-    mature_weekly: matureAvg,
-    mature_sss:  '',
-    week_ending: kp.week_ending || (parsed.week_dates ? parsed.week_dates[parsed.week_dates.length-1] : ''),
+    wtx_weekly:  regionAvgWeekly(wtxKeys),
+    wtx_sss:     regionAvgSSS(wtxKeys),
+    ok_weekly:   regionAvgWeekly(okKeys),
+    ok_sss:      regionAvgSSS(okKeys),
+    swfl_weekly: regionAvgWeekly(swflKeys),
+    swfl_sss:    regionAvgSSS(swflKeys),
+    nm_weekly:   regionAvgWeekly(nmKeys),
+    nm_sss:      regionAvgSSS(nmKeys),
+    ctx_weekly:  regionAvgWeekly(ctxKeys),
+    ctx_sss:     regionAvgSSS(ctxKeys),
+    pfl_weekly:  regionAvgWeekly(pflKeys),
+    pfl_sss:     regionAvgSSS(pflKeys),
+    mature_weekly:'—',
+    week_ending: kp.week_ending||(parsed.week_dates?parsed.week_dates[parsed.week_dates.length-1]:''),
+    watchout_text: watchoutText,
     raw_summary: 'WBR week ending '+(kp.week_ending||'')+'. '+stores.length+' stores. YTD: '+(kp.ytd||'')+'. Run Rate: '+(kp.run_rate||'')+'.'
   };
 }
