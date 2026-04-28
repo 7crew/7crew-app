@@ -1113,20 +1113,28 @@ function forceRefreshDigest(){ digestCache=null; digestDate=null; renderDigest()
 function renderDashboard(){
   var el=document.getElementById('sec-dashboard');
   if(!el) return;
-  var mx=liveMetrics||{ytd_sales:'$42.5M',run_rate:'$182.3M',avg_weekly:'$49,630',sss_overall:'+20.9%',avg_ticket:'$9.73',employees:'4,542'};
+  var mx=liveMetrics||{
+    ytd_sales:'—',run_rate:'—',avg_weekly:'—',avg_ticket:'—',
+    employees:'—',week_ending:'—',
+    wtx_weekly:'—',wtx_sss:'—',
+    ok_weekly:'—',ok_sss:'—',
+    swfl_weekly:'—',swfl_sss:'—'
+  };
+
   el.innerHTML='<div class="ai-section">'+
     '<h2>7Crew Command Center</h2>'+
+    '<div style="font-size:10px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;margin-top:-8px">Week ending <strong style="color:var(--black)">'+mx.week_ending+'</strong></div>'+
     '<div class="kpi-row">'+
-      '<div class="kpi-box"><div class="kpi-num">'+mx.ytd_sales+'</div><div class="kpi-lbl">YTD Sales</div><div class="kpi-sub">Avg daily $531,746</div></div>'+
-      '<div class="kpi-box"><div class="kpi-num">'+mx.run_rate+'</div><div class="kpi-lbl">Run Rate</div><div class="kpi-sub">+8.5% vs year ago</div></div>'+
-      '<div class="kpi-box"><div class="kpi-num">'+mx.avg_weekly+'</div><div class="kpi-lbl">Avg Weekly / Store</div><div class="kpi-sub">+3.6% vs last week</div></div>'+
-      '<div class="kpi-box"><div class="kpi-num">'+mx.employees+'</div><div class="kpi-lbl">Team Members</div><div class="kpi-sub">Avg ticket '+mx.avg_ticket+'</div></div>'+
+      '<div class="kpi-box"><div class="kpi-num">'+mx.ytd_sales+'</div><div class="kpi-lbl">YTD Sales</div><div class="kpi-sub">Avg daily '+mx.avg_daily+'</div></div>'+
+      '<div class="kpi-box"><div class="kpi-num">'+mx.run_rate+'</div><div class="kpi-lbl">Run Rate</div></div>'+
+      '<div class="kpi-box"><div class="kpi-num">'+mx.avg_weekly+'</div><div class="kpi-lbl">Avg Weekly / Store</div><div class="kpi-sub">Avg ticket '+mx.avg_ticket+'</div></div>'+
+      '<div class="kpi-box"><div class="kpi-num">'+mx.employees+'</div><div class="kpi-lbl">Team Members</div></div>'+
     '</div>'+
-    '<div class="ai-card"><div class="ai-card-head">Region Performance — Week 4/19/26<span class="badge-r">SSS%</span></div><div class="ai-card-body" id="db-regions"></div></div>'+
+    '<div class="ai-card"><div class="ai-card-head">Region Performance<span class="badge-r">SSS%</span></div><div class="ai-card-body" id="db-regions"></div></div>'+
     '<div class="dev-row">'+
       '<div class="dev-box"><div class="dev-num">7</div><div class="dev-lbl">Out to Bid</div></div>'+
       '<div class="dev-box"><div class="dev-num">20</div><div class="dev-lbl">Under Construction</div></div>'+
-      '<div class="dev-box"><div class="dev-num">5</div><div class="dev-lbl">Bldg Drops 4 Wks</div></div>'+
+      '<div class="dev-box"><div class="dev-num">4</div><div class="dev-lbl">Bldg Drops 4 Wks</div></div>'+
     '</div>'+
     '<div class="ai-card"><div class="ai-card-head">Opening Next 4 Weeks</div><div class="ai-card-body">'+
       '<div class="open-row"><span>Panama City, FL</span><span class="open-state">FL</span><span style="font-size:12px;color:#6b7280">May 4</span></div>'+
@@ -1135,51 +1143,47 @@ function renderDashboard(){
       '<div class="open-row"><span>Beverly Hills, TX</span><span class="open-state">TX</span><span style="font-size:12px;color:#6b7280">May 18</span></div>'+
     '</div></div>'+
     '<h2 style="margin-top:4px">Quick Insights</h2>'+
-    '<div class="insight-strip">SWFL is the only region with negative SSS (-2.7% to -7.8%). Address proactively with board.</div>'+
-    '<div class="insight-strip">OK region leads growth at +23.8% SSS — strongest outside WTX. Lead with this in investor conversations.</div>'+
-    '<div class="insight-strip">Mature stores average $58K/week (+28.7% YAG) — powerful proof the brand compounds.</div>'+
+    '<div id="db-insights"></div>'+
     '<button class="btn-gen" onclick="dashboardAI()" id="dash-ai-btn">Ask AI about this week\'s numbers</button>'+
     '<div id="dash-ai-out"></div>'+
   '</div>';
 
+  /* Region cards — driven by liveMetrics */
   var regions=[
-    {n:'WTX', full:'West Texas',    w:52.3, s:23.7},
-    {n:'OK',  full:'Oklahoma',      w:50.3, s:23.8},
-    {n:'NM',  full:'New Mexico',    w:49.9, s:null},
-    {n:'CTX', full:'Central Texas', w:48.3, s:17.6},
-    {n:'PFL', full:'Panhandle FL',  w:47.5, s:21.8},
-    {n:'SWFL',full:'SW Florida',    w:46.1, s:-2.7}
+    {n:'West Texas',    w:mx.wtx_weekly,  s:mx.wtx_sss},
+    {n:'Oklahoma',      w:mx.ok_weekly,   s:mx.ok_sss},
+    {n:'SW Florida',    w:mx.swfl_weekly, s:mx.swfl_sss},
+    {n:'New Mexico',    w:mx.nm_weekly||'—',  s:mx.nm_sss||'—'},
+    {n:'Central TX',    w:mx.ctx_weekly||'—', s:mx.ctx_sss||'—'},
+    {n:'Pan. Florida',  w:mx.pfl_weekly||'—', s:mx.pfl_sss||'—'}
   ];
-  var max=52.3; var rh='';
-  rh+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+  var rh='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
   regions.forEach(function(r){
-    var sc=r.s===null?'#6b7280':r.s>=20?'#16a34a':r.s>=10?'#0056B4':r.s>=0?'#d97706':'#cb2026';
-    var sssBg=r.s===null?'#f3f4f6':r.s>=20?'#dcfce7':r.s>=10?'#dbeafe':r.s>=0?'#fef3c7':'#fee2e2';
-    var st=r.s===null?'—':(r.s>0?'+':'')+r.s.toFixed(1)+'%';
-    var borderColor=r.s===null?'#e2e2e2':r.s>=20?'#86efac':r.s>=10?'#93c5fd':r.s>=0?'#fcd34d':'#fca5a5';
-    rh+='<div style="background:#fff;border:1px solid '+borderColor+';border-top:3px solid '+sc+';border-radius:6px;padding:12px">';
-    rh+='<div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">'+r.full+'</div>';
-    rh+='<div style="font-size:18px;font-weight:800;color:#0c0a0a;line-height:1">$'+r.w.toFixed(1)+'K</div>';
-    rh+='<div style="font-size:10px;color:#6b7280;margin-top:1px;margin-bottom:8px">avg weekly/store</div>';
-    rh+='<span style="font-size:12px;font-weight:800;color:'+sc+';background:'+sssBg+';padding:3px 10px;border-radius:4px;display:inline-block">'+st+' SSS</span>';
-    rh+='</div>';
+    var sNum=parseFloat((r.s||'').replace('%','').replace('+',''));
+    var sc=isNaN(sNum)?'#6b7280':sNum>=20?'#16a34a':sNum>=10?'#0056B4':sNum>=0?'#d97706':'#cb2026';
+    var sssBg=isNaN(sNum)?'#f3f4f6':sNum>=20?'#dcfce7':sNum>=10?'#dbeafe':sNum>=0?'#fef3c7':'#fee2e2';
+    var borderColor=isNaN(sNum)?'#e2e2e2':sNum>=20?'#86efac':sNum>=10?'#93c5fd':sNum>=0?'#fcd34d':'#fca5a5';
+    var sssLabel=isNaN(sNum)?'—':((sNum>0?'+':'')+sNum.toFixed(1)+'% SSS');
+    rh+='<div style="background:#fff;border:1px solid '+borderColor+';border-top:3px solid '+sc+';border-radius:6px;padding:12px">'+
+      '<div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">'+r.n+'</div>'+
+      '<div style="font-size:18px;font-weight:800;color:#0c0a0a;line-height:1">'+r.w+'</div>'+
+      '<div style="font-size:10px;color:#6b7280;margin-top:1px;margin-bottom:8px">avg weekly/store</div>'+
+      '<span style="font-size:12px;font-weight:800;color:'+sc+';background:'+sssBg+';padding:3px 10px;border-radius:4px;display:inline-block">'+sssLabel+'</span>'+
+    '</div>';
   });
   rh+='</div>';
   document.getElementById('db-regions').innerHTML=rh;
-}
 
-async function dashboardAI(){
-  var btn=document.getElementById('dash-ai-btn');
-  btn.disabled=true; btn.textContent='Analyzing...';
-  document.getElementById('dash-ai-out').innerHTML='<div class="loading-dots"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>Building talking points...</span></div>';
-  var sys='You are a sharp executive assistant for Kendra Burris, CEO of 7Crew Enterprises (75-location 7Brew Coffee franchisee, recently acquired by Franchise Equity Partners). Week of 4/5/26: YTD sales $42.5M, run rate $182.3M, avg weekly $49,630 (+3.6% LW), SSS +20.9% overall. WTX leads at $52.3K/wk (+23.7% SSS). OK strong at $50.3K (+23.8%). SWFL weakest at $46.1K with NEGATIVE SSS. Mature stores avg $58K/wk (+28.7% YAG). 3 new openings this month. Respond in 4 crisp bullet points. No JSON.';
-  try{
-    var r=await callClaude(sys,'Give me the top 4 talking points Kendra should lead with this week.',false);
-    document.getElementById('dash-ai-out').innerHTML='<div class="brief-out" style="margin-top:12px"><div class="brief-head"><h3>Board Talking Points</h3><p>Week of April 5, 2026</p></div><div class="brief-body"><div class="brief-text">'+r.replace(/\n/g,'<br>')+'</div></div></div>';
-  }catch(e){
-    document.getElementById('dash-ai-out').innerHTML='<div style="padding:10px;font-size:12px;color:#6b7280">AI unavailable in this environment. Deploy to Netlify to enable AI features.</div>';
+  /* Auto-insights from liveMetrics */
+  var insights='';
+  if(mx.wtx_sss) insights+='<div class="insight-strip">WTX region: '+mx.wtx_weekly+'/wk avg ('+mx.wtx_sss+' SSS) — lead with this in investor conversations.</div>';
+  if(mx.ok_sss)  insights+='<div class="insight-strip">OK region: '+mx.ok_weekly+'/wk avg ('+mx.ok_sss+' SSS).</div>';
+  if(mx.swfl_sss){
+    var swflNum=parseFloat((mx.swfl_sss||'').replace('%','').replace('+',''));
+    if(!isNaN(swflNum)&&swflNum<0) insights+='<div class="insight-strip" style="border-left-color:var(--red)">⚠ SWFL at '+mx.swfl_sss+' SSS — address proactively with board.</div>';
+    else insights+='<div class="insight-strip">SWFL: '+mx.swfl_weekly+'/wk ('+mx.swfl_sss+' SSS).</div>';
   }
-  btn.disabled=false; btn.textContent='Ask AI about this week\'s numbers';
+  document.getElementById('db-insights').innerHTML=insights;
 }
 
 /* ─── RESEARCH FROM CONTACT ─── */
