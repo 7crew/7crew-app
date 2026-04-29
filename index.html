@@ -1447,12 +1447,12 @@ function saveDebrief(topic,attendees,htmlContent){ supa('debriefs','POST',{topic
 function renderWBR(){
   var el=document.getElementById('sec-wbr');
   if(!el) return;
-  /* Don't re-render if already showing */
-  if(document.getElementById('wbr-content') && document.getElementById('wbr-content').innerHTML.length > 500) return;
+  /* Always re-render so upload input is always live */
+  var weekLabel=(liveMetrics&&liveMetrics.week_ending)?liveMetrics.week_ending:'Pre-loaded';
   el.innerHTML='<div class="ai-section"><h2>Weekly Business Review</h2>'+
     '<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">'+
-    '<div style="font-size:11px;color:#6b7280;font-weight:600">Week ending <strong style="color:var(--black)">Apr 19, 2026</strong> · 77 stores · Pre-loaded</div>'+
-    '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt" style="display:none" onchange="processWBR(this)"></label>'+
+    '<div id="wbr-status" style="font-size:11px;color:#6b7280;font-weight:600">Week ending <strong style="color:var(--black)">'+weekLabel+'</strong> · 77 stores</div>'+
+    '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt,.pdf" style="display:none" onchange="processWBR(this)"></label>'+
     '</div>'+
     '<div id="wbr-content">'+(wbrData||'')+'</div>'+
   '</div>';
@@ -1461,7 +1461,7 @@ function renderWBR(){
 async function processWBR(input){
   if(!input.files||!input.files[0]) return;
   var file=input.files[0];
-  document.getElementById('wbr-filename').textContent=file.name;
+  var _wbrSt=document.getElementById('wbr-status'); if(_wbrSt) _wbrSt.textContent='Processing: '+file.name+'...';
 
   var setStatus=function(msg){
     document.getElementById('wbr-content').innerHTML=
@@ -1697,12 +1697,11 @@ async function extractMetricsFromWBR(b64){
 function renderDevelopment(){
   var el=document.getElementById('sec-development');
   if(!el) return;
-  /* Don't re-render if already showing */
-  if(document.getElementById('dev-content') && document.getElementById('dev-content').innerHTML.length > 500) return;
+  /* Always re-render so upload input is always live */
   el.innerHTML='<div class="ai-section"><h2>Development Report</h2>'+
     '<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">'+
-    '<div style="font-size:11px;color:#6b7280;font-weight:600">Week of <strong style="color:var(--black)">Apr 21, 2026</strong> · 20 under construction · Pre-loaded</div>'+
-    '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt" style="display:none" onchange="processDev(this)"></label>'+
+    '<div id="dev-status" style="font-size:11px;color:#6b7280;font-weight:600">Week of <strong style="color:var(--black)">Apr 28, 2026</strong> · 20 under construction</div>'+
+    '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt,.pdf" style="display:none" onchange="processDev(this)"></label>'+
     '</div>'+
     '<div id="dev-content">'+(devData||'')+'</div>'+
   '</div>';
@@ -1711,7 +1710,7 @@ function renderDevelopment(){
 async function processDev(input){
   if(!input.files||!input.files[0]) return;
   var file=input.files[0];
-  document.getElementById('dev-filename').textContent=file.name;
+  var _devSt=document.getElementById('dev-status'); if(_devSt) _devSt.textContent='Processing: '+file.name+'...';
 
   var setDevStatus=function(msg){
     document.getElementById('dev-content').innerHTML=
