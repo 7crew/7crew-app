@@ -330,9 +330,12 @@ function loadLocal(){
 /* ─── FETCH FROM SUPABASE ─── */
 function fetchFromSupa(){
   showSync('Loading...');
+  var localContactCount = contacts.length; /* remember how many we loaded from localStorage */
   supa('contacts?select=*&order=name')
     .then(function(rows){
-      if(Array.isArray(rows) && rows.length){
+      /* SAFETY: only replace contacts if Supabase returned MORE than we have locally.
+         This prevents an empty/failed Supabase response from wiping localStorage data. */
+      if(Array.isArray(rows) && rows.length >= localContactCount && rows.length > 0){
         contacts = rows.map(function(r){
           return {
             id:r.id, name:r.name||'', role:r.role||'', phone:r.phone||'',
@@ -344,7 +347,26 @@ function fetchFromSupa(){
             documents:Array.isArray(r.documents)?r.documents:(r.documents?JSON.parse(r.documents):[])
           };
         });
+      } else if(Array.isArray(rows) && rows.length > 0 && rows.length < localContactCount){
+        /* Supabase has fewer — merge: keep local contacts not in Supabase */
+        var supaIds = rows.map(function(r){ return String(r.id); });
+        var localOnly = contacts.filter(function(c){ return supaIds.indexOf(String(c.id))<0; });
+        contacts = rows.map(function(r){
+          return {
+            id:r.id, name:r.name||'', role:r.role||'', phone:r.phone||'',
+            email:r.email||'', linkedin:r.linkedin||'', website:r.website||'',
+            photo:r.photo||'', metAt:r.met_at||'', lastContact:r.last_contact||'',
+            notes:r.notes||'',
+            companies: Array.isArray(r.companies)?r.companies:(r.companies?JSON.parse(r.companies):[]),
+            assistants:Array.isArray(r.assistants)?r.assistants:(r.assistants?JSON.parse(r.assistants):[]),
+            documents:Array.isArray(r.documents)?r.documents:(r.documents?JSON.parse(r.documents):[])
+          };
+        }).concat(localOnly);
+        console.warn('Supa had fewer contacts than local — merged. Supabase:'+rows.length+' Local-only:'+localOnly.length);
+        /* Re-sync local-only contacts to Supabase */
+        localOnly.forEach(function(c){ upsertContact(c).catch(function(e){ console.error('Re-sync failed for',c.name,e); }); });
       }
+      /* If Supabase returned 0, keep local data untouched */
       return supa('orgs?select=*&order=name');
     })
     .then(function(rows){
