@@ -1447,12 +1447,12 @@ function saveDebrief(topic,attendees,htmlContent){ supa('debriefs','POST',{topic
 function renderWBR(){
   var el=document.getElementById('sec-wbr');
   if(!el) return;
-  /* Always re-render so upload input is always live */
-  var weekLabel=(liveMetrics&&liveMetrics.week_ending)?liveMetrics.week_ending:'Pre-loaded';
+  /* Don't re-render if already showing */
+  if(document.getElementById('wbr-content') && document.getElementById('wbr-content').innerHTML.length > 500) return;
   el.innerHTML='<div class="ai-section"><h2>Weekly Business Review</h2>'+
     '<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">'+
-    '<div id="wbr-status" style="font-size:11px;color:#6b7280;font-weight:600">Week ending <strong style="color:var(--black)">'+weekLabel+'</strong> · 77 stores</div>'+
-    '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt,.pdf" style="display:none" onchange="processWBR(this)"></label>'+
+    '<div style="font-size:11px;color:#6b7280;font-weight:600">Week ending <strong style="color:var(--black)">Apr 19, 2026</strong> · 77 stores · Pre-loaded</div>'+
+    '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt" style="display:none" onchange="processWBR(this)"></label>'+
     '</div>'+
     '<div id="wbr-content">'+(wbrData||'')+'</div>'+
   '</div>';
@@ -1461,7 +1461,7 @@ function renderWBR(){
 async function processWBR(input){
   if(!input.files||!input.files[0]) return;
   var file=input.files[0];
-  var _wbrSt=document.getElementById('wbr-status'); if(_wbrSt) _wbrSt.textContent='Processing: '+file.name+'...';
+  document.getElementById('wbr-filename').textContent=file.name;
 
   var setStatus=function(msg){
     document.getElementById('wbr-content').innerHTML=
@@ -1497,7 +1497,7 @@ async function processWBR(input){
 
     var body={
       model:'claude-haiku-4-5-20251001',
-      max_tokens:4096,
+      max_tokens:8192,
       system:sys1,
       messages:[{role:'user',content:'Parse this WBR report and return complete JSON with ALL stores:\n\n'+pdfText.slice(0,60000)}]
     };
@@ -1518,7 +1518,22 @@ async function processWBR(input){
 
     var parsed;
     try{ parsed=safeJSON(jsonText); }
-    catch(e){ throw new Error('Could not parse store JSON: '+e.message+' Raw: '+jsonText.slice(0,300)); }
+    catch(e){
+      /* JSON truncated — try to salvage by closing the array and object */
+      try{
+        var salvage=jsonText.trim();
+        /* Close any open string, then close array and object */
+        if(salvage.lastIndexOf('"')>salvage.lastIndexOf('}')) salvage=salvage.slice(0,salvage.lastIndexOf('"')+1);
+        /* Remove trailing incomplete object */
+        var lastComma=salvage.lastIndexOf('},{');
+        if(lastComma>0) salvage=salvage.slice(0,lastComma)+']}}';
+        else salvage=salvage+']}}';
+        parsed=JSON.parse(salvage);
+        console.warn('WBR: used salvaged JSON, got '+((parsed.stores||[]).length)+' stores');
+      }catch(e2){
+        throw new Error('Could not parse store JSON: '+e.message+' Raw: '+jsonText.slice(0,300));
+      }
+    }
 
     if(!parsed.stores||!parsed.stores.length) throw new Error('No stores found in response');
 
@@ -1697,11 +1712,12 @@ async function extractMetricsFromWBR(b64){
 function renderDevelopment(){
   var el=document.getElementById('sec-development');
   if(!el) return;
-  /* Always re-render so upload input is always live */
+  /* Don't re-render if already showing */
+  if(document.getElementById('dev-content') && document.getElementById('dev-content').innerHTML.length > 500) return;
   el.innerHTML='<div class="ai-section"><h2>Development Report</h2>'+
     '<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">'+
-    '<div id="dev-status" style="font-size:11px;color:#6b7280;font-weight:600">Week of <strong style="color:var(--black)">Apr 28, 2026</strong> · 20 under construction</div>'+
-    '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt,.pdf" style="display:none" onchange="processDev(this)"></label>'+
+    '<div style="font-size:11px;color:#6b7280;font-weight:600">Week of <strong style="color:var(--black)">Apr 21, 2026</strong> · 20 under construction · Pre-loaded</div>'+
+    '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt" style="display:none" onchange="processDev(this)"></label>'+
     '</div>'+
     '<div id="dev-content">'+(devData||'')+'</div>'+
   '</div>';
@@ -1710,7 +1726,7 @@ function renderDevelopment(){
 async function processDev(input){
   if(!input.files||!input.files[0]) return;
   var file=input.files[0];
-  var _devSt=document.getElementById('dev-status'); if(_devSt) _devSt.textContent='Processing: '+file.name+'...';
+  document.getElementById('dev-filename').textContent=file.name;
 
   var setDevStatus=function(msg){
     document.getElementById('dev-content').innerHTML=
@@ -1740,7 +1756,7 @@ async function processDev(input){
 
     var body={
       model:'claude-haiku-4-5-20251001',
-      max_tokens:4096,
+      max_tokens:8192,
       system:'You are parsing a 7Crew Enterprises Weekly Development Review. Return ONLY valid JSON, no markdown: {"stats":{"out_to_bid":0,"under_construction":0,"recent_openings":0},"building_drops":[{"city":"","state":"","date":""}],"openings":[{"city":"","state":"","date":""}],"pipeline":[{"city":"","state":"","est_open":"","days_out":0}],"stand_count":[{"phase":"","count":0}]}. Exclude any entries where the developer is Red Sky. Include every location.',
       messages:[{role:'user',content:'Parse this development report: '+devText.slice(0,50000)}]
     };
