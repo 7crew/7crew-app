@@ -1565,64 +1565,65 @@ async function processWBR(input){
     var stores = [];
     var lines = pdfText.split('\n');
 
-    /* Money pattern: $12,345 or $1,234,567 */
-    var moneyRe = /\$[\d,]+/g;
+    /* Number pattern: plain comma-formatted numbers like 273,424 or 3,993,405
+       Also handles numbers with dollar signs just in case */
+    var numRe = /\$?[\d]{2,3}(?:,\d{3})+/g;
     /* Percentage pattern: 12.3% or -12.3% */
     var pctRe = /^-?\d+\.?\d*%$/;
-    /* Rank pattern: line starts with a number (the rank) */
-    var rankRe = /^\s*(\d+)\s+(.+)/;
-
-    /* Detect week-ending date headers like "W.E 3/29" or "4/5" or "3/29/2026" */
-    var dateRe = /W\.?E\.?\s*\d{1,2}\/\d{1,2}|^\d{1,2}\/\d{1,2}(\/\d{2,4})?$/;
 
     /* Scan every line looking for store rows.
-       A store row starts with a rank number followed by a stand number and name,
-       then has dollar amounts for weekly sales.
-       Pattern: RANK  STAND#  NAME  $xx,xxx  $xx,xxx  $xx,xxx  $xx,xxx  SSS%  $xxx,xxx  $x,xxx,xxx */
+       Format from screenshot: RANK  STORE_NAME  num  num  num  num  SSS%  num  num
+       e.g: "1   Odessa   273,424   74,576   73,441   85,745   23.0%   307,185   3,993,405" */
     lines.forEach(function(rawLine) {
       var line = rawLine.trim();
       if(!line) return;
 
-      /* Must start with a number (rank) */
-      var m = line.match(/^(\d+)\s+(\d+)\s+(.+)/);
+      /* Must start with a rank number (1-300) */
+      var m = line.match(/^(\d{1,3})\s+([A-Za-z].+)/);
       if(!m) return;
 
       var rank = parseInt(m[1]);
-      if(rank < 1 || rank > 300) return; /* sanity check */
+      if(rank < 1 || rank > 300) return;
 
-      var rest = m[3].trim();
+      var rest = m[2].trim();
 
-      /* Extract all dollar amounts from the rest of the line */
-      var dollars = rest.match(moneyRe) || [];
-      if(dollars.length < 2) return; /* need at least some sales data */
+      /* Extract all comma-formatted numbers from the line */
+      var nums = rest.match(numRe) || [];
+      /* Strip any dollar signs for display consistency */
+      nums = nums.map(function(n){ return n.replace(/^\$/,''); });
 
-      /* Extract store name — everything before the first dollar sign */
-      var firstDollarIdx = rest.indexOf('$');
-      var storeName = firstDollarIdx > 0 ? rest.slice(0, firstDollarIdx).trim() : rest;
-      /* Clean up stand number that may be embedded in name */
-      storeName = storeName.replace(/^\d+\s+/, '').trim();
+      if(nums.length < 2) return; /* need at least some sales data */
+
+      /* Extract store name — everything before the first number */
+      var firstNumIdx = rest.search(/\d{2,3},\d{3}|\$\d/);
+      var storeName = firstNumIdx > 0 ? rest.slice(0, firstNumIdx).trim() : rest;
 
       /* Extract percentage (SSS) */
       var tokens = rest.split(/\s+/);
       var sss = '—';
       tokens.forEach(function(t){ if(pctRe.test(t)) sss = t; });
 
-      /* Assign dollar columns: we1 we2 we3 we4 l4a arr
-         Most stores have 4 weekly + l4a + arr = 6 values
-         New stores may have fewer weekly values */
-      var is_new = dollars.length < 5;
-      var we1 = normVal(dollars[0]);
-      var we2 = normVal(dollars[1]);
-      var we3 = normVal(dollars[2]);
-      var we4 = normVal(dollars[3]);
-      var l4a = normVal(dollars[dollars.length >= 2 ? dollars.length-2 : 0]);
-      var arr = normVal(dollars[dollars.length-1]);
+      /* Assign columns based on count:
+         6 nums = we1 we2 we3 we4 l4a arr  (full store, 4 weeks data)
+         5 nums = we1 we2 we3 we4 l4a      (missing arr / new store)
+         4 nums = we1 we2 we3 l4a arr      (3 weeks)
+         3 nums = we1 we2 l4a arr          (2 weeks)
+         2 nums = we1 l4a                  (1 week / brand new) */
+      var is_new = false;
+      var we1='—', we2='—', we3='—', we4='—', l4a='—', arr='—';
 
-      /* For stores with fewer than 4 weeks shift values left */
-      if(dollars.length === 5) { we4='—'; l4a=normVal(dollars[3]); arr=normVal(dollars[4]); }
-      else if(dollars.length === 4) { we3='—'; we4='—'; l4a=normVal(dollars[2]); arr=normVal(dollars[3]); }
-      else if(dollars.length === 3) { we2='—'; we3='—'; we4='—'; l4a=normVal(dollars[1]); arr=normVal(dollars[2]); }
-      else if(dollars.length === 2) { we2='—'; we3='—'; we4='—'; l4a=normVal(dollars[0]); arr=normVal(dollars[1]); }
+      if(nums.length >= 6) {
+        we1=nums[0]; we2=nums[1]; we3=nums[2]; we4=nums[3];
+        l4a=nums[nums.length-2]; arr=nums[nums.length-1];
+      } else if(nums.length === 5) {
+        we1=nums[0]; we2=nums[1]; we3=nums[2]; we4=nums[3]; l4a=nums[4]; is_new=false;
+      } else if(nums.length === 4) {
+        we1=nums[0]; we2=nums[1]; we3=nums[2]; l4a=nums[3]; is_new=true;
+      } else if(nums.length === 3) {
+        we1=nums[0]; we2=nums[1]; l4a=nums[2]; is_new=true;
+      } else if(nums.length === 2) {
+        we1=nums[0]; l4a=nums[1]; is_new=true;
+      }
 
       /* Deduplicate by rank */
       if(stores.find(function(s){return s.rank===rank;})) return;
