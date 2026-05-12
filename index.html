@@ -1496,7 +1496,7 @@ async function processWBR(input){
 
     if(file.name.toLowerCase().endsWith('.txt')){
       /* TXT file — read directly, no PDF extraction needed */
-      setStatus('Step 1 of 3 — Reading text file...');
+      setStatus('Step 1 of 4 — Reading text file...');
       pdfText = await new Promise(function(resolve,reject){
         var reader=new FileReader();
         reader.onload=function(e){ resolve(e.target.result); };
@@ -1505,54 +1505,119 @@ async function processWBR(input){
       });
     } else {
       /* PDF file — extract text with PDF.js */
-      setStatus('Step 1 of 3 — Reading PDF...');
+      setStatus('Step 1 of 4 — Reading PDF...');
       pdfText = await extractPDFText(file);
     }
 
     if(!pdfText || pdfText.length < 100) throw new Error('Could not extract text from file — try copying and pasting the WBR content into a .txt file.');
 
-    setStatus('Step 2 of 3 — Parsing store data (this takes ~15 seconds)...');
+    setStatus('Step 2 of 4 — Parsing store data (pass 1 of 3)...');
 
-    /* Send TEXT not binary — much faster, no timeout */
-    var sys1='You are parsing a 7Crew Enterprises Weekly Business Review. Extract ALL store data. Return ONLY valid JSON with no markdown: {"kpis":{"ytd":"","daily":"","run_rate":"","ticket":"","employees":"","l4a":"","arr":"","week_ending":""},"week_dates":["","","",""],"stores":[{"rank":1,"name":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. Include every single store row — do not stop early.';
+    /* TWO-PASS PARSING: split into two API calls so we never hit token limits.
+       Pass 1: KPIs + stores ranked 1-50
+       Pass 2: stores ranked 51+ (or any remaining stores)
+       Then merge results. Using Sonnet for reliable large structured output. */
 
-    var body={
-      model:'claude-haiku-4-5-20251001',
-      max_tokens:8192,
-      system:sys1,
-      messages:[{role:'user',content:'Parse this WBR report and return complete JSON with ALL stores:\n\n'+pdfText.slice(0,60000)}]
+    var apiCall = async function(systemPrompt, userContent) {
+      var body = {
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8192,
+        system: systemPrompt,
+        messages: [{role:'user', content: userContent}]
+      };
+      var r = await fetch('/.netlify/functions/claude', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      var rawText = await r.text();
+      var d;
+      try { d = JSON.parse(rawText); }
+      catch(e) { throw new Error('Bad response from function: ' + rawText.slice(0,200)); }
+      if(d.error) throw new Error('API error: ' + JSON.stringify(d.error));
+      if(!d.content || !Array.isArray(d.content)) throw new Error('No content in response');
+      return d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
     };
 
-    var r=await fetch('/.netlify/functions/claude',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
-    var rawText=await r.text();
-    var d;
-    try{ d=JSON.parse(rawText); }
-    catch(e){ throw new Error('Bad response from function: '+rawText.slice(0,200)); }
-    if(d.error) throw new Error('API error: '+JSON.stringify(d.error));
-    if(!d.content||!Array.isArray(d.content)) throw new Error('No content in response');
+    var safeParseJSON = function(text) {
+      text = text.trim();
+      /* Strip markdown fences */
+      text = text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'');
+      return JSON.parse(text);
+    };
 
-    var jsonText=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    /* Pass 1 — KPIs + first half of stores */
+    var sys1 = 'You are parsing a 7Crew Enterprises Weekly Business Review (WBR). ' +
+      'Return ONLY valid JSON, no markdown, no explanation. Schema: ' +
+      '{"kpis":{"ytd":"","daily":"","run_rate":"","ticket":"","employees":"","l4a":"","arr":"","week_ending":""},' +
+      '"week_dates":["","","",""],' +
+      '"stores":[{"rank":1,"name":"","stand":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. ' +
+      'Extract the KPIs and the FIRST 50 stores (ranks 1-50) only. Include every field for each store row.';
 
-    var parsed;
-    try{ parsed=safeJSON(jsonText); }
-    catch(e){
-      try{
-        var salvage=jsonText.trim();
-        if(salvage.lastIndexOf('"')>salvage.lastIndexOf('}')) salvage=salvage.slice(0,salvage.lastIndexOf('"')+1);
-        var lastComma=salvage.lastIndexOf(',{');
-        if(lastComma>0) salvage=salvage.slice(0,lastComma)+']}}'; else salvage=salvage+']}}'; 
-        parsed=JSON.parse(salvage);
-        console.warn('WBR: salvaged JSON, '+((parsed.stores||[]).length)+' stores');
-      }catch(e2){ throw new Error('Could not parse store JSON: '+e.message+' Raw: '+jsonText.slice(0,300)); }
+    var jsonText1 = await apiCall(sys1,
+      'Parse this WBR. Return KPIs and stores ranked 1 through 50.\n\n' + pdfText.slice(0, 55000));
+
+    var parsed1;
+    try { parsed1 = safeParseJSON(jsonText1); }
+    catch(e) { throw new Error('Pass 1 JSON parse failed: ' + e.message + ' Raw: ' + jsonText1.slice(0,300)); }
+
+    setStatus('Step 2 of 4 — Parsing store data (pass 2 of 3)...');
+
+    /* Pass 2 — stores 51-100 */
+    var sys2 = 'You are parsing a 7Crew Enterprises Weekly Business Review (WBR). ' +
+      'Return ONLY valid JSON, no markdown, no explanation. Schema: ' +
+      '{"stores":[{"rank":51,"name":"","stand":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. ' +
+      'Extract ONLY the stores ranked 51 through 100. Do not include ranks 1-50. Do not stop early.';
+
+    var jsonText2 = await apiCall(sys2,
+      'Parse this WBR. Return ONLY stores ranked 51 through 100.\n\n' + pdfText.slice(0, 55000));
+
+    var parsed2;
+    try { parsed2 = safeParseJSON(jsonText2); }
+    catch(e) {
+      console.warn('Pass 2 parse failed:', e.message);
+      parsed2 = {stores:[]};
     }
+
+    setStatus('Step 3 of 4 — Parsing store data (pass 3 of 3)...');
+
+    /* Pass 3 — stores 101+ */
+    var sys3 = 'You are parsing a 7Crew Enterprises Weekly Business Review (WBR). ' +
+      'Return ONLY valid JSON, no markdown, no explanation. Schema: ' +
+      '{"stores":[{"rank":101,"name":"","stand":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. ' +
+      'Extract ONLY the stores ranked 101 and above (the newest stores at the very bottom of the table). ' +
+      'If there are no stores ranked 101+, return {"stores":[]}. Do not stop early.';
+
+    var jsonText3 = await apiCall(sys3,
+      'Parse this WBR. Return ONLY stores ranked 101 and higher. If none exist yet, return {"stores":[]}.\n\n' + pdfText.slice(0, 55000));
+
+    var parsed3;
+    try { parsed3 = safeParseJSON(jsonText3); }
+    catch(e) {
+      console.warn('Pass 3 parse failed:', e.message);
+      parsed3 = {stores:[]};
+    }
+
+    /* Merge all three passes — deduplicate by rank, then sort */
+    var merged = parsed1;
+    var existingRanks = {};
+    (merged.stores||[]).forEach(function(s){ existingRanks[s.rank] = true; });
+    [parsed2, parsed3].forEach(function(p){
+      (p.stores||[]).forEach(function(s){
+        if(!existingRanks[s.rank]) {
+          merged.stores.push(s);
+          existingRanks[s.rank] = true;
+        }
+      });
+    });
+    merged.stores.sort(function(a,b){ return (a.rank||0)-(b.rank||0); });
+
+    var parsed = merged;
+    console.log('WBR three-pass complete: ' + parsed.stores.length + ' stores');
 
     if(!parsed.stores||!parsed.stores.length) throw new Error('No stores found in response');
 
-    setStatus('Step 3 of 3 — Building report ('+parsed.stores.length+' stores)...');
+    setStatus('Step 4 of 4 — Building report ('+parsed.stores.length+' stores)...');
 
     /* Build HTML client-side */
     var kp=parsed.kpis||{};
