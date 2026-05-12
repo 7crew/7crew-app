@@ -1513,13 +1513,13 @@ async function processWBR(input){
 
     setStatus('Parsing WBR data...');
 
-    /* ── UNIFIED WBR PARSER — handles both txt and PDF-extracted formats ──
-       The WBR txt has two sections:
-         Format A (ranks 1-34): jammed single line, numbers FOLLOWED by $
-           e.g: "131121Odessa 273,424$ 74,576$ ..."  (rank=1, stand=121)
-         Format B (ranks 35-78): clean spaced lines, $ BEFORE numbers
-           e.g: "35 949 Weatherford (TX) $ 49,034 $ 50,537 ..."
-       New stores (72+): have fewer columns (no ARR/T13)
+    /* ── WBR PARSER ────────────────────────────────────────────────────────
+       FORMAT A (ranks 1-34): jammed block between "ARR/T13" and "P5 W3"
+         Each entry: RANK(1-2d)+STAND(3-4d)+Name+numbers$  (no spaces between entries)
+         e.g. "1121Odessa 273,424$ 74,576$ ... 2425Pensacola61,660$ ..."
+       FORMAT B (ranks 35-78): individual CRLF lines, $ before each number
+         e.g. "35 949 Weatherford (TX) $ 49,034 $ 50,537 ..."
+       New stores (72+): Format B but fewer columns, treated as is_new
        ──────────────────────────────────────────────────────────────────── */
 
     var txt = pdfText;
@@ -1527,7 +1527,6 @@ async function processWBR(input){
     var seen = {};
     var numRe = /\d{1,3}(?:,\d{3})+/g;
 
-    /* Assign weekly/L4A/ARR from array of extracted numbers */
     var assignNums = function(nums, is_new) {
       var r = {we1:'—',we2:'—',we3:'—',we4:'—',l4a:'—',arr:'—',is_new:is_new||false};
       if(nums.length>=6){ r.we1=nums[0];r.we2=nums[1];r.we3=nums[2];r.we4=nums[3];r.l4a=nums[nums.length-2];r.arr=nums[nums.length-1]; }
@@ -1539,64 +1538,48 @@ async function processWBR(input){
       return r;
     };
 
-    /* ── FORMAT B: clean spaced lines — works for ranks 35-78 ── */
+    /* ── STEP 1: FORMAT A — ranks 1-34 from the jammed block ── */
+    var arrIdx = txt.indexOf('ARR/T13');
+    var p5Idx  = txt.indexOf('P5 W3');
+    if(arrIdx >= 0 && p5Idx > arrIdx) {
+      var jamBlock = txt.slice(arrIdx + 7, p5Idx).replace(/[\r\n]/g, ' ');
+      /* Split at each entry boundary: 1-2 digit rank immediately followed by 3-4 digit stand then a letter */
+      var parts = jamBlock.split(/(?=\b\d{1,2}\d{3,4}[A-Za-z])/);
+      parts.forEach(function(part) {
+        part = part.trim();
+        /* Match: rank(1-2d) stand(3-4d) name(non-$ non-digit chars) first-number */
+        var m = part.match(/^(\d{1,2})(\d{3,4})([^$\d]+?)\s*(\d[\d,]+)/);
+        if(!m) return;
+        var rank = parseInt(m[1]);
+        if(rank < 1 || rank > 34 || seen[rank]) return;
+        var standNum = parseInt(m[2]);
+        if(standNum < 87 || standNum > 1200) return;
+        var nums = (part.match(numRe) || []);
+        if(nums.length < 6) return;
+        var pct = (part.match(/-?\d+\.?\d*%/) || ['—'])[0];
+        var row = assignNums(nums, false);
+        var nameEnd = part.indexOf(m[4]);
+        row.rank = rank; row.stand = m[2];
+        row.name = part.slice(m[1].length + m[2].length, nameEnd).trim();
+        row.sss = pct;
+        seen[rank] = true; stores.push(row);
+      });
+    }
+
+    /* ── STEP 2: FORMAT B — ranks 35-78 from individual lines ──
+       Key fix: use [^$]+ for name so it stops cleanly at the first $ sign */
     txt.split('\n').forEach(function(rawLine) {
       var line = rawLine.replace(/\r/,'').trim();
-      /* Match: RANK  STAND  Name  $ number */
-      var m = line.match(/^(\d{1,3})\s+(\d{2,4})\s+([A-Za-z][A-Za-z0-9 '.,()\/\-]*?)\s+\$([\d])/);
+      var m = line.match(/^(\d{1,3})\s+(\d{2,4})\s+([^$]+?)\s*\$\s*(\d)/);
       if(!m) return;
-      var rank=parseInt(m[1]); if(rank<1||rank>300||seen[rank]) return;
-      var nums=(line.match(numRe)||[]);
-      var pct=(line.match(/-?\d+\.?\d*%/)||['—'])[0];
-      var row=assignNums(nums, nums.length<5);
-      row.rank=rank; row.stand=m[2]; row.name=m[3].trim(); row.sss=pct;
-      seen[rank]=true; stores.push(row);
+      var rank = parseInt(m[1]);
+      if(rank < 35 || rank > 300 || seen[rank]) return;
+      var nums = (line.match(numRe) || []);
+      var pct = (line.match(/-?\d+\.?\d*%/) || ['—'])[0];
+      var row = assignNums(nums, nums.length < 6);
+      row.rank = rank; row.stand = m[2]; row.name = m[3].trim(); row.sss = pct;
+      seen[rank] = true; stores.push(row);
     });
-
-    /* ── FORMAT A: jammed section for ranks 1-34 ──
-       These appear either as one long line (PDF extraction) or as a large
-       block of text. We scan the whole txt for the pattern:
-         RANK+STAND concatenated, e.g. "131121" = rank 1, stand 121
-       Then name, then numbers followed by $
-    */
-    /* First try: find a single line >300 chars */
-    var jammedLine='';
-    txt.split('\n').forEach(function(l){
-      var cl=l.replace(/\r/,'');
-      if(cl.length>300 && cl.indexOf('Odessa')>=0) jammedLine=cl;
-    });
-
-    /* Second try: if no jammed line found, stitch the block between
-       "ARR/T13" and "P5 W3" which contains ranks 1-34 in the txt */
-    if(!jammedLine){
-      var arrIdx=txt.indexOf('ARR/T13');
-      var p5Idx=txt.indexOf('P5 W3');
-      if(arrIdx>=0){
-        var endIdx=(p5Idx>arrIdx)?p5Idx:txt.length;
-        jammedLine=txt.slice(arrIdx+7, endIdx).replace(/\n/g,' ').replace(/\r/g,'');
-      }
-    }
-
-    if(jammedLine) {
-      /* Pattern: rank(1-2 digits) immediately followed by stand(3-4 digits)
-         then name (letters/spaces), then dollar amounts ending with $
-         Handles optional SSS% embedded in the run */
-      var reA=/\b(\d{1,2})(\d{3,4})([A-Za-z][A-Za-z0-9 '.()\/-]*?)\s+((?:\d[\d,]*\$\s*)+(?:-?\d+\.\d*%\s*)?(?:\d[\d,]*\$\s*)*)/g;
-      var mA;
-      while((mA=reA.exec(jammedLine))!==null){
-        var rank=parseInt(mA[1]);
-        if(rank<1||rank>34||seen[rank]) continue;
-        /* Sanity: stand number should be 3-4 digits and plausible */
-        var standNum=parseInt(mA[2]);
-        if(standNum<87||standNum>1200) continue;
-        var nums=(mA[0].match(numRe)||[]);
-        if(nums.length<4) continue; /* skip noise matches */
-        var pct=(mA[0].match(/-?\d+\.?\d*%/)||['—'])[0];
-        var row=assignNums(nums, false);
-        row.rank=rank; row.stand=mA[2]; row.name=mA[3].trim(); row.sss=pct;
-        seen[rank]=true; stores.push(row);
-      }
-    }
 
     stores.sort(function(a,b){return a.rank-b.rank;});
     console.log('WBR JS parser found '+stores.length+' stores');
@@ -1670,6 +1653,9 @@ async function processWBR(input){
 
     wbrData=html; wbrLoaded=true;
     document.getElementById('wbr-content').innerHTML=html;
+    /* Reset status bar to show week/store count now that parsing is complete */
+    var _wsEl=document.getElementById('wbr-status');
+    if(_wsEl) _wsEl.innerHTML='Week ending <strong style="color:var(--black)">'+(kp.week_ending||'—')+'</strong> · '+parsed.stores.length+' stores loaded';
     saveReportToSupa('wbr',html,file.name);
 
     /* Extract metrics directly from parsed data — no API call needed */
