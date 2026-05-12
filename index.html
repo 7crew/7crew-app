@@ -1513,17 +1513,16 @@ async function processWBR(input){
 
     setStatus('Step 2 of 3 — Parsing all stores in parallel (this takes ~15 seconds)...');
 
-    /* PARALLEL THREE-PASS PARSING: all three API calls fire simultaneously
-       so total wait = slowest single call (~15s) not sum of all three (~45s).
-       Pass 1: KPIs + stores ranked 1-50
-       Pass 2: stores ranked 51-100
-       Pass 3: stores ranked 101+ (ready for end-of-year growth to 113+)
-       Results are merged and deduplicated by rank. */
+    /* PARALLEL THREE-PASS PARSING using Haiku (fast, under timeout).
+       Compact pipe-delimited format uses far fewer output tokens than JSON,
+       so all 79-113 stores fit in a single pass per call.
+       Pass 1: KPIs + stores 1-50 | Pass 2: stores 51-100 | Pass 3: stores 101+
+       All three fire simultaneously via Promise.all. */
 
     var apiCall = async function(systemPrompt, userContent) {
       var body = {
-        model: 'claude-sonnet-4-5',
-        max_tokens: 8192,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4096,
         system: systemPrompt,
         messages: [{role:'user', content: userContent}]
       };
@@ -1541,56 +1540,104 @@ async function processWBR(input){
       return d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
     };
 
-    var safeParseJSON = function(text) {
-      text = text.trim();
-      text = text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'');
-      return JSON.parse(text);
-    };
+    /* Compact pipe-delimited format: rank|name|we1|we2|we3|we4|sss|l4a|arr|is_new
+       Much smaller output than JSON — fits all stores easily in 4096 tokens. */
+    var pipeSchema = 'rank|name|we1|we2|we3|we4|sss|l4a|arr|is_new(0 or 1)';
 
-    var sys1 = 'You are parsing a 7Crew Enterprises Weekly Business Review (WBR). ' +
-      'Return ONLY valid JSON, no markdown, no explanation. Schema: ' +
-      '{"kpis":{"ytd":"","daily":"","run_rate":"","ticket":"","employees":"","l4a":"","arr":"","week_ending":""},' +
-      '"week_dates":["","","",""],' +
-      '"stores":[{"rank":1,"name":"","stand":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. ' +
-      'Extract the KPIs and ONLY stores ranked 1 through 50. Include every field for each store row.';
+    var sys1 = 'You are parsing a 7Crew WBR. Return ONLY two sections separated by ---\n' +
+      'Section 1 (KPIs, one line each, format KEY=VALUE):\n' +
+      'YTD=\nDAILY=\nRUN_RATE=\nTICKET=\nEMPLOYEES=\nL4A=\nARR=\nWEEK_ENDING=\nDATE1=\nDATE2=\nDATE3=\nDATE4=\n' +
+      '---\n' +
+      'Section 2 (stores ranked 1-50, pipe-delimited, one per line):\n' +
+      pipeSchema + '\n' +
+      'Use — for missing values. No header row. No extra text.';
 
-    var sys2 = 'You are parsing a 7Crew Enterprises Weekly Business Review (WBR). ' +
-      'Return ONLY valid JSON, no markdown, no explanation. Schema: ' +
-      '{"stores":[{"rank":51,"name":"","stand":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. ' +
-      'Extract ONLY stores ranked 51 through 100. Do not include ranks 1-50. Do not stop early.';
+    var sys2 = 'You are parsing a 7Crew WBR. Return ONLY stores ranked 51 through 100, pipe-delimited, one per line:\n' +
+      pipeSchema + '\n' +
+      'Use — for missing values. No header row. No extra text. If fewer than 51 stores exist total, return NONE.';
 
-    var sys3 = 'You are parsing a 7Crew Enterprises Weekly Business Review (WBR). ' +
-      'Return ONLY valid JSON, no markdown, no explanation. Schema: ' +
-      '{"stores":[{"rank":101,"name":"","stand":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. ' +
-      'Extract ONLY stores ranked 101 and above. If none exist yet, return {"stores":[]}.';
+    var sys3 = 'You are parsing a 7Crew WBR. Return ONLY stores ranked 101 and above, pipe-delimited, one per line:\n' +
+      pipeSchema + '\n' +
+      'Use — for missing values. No header row. No extra text. If fewer than 101 stores exist total, return NONE.';
 
-    var truncated = pdfText.slice(0, 55000);
+    var truncated = pdfText.slice(0, 50000);
 
     /* Fire all three in parallel */
     var results = await Promise.all([
-      apiCall(sys1, 'Parse this WBR. Return KPIs and stores ranked 1 through 50.\n\n' + truncated),
-      apiCall(sys2, 'Parse this WBR. Return ONLY stores ranked 51 through 100.\n\n' + truncated),
-      apiCall(sys3, 'Parse this WBR. Return ONLY stores ranked 101 and higher. If none exist, return {"stores":[]}.\n\n' + truncated)
+      apiCall(sys1, 'Parse this WBR. Return KPIs and stores ranked 1-50.\n\n' + truncated),
+      apiCall(sys2, 'Parse this WBR. Return ONLY stores ranked 51-100.\n\n' + truncated),
+      apiCall(sys3, 'Parse this WBR. Return ONLY stores ranked 101+.\n\n' + truncated)
     ]);
 
-    var parsed1, parsed2, parsed3;
-    try { parsed1 = safeParseJSON(results[0]); }
-    catch(e) { throw new Error('Pass 1 JSON parse failed: ' + e.message + ' Raw: ' + results[0].slice(0,300)); }
-    try { parsed2 = safeParseJSON(results[1]); } catch(e) { parsed2 = {stores:[]}; }
-    try { parsed3 = safeParseJSON(results[2]); } catch(e) { parsed3 = {stores:[]}; }
+    /* Parse section 1 result (KPIs + stores 1-50) */
+    var parsePipeResult = function(text, hasKpis) {
+      var kpis = {}, week_dates = [], stores = [];
+      text = text.trim();
+      if(text === 'NONE' || text === '') return {kpis:kpis, week_dates:week_dates, stores:stores};
 
-    /* Merge all three — deduplicate by rank, sort ascending */
-    var merged = parsed1;
-    var existingRanks = {};
-    (merged.stores||[]).forEach(function(s){ existingRanks[s.rank] = true; });
-    [parsed2, parsed3].forEach(function(p){
-      (p.stores||[]).forEach(function(s){
-        if(!existingRanks[s.rank]) { merged.stores.push(s); existingRanks[s.rank] = true; }
+      if(hasKpis) {
+        var parts = text.split(/\n---\n|\n---$/);
+        var kpiBlock = parts[0] || '';
+        var storeBlock = parts[1] || '';
+        kpiBlock.split('\n').forEach(function(line){
+          var eq = line.indexOf('=');
+          if(eq < 0) return;
+          var k = line.slice(0,eq).trim();
+          var v = line.slice(eq+1).trim();
+          if(k==='YTD') kpis.ytd=v;
+          else if(k==='DAILY') kpis.daily=v;
+          else if(k==='RUN_RATE') kpis.run_rate=v;
+          else if(k==='TICKET') kpis.ticket=v;
+          else if(k==='EMPLOYEES') kpis.employees=v;
+          else if(k==='L4A') kpis.l4a=v;
+          else if(k==='ARR') kpis.arr=v;
+          else if(k==='WEEK_ENDING') kpis.week_ending=v;
+          else if(k==='DATE1') week_dates[0]=v;
+          else if(k==='DATE2') week_dates[1]=v;
+          else if(k==='DATE3') week_dates[2]=v;
+          else if(k==='DATE4') week_dates[3]=v;
+        });
+        text = storeBlock;
+      }
+
+      text.split('\n').forEach(function(line){
+        line = line.trim();
+        if(!line || line==='NONE') return;
+        var cols = line.split('|');
+        if(cols.length < 4) return;
+        var rank = parseInt(cols[0]);
+        if(isNaN(rank)) return;
+        stores.push({
+          rank: rank,
+          name: cols[1]||'',
+          we1:  cols[2]||'—',
+          we2:  cols[3]||'—',
+          we3:  cols[4]||'—',
+          we4:  cols[5]||'—',
+          sss:  cols[6]||'—',
+          l4a:  cols[7]||'—',
+          arr:  cols[8]||'—',
+          is_new: cols[9]==='1'
+        });
+      });
+      return {kpis:kpis, week_dates:week_dates, stores:stores};
+    };
+
+    var r1 = parsePipeResult(results[0], true);
+    var r2 = parsePipeResult(results[1], false);
+    var r3 = parsePipeResult(results[2], false);
+
+    /* Merge — deduplicate by rank, sort ascending */
+    var allStores = [];
+    var seenRanks = {};
+    [r1.stores, r2.stores, r3.stores].forEach(function(arr){
+      arr.forEach(function(s){
+        if(!seenRanks[s.rank]) { allStores.push(s); seenRanks[s.rank]=true; }
       });
     });
-    merged.stores.sort(function(a,b){ return (a.rank||0)-(b.rank||0); });
+    allStores.sort(function(a,b){ return a.rank-b.rank; });
 
-    var parsed = merged;
+    var parsed = { kpis: r1.kpis, week_dates: r1.week_dates, stores: allStores };
     console.log('WBR parallel parse complete: ' + parsed.stores.length + ' stores');
 
     if(!parsed.stores||!parsed.stores.length) throw new Error('No stores found in response');
