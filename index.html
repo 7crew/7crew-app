@@ -1496,7 +1496,7 @@ async function processWBR(input){
 
     if(file.name.toLowerCase().endsWith('.txt')){
       /* TXT file — read directly, no PDF extraction needed */
-      setStatus('Step 1 of 4 — Reading text file...');
+      setStatus('Step 1 of 3 — Reading text file...');
       pdfText = await new Promise(function(resolve,reject){
         var reader=new FileReader();
         reader.onload=function(e){ resolve(e.target.result); };
@@ -1505,18 +1505,20 @@ async function processWBR(input){
       });
     } else {
       /* PDF file — extract text with PDF.js */
-      setStatus('Step 1 of 4 — Reading PDF...');
+      setStatus('Step 1 of 3 — Reading PDF...');
       pdfText = await extractPDFText(file);
     }
 
     if(!pdfText || pdfText.length < 100) throw new Error('Could not extract text from file — try copying and pasting the WBR content into a .txt file.');
 
-    setStatus('Step 2 of 4 — Parsing store data (pass 1 of 3)...');
+    setStatus('Step 2 of 3 — Parsing all stores in parallel (this takes ~15 seconds)...');
 
-    /* TWO-PASS PARSING: split into two API calls so we never hit token limits.
+    /* PARALLEL THREE-PASS PARSING: all three API calls fire simultaneously
+       so total wait = slowest single call (~15s) not sum of all three (~45s).
        Pass 1: KPIs + stores ranked 1-50
-       Pass 2: stores ranked 51+ (or any remaining stores)
-       Then merge results. Using Sonnet for reliable large structured output. */
+       Pass 2: stores ranked 51-100
+       Pass 3: stores ranked 101+ (ready for end-of-year growth to 113+)
+       Results are merged and deduplicated by rank. */
 
     var apiCall = async function(systemPrompt, userContent) {
       var body = {
@@ -1541,83 +1543,59 @@ async function processWBR(input){
 
     var safeParseJSON = function(text) {
       text = text.trim();
-      /* Strip markdown fences */
       text = text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'');
       return JSON.parse(text);
     };
 
-    /* Pass 1 — KPIs + first half of stores */
     var sys1 = 'You are parsing a 7Crew Enterprises Weekly Business Review (WBR). ' +
       'Return ONLY valid JSON, no markdown, no explanation. Schema: ' +
       '{"kpis":{"ytd":"","daily":"","run_rate":"","ticket":"","employees":"","l4a":"","arr":"","week_ending":""},' +
       '"week_dates":["","","",""],' +
       '"stores":[{"rank":1,"name":"","stand":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. ' +
-      'Extract the KPIs and the FIRST 50 stores (ranks 1-50) only. Include every field for each store row.';
+      'Extract the KPIs and ONLY stores ranked 1 through 50. Include every field for each store row.';
 
-    var jsonText1 = await apiCall(sys1,
-      'Parse this WBR. Return KPIs and stores ranked 1 through 50.\n\n' + pdfText.slice(0, 55000));
-
-    var parsed1;
-    try { parsed1 = safeParseJSON(jsonText1); }
-    catch(e) { throw new Error('Pass 1 JSON parse failed: ' + e.message + ' Raw: ' + jsonText1.slice(0,300)); }
-
-    setStatus('Step 2 of 4 — Parsing store data (pass 2 of 3)...');
-
-    /* Pass 2 — stores 51-100 */
     var sys2 = 'You are parsing a 7Crew Enterprises Weekly Business Review (WBR). ' +
       'Return ONLY valid JSON, no markdown, no explanation. Schema: ' +
       '{"stores":[{"rank":51,"name":"","stand":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. ' +
-      'Extract ONLY the stores ranked 51 through 100. Do not include ranks 1-50. Do not stop early.';
+      'Extract ONLY stores ranked 51 through 100. Do not include ranks 1-50. Do not stop early.';
 
-    var jsonText2 = await apiCall(sys2,
-      'Parse this WBR. Return ONLY stores ranked 51 through 100.\n\n' + pdfText.slice(0, 55000));
-
-    var parsed2;
-    try { parsed2 = safeParseJSON(jsonText2); }
-    catch(e) {
-      console.warn('Pass 2 parse failed:', e.message);
-      parsed2 = {stores:[]};
-    }
-
-    setStatus('Step 3 of 4 — Parsing store data (pass 3 of 3)...');
-
-    /* Pass 3 — stores 101+ */
     var sys3 = 'You are parsing a 7Crew Enterprises Weekly Business Review (WBR). ' +
       'Return ONLY valid JSON, no markdown, no explanation. Schema: ' +
       '{"stores":[{"rank":101,"name":"","stand":"","we1":"","we2":"","we3":"","we4":"","sss":"","l4a":"","arr":"","is_new":false}]}. ' +
-      'Extract ONLY the stores ranked 101 and above (the newest stores at the very bottom of the table). ' +
-      'If there are no stores ranked 101+, return {"stores":[]}. Do not stop early.';
+      'Extract ONLY stores ranked 101 and above. If none exist yet, return {"stores":[]}.';
 
-    var jsonText3 = await apiCall(sys3,
-      'Parse this WBR. Return ONLY stores ranked 101 and higher. If none exist yet, return {"stores":[]}.\n\n' + pdfText.slice(0, 55000));
+    var truncated = pdfText.slice(0, 55000);
 
-    var parsed3;
-    try { parsed3 = safeParseJSON(jsonText3); }
-    catch(e) {
-      console.warn('Pass 3 parse failed:', e.message);
-      parsed3 = {stores:[]};
-    }
+    /* Fire all three in parallel */
+    var results = await Promise.all([
+      apiCall(sys1, 'Parse this WBR. Return KPIs and stores ranked 1 through 50.\n\n' + truncated),
+      apiCall(sys2, 'Parse this WBR. Return ONLY stores ranked 51 through 100.\n\n' + truncated),
+      apiCall(sys3, 'Parse this WBR. Return ONLY stores ranked 101 and higher. If none exist, return {"stores":[]}.\n\n' + truncated)
+    ]);
 
-    /* Merge all three passes — deduplicate by rank, then sort */
+    var parsed1, parsed2, parsed3;
+    try { parsed1 = safeParseJSON(results[0]); }
+    catch(e) { throw new Error('Pass 1 JSON parse failed: ' + e.message + ' Raw: ' + results[0].slice(0,300)); }
+    try { parsed2 = safeParseJSON(results[1]); } catch(e) { parsed2 = {stores:[]}; }
+    try { parsed3 = safeParseJSON(results[2]); } catch(e) { parsed3 = {stores:[]}; }
+
+    /* Merge all three — deduplicate by rank, sort ascending */
     var merged = parsed1;
     var existingRanks = {};
     (merged.stores||[]).forEach(function(s){ existingRanks[s.rank] = true; });
     [parsed2, parsed3].forEach(function(p){
       (p.stores||[]).forEach(function(s){
-        if(!existingRanks[s.rank]) {
-          merged.stores.push(s);
-          existingRanks[s.rank] = true;
-        }
+        if(!existingRanks[s.rank]) { merged.stores.push(s); existingRanks[s.rank] = true; }
       });
     });
     merged.stores.sort(function(a,b){ return (a.rank||0)-(b.rank||0); });
 
     var parsed = merged;
-    console.log('WBR three-pass complete: ' + parsed.stores.length + ' stores');
+    console.log('WBR parallel parse complete: ' + parsed.stores.length + ' stores');
 
     if(!parsed.stores||!parsed.stores.length) throw new Error('No stores found in response');
 
-    setStatus('Step 4 of 4 — Building report ('+parsed.stores.length+' stores)...');
+    setStatus('Step 3 of 3 — Building report ('+parsed.stores.length+' stores)...');
 
     /* Build HTML client-side */
     var kp=parsed.kpis||{};
