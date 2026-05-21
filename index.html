@@ -1574,7 +1574,7 @@ if(arrIdx >= 0 && p5Idx > arrIdx) {
       var m = line.match(/^(\d{1,3})\s+(\d{2,4})\s+([^$]+?)\s*\$\s*(\d)/);
       if(!m) return;
       var rank = parseInt(m[1]);
-      if(rank < 35 || rank > 300 || seen[rank]) return;
+      if(rank < 1 || rank > 300 || seen[rank]) return;
       var nums = (line.match(numRe) || []);
       var pct = (line.match(/-?\d+\.?\d*%/) || ['—'])[0];
       var row = assignNums(nums, nums.length < 6);
