@@ -1540,9 +1540,9 @@ async function processWBR(input){
 
     /* ── STEP 1: FORMAT A — ranks 1-34 from the jammed block ── */
     var arrIdx = txt.indexOf('ARR/T13');
-    var p5Idx = txt.indexOf('P5 W4');
+  var p5Idx = txt.indexOf('P5 W4');
 if(p5Idx < 0) p5Idx = txt.indexOf('P5 W3');
-    if(arrIdx >= 0 && p5Idx > arrIdx) {
+if(arrIdx >= 0 && p5Idx > arrIdx) {
       var jamBlock = txt.slice(arrIdx + 7, p5Idx).replace(/[\r\n]/g, ' ');
       /* Split at each entry boundary: 1-2 digit rank immediately followed by 3-4 digit stand then a letter */
       var parts = jamBlock.split(/(?=\b\d{1,2}\d{3,4}[A-Za-z])/);
