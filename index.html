@@ -424,8 +424,12 @@ function loadLiveMetrics(){
   supa('metrics?id=eq.wbr_current&select=*').then(function(rows){
     if(rows && rows.length){
       liveMetrics = rows[0];
-      digestCache = null; /* Force digest to regenerate with the latest Supabase metrics */
+      digestCache = null;
       digestDate  = null;
+      /* Only re-render if digest is currently visible */
+      if(currentSub === 'digest'){
+        renderDigest();
+      }
     }
   }).catch(function(e){ console.log('Metrics load:',e); });
 }
@@ -1779,20 +1783,7 @@ async function processDev(input){
 loadLocal();
 fetchFromSupa();
 loadReportsFromSupa();
+loadLiveMetrics();
 checkNearby();
 
-/* Wait for live metrics before rendering digest */
-try {
-  supa('metrics?id=eq.wbr_current&select=*')
-    .then(function(rows){
-      if(rows && rows.length){
-        liveMetrics = rows[0];
-      }
-      switchPrimary('digest');
-    })
-    .catch(function(){
-      switchPrimary('digest');
-    });
-} catch(e) {
-  switchPrimary('digest');
-}
+switchPrimary('digest');
