@@ -424,12 +424,8 @@ function loadLiveMetrics(){
   supa('metrics?id=eq.wbr_current&select=*').then(function(rows){
     if(rows && rows.length){
       liveMetrics = rows[0];
-      digestCache = null;
+      digestCache = null; /* Force digest to regenerate with the latest Supabase metrics */
       digestDate  = null;
-      /* Only re-render if digest is currently visible */
-      if(currentSub === 'digest'){
-        renderDigest();
-      }
     }
   }).catch(function(e){ console.log('Metrics load:',e); });
 }
@@ -1046,13 +1042,11 @@ async function renderDigest(){
 
   var mx=liveMetrics;
 
-  /* Step 1 — show static content immediately */
+  /* Step 1 — always show static content immediately, never blank */
   var staticHtml=buildDigestHTML(staticDigestData(mx),mx,dateStr,greeting,now,false);
   el.innerHTML=staticHtml;
 
-  /* Step 2 — try AI enhancement */
-  el.innerHTML=buildDigestSkeleton();
-
+  /* Step 2 — try AI enhancement in background; only swap if successful */
   var metricsContext=[
     'LIVE METRICS (week ending '+mx.week_ending+'):',
     'YTD Sales: '+mx.ytd_sales,'Run Rate: '+mx.run_rate,
@@ -1069,17 +1063,22 @@ async function renderDigest(){
 
   var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (77-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings completed: Panama City FL May 4, Killeen TX May 18, Lawton OK May 18, Beverly Hills TX May 18. Building drops: Lubbock TX Apr 24, Holiday FL Apr 29, El Reno OK May 13, Fort Myers FL May 13. 20 under construction, 7 out to bid.\n\nIMPORTANT: Both SW Florida (-1.2% SSS) AND New Mexico (-13.6% SSS) are showing negative same-store sales. New Mexico at -13.6% is the most urgent concern and must be called out prominently.\n\nReturn ONLY valid JSON starting with { and ending with }, no markdown, no backticks:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and pipeline","watchout":"2-3 sentences specifically addressing BOTH SWFL and NM negative SSS — NM at -13.6% is critical","motivation":"specific non-cheesy motivational thought referencing the real business data","board_prep":"one sentence on what to be ready to discuss with FEP — include both negative-SSS regions"}';
 
-  try{
-    var raw=await callClaudeLong(sysPrompt,'Generate the daily digest for Kendra. Return only the JSON object.',true);
-    var d=safeJSON(raw);
-    var aiHtml=buildDigestHTML(d,mx,dateStr,greeting,now,true);
-    digestCache=aiHtml; digestDate=today;
-    el.innerHTML=aiHtml;
-  }catch(e){
-    CLAUDE_AVAILABLE=false;
-    digestCache=staticHtml; digestDate=today;
-    el.innerHTML=staticHtml;
-  }
+  (async function(){
+    try{
+      /* Only show skeleton after confirming AI is reachable */
+      el.innerHTML=buildDigestSkeleton();
+      var raw=await callClaudeLong(sysPrompt,'Generate the daily digest for Kendra. Return only the JSON object.',true);
+      var d=safeJSON(raw);
+      var aiHtml=buildDigestHTML(d,mx,dateStr,greeting,now,true);
+      digestCache=aiHtml; digestDate=today;
+      el.innerHTML=aiHtml;
+    }catch(e){
+      /* AI unavailable — restore static content, never leave blank */
+      CLAUDE_AVAILABLE=false;
+      digestCache=staticHtml; digestDate=today;
+      el.innerHTML=staticHtml;
+    }
+  })();
 }
 
 function forceRefreshDigest(){ digestCache=null; digestDate=null; renderDigest(); }
@@ -1787,3 +1786,6 @@ loadLiveMetrics();
 checkNearby();
 
 switchPrimary('digest');
+</script>
+</body>
+</html>
