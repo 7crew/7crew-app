@@ -1032,8 +1032,8 @@ async function renderDigest(){
   var el=document.getElementById('sec-digest');
   if(!el) return;
 
-  var today=new Date().toDateString();
-  if(digestCache && digestDate===today){ el.innerHTML=digestCache; return; }
+var today=new Date().toDateString();
+  if(digestCache && digestDate===today && liveMetrics.week_ending === (digestCache.match(/W\.E[^<"]+/) || [''])[0].replace('W.E ','')){ el.innerHTML=digestCache; return; }
 
   var now=new Date();
   var dateStr=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
