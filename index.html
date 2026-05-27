@@ -1787,8 +1787,8 @@ supa('metrics?id=eq.wbr_current&select=*')
     if(rows && rows.length){
       liveMetrics = rows[0];
     }
+    switchPrimary('digest');
   })
-  .catch(function(){})
-  .finally(function(){
+  .catch(function(){
     switchPrimary('digest');
   });
