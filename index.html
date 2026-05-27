@@ -1782,13 +1782,17 @@ loadReportsFromSupa();
 checkNearby();
 
 /* Wait for live metrics before rendering digest */
-supa('metrics?id=eq.wbr_current&select=*')
-  .then(function(rows){
-    if(rows && rows.length){
-      liveMetrics = rows[0];
-    }
-    switchPrimary('digest');
-  })
-  .catch(function(){
-    switchPrimary('digest');
-  });
+try {
+  supa('metrics?id=eq.wbr_current&select=*')
+    .then(function(rows){
+      if(rows && rows.length){
+        liveMetrics = rows[0];
+      }
+      switchPrimary('digest');
+    })
+    .catch(function(){
+      switchPrimary('digest');
+    });
+} catch(e) {
+  switchPrimary('digest');
+}
