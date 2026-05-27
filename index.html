@@ -299,6 +299,7 @@ var wbrLoaded         = true;
 var devLoaded         = true;
 var digestCache       = null;
 var digestDate        = null;
+var digestWeek        = null;
 
 var nearbyOrgId       = null;
 
@@ -419,13 +420,21 @@ function loadReportsFromSupa(){
   }).catch(function(e){ console.log('Reports load:',e); });
 }
 
-/* ─── FIX 2: loadLiveMetrics now clears digestCache when fresh data arrives ─── */
+/* ─── FIX 2: loadLiveMetrics fetches fresh metrics then re-renders digest ─── */
 function loadLiveMetrics(){
   supa('metrics?id=eq.wbr_current&select=*').then(function(rows){
     if(rows && rows.length){
-      liveMetrics = rows[0];
-      digestCache = null; /* Force digest to regenerate with the latest Supabase metrics */
-      digestDate  = null;
+      var fresh = rows[0];
+      /* Only re-render if the week has actually changed or cache is empty */
+      var weekChanged = fresh.week_ending && fresh.week_ending !== digestWeek;
+      liveMetrics  = fresh;
+      digestCache  = null;
+      digestDate   = null;
+      digestWeek   = null;
+      /* Re-render digest so it always shows current Supabase data */
+      if(currentSub === 'digest'){
+        renderDigest();
+      }
     }
   }).catch(function(e){ console.log('Metrics load:',e); });
 }
@@ -1032,8 +1041,9 @@ async function renderDigest(){
   var el=document.getElementById('sec-digest');
   if(!el) return;
 
-var today=new Date().toDateString();
-  if(digestCache && digestDate===today && liveMetrics.week_ending === (digestCache.match(/W\.E[^<"]+/) || [''])[0].replace('W.E ','')){ el.innerHTML=digestCache; return; }
+  var today=new Date().toDateString();
+  /* Bust cache if the week_ending from Supabase has changed since last render */
+  if(digestCache && digestDate===today && digestWeek===liveMetrics.week_ending){ el.innerHTML=digestCache; return; }
 
   var now=new Date();
   var dateStr=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
@@ -1070,18 +1080,18 @@ var today=new Date().toDateString();
       var raw=await callClaudeLong(sysPrompt,'Generate the daily digest for Kendra. Return only the JSON object.',true);
       var d=safeJSON(raw);
       var aiHtml=buildDigestHTML(d,mx,dateStr,greeting,now,true);
-      digestCache=aiHtml; digestDate=today;
+      digestCache=aiHtml; digestDate=today; digestWeek=mx.week_ending;
       el.innerHTML=aiHtml;
     }catch(e){
       /* AI unavailable — restore static content, never leave blank */
       CLAUDE_AVAILABLE=false;
-      digestCache=staticHtml; digestDate=today;
+      digestCache=staticHtml; digestDate=today; digestWeek=mx.week_ending;
       el.innerHTML=staticHtml;
     }
   })();
 }
 
-function forceRefreshDigest(){ digestCache=null; digestDate=null; renderDigest(); }
+function forceRefreshDigest(){ digestCache=null; digestDate=null; digestWeek=null; renderDigest(); }
 
 /* ─── DASHBOARD ─── */
 function renderDashboard(){
