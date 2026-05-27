@@ -277,21 +277,27 @@ var sMode    = '';
 var currentPrimary = 'digest';
 var currentSub     = 'digest';
 
-var liveMetrics       = {
-    ytd_sales:'$49,947,726', run_rate:'$185,169,940', avg_weekly:'$49,630',
-    sss_overall:'+20.9%', avg_ticket:'$9.74', employees:'4,421',
-    wtx_weekly:'$52.3K', wtx_sss:'+23.7%',
-    ok_weekly:'$50.3K', ok_sss:'+23.8%',
-    swfl_weekly:'$46.1K', swfl_sss:'-2.7%',
-    mature_weekly:'$58K', mature_sss:'+28.7%',
-    week_ending:'Apr 19, 2026',
-    raw_summary:'77 stores. YTD $49.9M. Run rate $185.2M. Avg weekly $49,630. SWFL negative SSS.'
+/* ─── FIX 1: Updated liveMetrics to W.E. 5/17 data ─── */
+var liveMetrics = {
+    ytd_sales:'$65,133,661', run_rate:'$196,495,426', avg_weekly:'$8,285',
+    avg_daily:'$538,695',
+    sss_overall:'+5.2%', avg_ticket:'$9.71', employees:'4,853',
+    wtx_weekly:'$610.2K', wtx_sss:'+5.2%',
+    ok_weekly:'$595.5K', ok_sss:'+6.1%',
+    swfl_weekly:'$555.7K', swfl_sss:'-1.2%',
+    nm_weekly:'$655.6K', nm_sss:'-13.6%',
+    ctx_weekly:'$736K', ctx_sss:'+19.1%',
+    pfl_weekly:'$602.1K', pfl_sss:'+2.2%',
+    mature_weekly:'$610K', mature_sss:'+5.2%',
+    week_ending:'May 17, 2026',
+    raw_summary:'77 stores. YTD $65.1M. Run rate $196.5M. Avg weekly $8,285. NM region negative SSS at -13.6%. SWFL at -1.2% SSS.'
   };
-var wbrData           = '<div style="font-size:11px;padding:8px 12px;background:#f8f8f8;border-radius:4px;margin-bottom:10px;line-height:2">\n<strong style="color:#cb2026">Week Ending: 4/19/2026</strong> &nbsp;|&nbsp;\n<strong>YTD Sales:</strong> $49,947,726 &nbsp;|&nbsp;\n<strong>Avg Daily:</strong> $523,162 &nbsp;|&nbsp;\n<strong>Run Rate:</strong> $185,169,940 &nbsp;|&nbsp;\n<strong>Avg Ticket:</strong> $9.74 &nbsp;|&nbsp;\n<strong>Employees:</strong> 4,421 &nbsp;|&nbsp;\n<strong>L4A:</strong> $2,536,575 &nbsp;|&nbsp;\n<strong>ARR:</strong> $2,263,965\n</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">\n<span style="background:#e8f5e8;color:#1a7a1a;padding:3px 8px;border-radius:3px;border:1px solid #e2e2e2">Elite (&gt;$57.5K/wk)</span>\n<span style="background:#e8f0fb;color:#0056B4;padding:3px 8px;border-radius:3px;border:1px solid #e2e2e2">High Perform</span>\n<span style="background:#fdf3e3;color:#854F0B;padding:3px 8px;border-radius:3px;border:1px solid #e2e2e2">On Track</span>\n<span style="background:#fff3e0;color:#b35c00;padding:3px 8px;border-radius:3px;border:1px solid #e2e2e2">Needs Growth</span>\n<span style="background:#fdecea;color:#cb2026;padding:3px 8px;border-radius:3px;border:1px solid #e2e2e2">At Risk</span>\n<span style="background:#fff;color:#6b7280;padding:3px 8px;border-radius:3px;border:1px solid #e2e2e2">New Store</span>\n</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">Rank</th><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">Stand #</th><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">Store Name</th><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">W.E 3/29</th><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">W.E 4/5</th><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">W.E 4/12</th><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">W.E 4/19</th><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">SSS%</th><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">L4A Total</th><th style="padding:6px 8px;text-align:left;white-space:nowrap;font-weight:700">ARR/T13</th></tr></thead><tbody><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">1</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">121</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Odessa 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$73,345</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$74,042</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$76,315</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$73,424</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">22.3%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$297,126</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$3,279,461</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">425</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Pensacola</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$65,079</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$63,851</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$66,079</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$61,660</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">1.0%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$256,669</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$3,173,070</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">3</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">405</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Hobbs</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$69,287</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$68,574</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$69,384</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$68,617</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$275,861</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$3,112,883</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">4</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">882</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Gainesville</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,685</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$59,535</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$62,182</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,339</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$237,741</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$3,090,627</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">5</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">458</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Abilene 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$70,683</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$69,836</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$73,415</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$71,945</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">22.5%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$285,879</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$3,090,117</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">6</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">219</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Midland 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,276</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,817</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$60,536</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,191</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">3.2%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$232,820</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$3,000,839</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">7</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">515</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Stephenville</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$69,190</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$67,938</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$71,433</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$69,399</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$277,960</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,982,510</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">8</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">139</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Crestview</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$63,068</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$63,235</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$65,812</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$61,649</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">13.2%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$253,765</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,908,653</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">9</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">218</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">San Angelo 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,423</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$61,350</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$59,681</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,860</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">3.7%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$235,314</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,876,931</td></tr><tr style="background:#fdf3e3"><td style="padding:5px 8px;border-bottom:1px solid #efefef">10</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">220</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Enid</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$50,736</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,114</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,270</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$48,199</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">-21.7%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$205,318</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,802,927</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">11</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">129</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Odessa</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$64,283</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$66,646</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$66,746</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$66,136</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">32.2%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$263,811</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,780,947</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">12</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">151</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Wichita Falls</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,158</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,127</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,276</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,296</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">-8.5%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$223,858</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,756,017</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">13</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">128</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Midland</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$59,285</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,291</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$60,099</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,749</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">12.6%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$236,423</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,737,286</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">14</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">118</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Lubbock 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$64,030</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$64,574</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$66,895</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$65,796</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">54.7%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$261,296</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,719,218</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">15</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">514</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Duncan</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,201</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,225</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,536</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,790</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$221,751</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,711,615</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">16</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">343</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Bellmead</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$62,252</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$62,839</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$65,524</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,091</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">14.3%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$248,706</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,708,095</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">17</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">115</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Lawton</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$62,073</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$67,291</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$66,637</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$64,744</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">39.6%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$260,746</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,685,831</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">18</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">486</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Clovis</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,703</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,139</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$60,598</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,459</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$229,899</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,671,479</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">19</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">231</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Odessa 3</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$55,945</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,452</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$59,861</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,023</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">28.6%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$229,280</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,631,985</td></tr><tr style="background:#fdf3e3"><td style="padding:5px 8px;border-bottom:1px solid #efefef">20</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">356</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Bradenton 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,396</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,258</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,765</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$47,106</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$209,524</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,621,588</td></tr><tr style="background:#fdf3e3"><td style="padding:5px 8px;border-bottom:1px solid #efefef">21</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">147</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">San Angelo</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$48,023</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$51,309</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$49,844</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$46,947</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">-8.0%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$196,124</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,598,504</td></tr><tr style="background:#fdf3e3"><td style="padding:5px 8px;border-bottom:1px solid #efefef">22</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">198</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Roswell</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$47,752</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$52,286</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$50,747</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$49,978</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">-18.1%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$200,763</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,591,338</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">23</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">387</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Milton</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,447</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,527</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,332</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,557</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$216,863</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,576,730</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">24</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">325</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Edmond</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,296</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,988</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,880</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,580</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">25.5%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$226,744</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,529,582</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">25</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">427</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Norman</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,771</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,924</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$62,406</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,377</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$232,478</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,522,270</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">26</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">191</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Amarillo</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$61,514</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$61,365</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$64,460</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$60,975</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">42.2%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$248,314</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,502,300</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">27</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">192</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Ardmore</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$55,376</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,537</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,915</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,147</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">38.8%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$227,975</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,468,957</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">28</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">278</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Ft. Walton</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$60,644</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$66,568</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$70,358</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$50,345</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">5.4%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$247,915</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,448,533</td></tr><tr style="background:#fdf3e3"><td style="padding:5px 8px;border-bottom:1px solid #efefef">29</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">284</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Bradenton</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$45,999</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$49,633</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$49,982</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$44,620</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$190,233</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,402,523</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">30</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">570</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Belleview</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$45,739</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$47,131</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$47,273</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$44,512</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$184,656</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,392,424</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">31</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">875</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Weatherford OK</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$44,734</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$45,474</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$46,193</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$42,179</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$178,580</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,338,469</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">32</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">705</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Wichita Falls 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$55,096</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,463</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,939</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,928</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$227,426</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,334,559</td></tr><tr style="background:#fdf3e3"><td style="padding:5px 8px;border-bottom:1px solid #efefef">33</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">193</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Oklahoma City</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$50,617</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$51,517</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,580</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,725</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">34.3%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$209,439</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,334,279</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">34</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">392</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Ada</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$45,733</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$47,160</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$47,022</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$46,284</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$186,199</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,310,976</td></tr><tr style="background:#fdf3e3"><td style="padding:5px 8px;border-bottom:1px solid #efefef">35</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">949</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Weatherford TX</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$48,200</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$51,399</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$51,583</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$49,034</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$200,216</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,287,864</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">36</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">245</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Abilene</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,336</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,688</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,339</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,272</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">32.0%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$226,635</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,279,049</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">37</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">215</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Bryan</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,179</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$51,669</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$61,313</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,179</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">48.9%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$225,340</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,266,304</td></tr><tr style="background:#e8f5e8"><td style="padding:5px 8px;border-bottom:1px solid #efefef">38</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">134</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Lubbock</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$58,123</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$55,971</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$59,306</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$60,996</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">47.5%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$234,396</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,263,792</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">39</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">877</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Pensacola 3</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$43,038</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$42,932</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$44,042</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$42,524</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$172,536</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,242,972</td></tr><tr style="background:#e8f0fb"><td style="padding:5px 8px;border-bottom:1px solid #efefef">40</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">492</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Tampa</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$53,742</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,474</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,979</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$52,862</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$218,057</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,238,351</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">41</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">482</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Temple</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$44,959</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$45,535</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$46,400</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$43,399</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$180,293</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,183,715</td></tr><tr style="background:#fdf3e3"><td style="padding:5px 8px;border-bottom:1px solid #efefef">42</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">216</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Burleson</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$49,545</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$51,105</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$50,741</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$47,492</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">20.1%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$198,884</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,130,934</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">43</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">487</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Carlsbad</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$34,125</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$34,253</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$32,900</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$34,963</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">-35.5%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$136,241</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,076,771</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">44</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">707</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Decatur</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$41,011</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$43,384</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$44,197</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$41,919</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$170,510</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,062,695</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">45</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">511</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Panama City</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$38,956</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$40,604</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$42,769</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,369</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$158,698</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,027,173</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">46</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">154</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Lubbock 3</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$45,774</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$47,289</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$48,107</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$47,783</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">40.7%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$188,955</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,021,203</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">47</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">391</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Brownwood</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$42,454</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$43,454</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$46,023</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$40,704</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">-3.5%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$172,634</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$2,001,055</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">48</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">232</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Leesburg</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,849</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$37,254</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$37,395</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$34,181</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">-15.4%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$144,678</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,974,789</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">49</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">1117</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Midland 3</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$37,466</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,466</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$40,273</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$37,833</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$151,039</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,963,504</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">50</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">708</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Benbrook</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$42,744</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$44,714</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$43,702</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$42,710</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$173,870</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,948,426</td></tr><tr style="background:#fff3e0"><td style="padding:5px 8px;border-bottom:1px solid #efefef">51</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">333</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Port Charlotte</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$43,609</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$46,280</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$46,273</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$41,907</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$178,068</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,942,264</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">52</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">940</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Andrews</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$37,166</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$39,831</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$38,555</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,030</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$151,583</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,922,400</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">53</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">881</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">San Angelo 3</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$38,779</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$40,387</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$39,743</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$38,170</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$157,078</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,895,346</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">54</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">876</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Plainview</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,935</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$37,616</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$39,878</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,711</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$151,140</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,875,767</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">55</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">948</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Copperas Cove</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$37,282</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$39,740</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$40,881</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$37,253</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$155,155</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,843,992</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">56</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">264</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Niceville</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$38,483</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$40,547</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$40,956</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,295</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">6.4%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$156,282</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,821,138</td></tr><tr style="background:#fdf3e3"><td style="padding:5px 8px;border-bottom:1px solid #efefef">57</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">703</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Navarre</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$46,718</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$50,688</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$52,492</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$40,191</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$190,090</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,813,686</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">58</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">697</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Enid 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$39,990</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$41,495</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$44,028</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$41,443</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$166,956</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,812,903</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">59</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">513</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Mineral Wells</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$33,229</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$34,460</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,273</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,730</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">-20.6%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$138,692</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,803,685</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">60</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">394</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Bradenton 3</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$33,428</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$37,731</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,691</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$28,798</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$135,648</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,763,428</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">61</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">87</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Big Spring</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,050</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,886</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,314</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,630</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">-10.8%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$143,880</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,744,982</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">62</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">194</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Yukon</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,704</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,925</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$38,706</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,804</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">15.1%</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$148,139</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,692,462</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">63</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">756</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Artesia</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,160</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,466</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$36,640</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$33,758</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$142,024</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,690,718</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">64</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">521</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Pace</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$33,539</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$34,404</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,297</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$33,527</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$136,767</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,631,206</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">65</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">517</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Pensacola 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$33,788</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$33,822</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$35,001</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$34,131</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$136,742</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,534,756</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">66</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">872</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Oklahoma City 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$28,452</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$28,513</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$31,192</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$29,516</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$117,673</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,529,748</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">67</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">704</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Gatesville</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$28,807</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$30,332</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$29,966</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$29,346</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$118,450</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,513,459</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">68</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">484</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Gulf Breeze</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$31,279</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$32,383</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$33,381</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$29,798</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$126,842</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,489,816</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">69</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">965</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Dumas</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$27,685</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$29,950</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$29,225</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$27,858</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$114,718</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,405,116</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">70</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">706</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Levelland</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$24,459</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$25,827</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$24,059</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$22,620</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$96,964</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,183,990</td></tr><tr style="background:#fdecea"><td style="padding:5px 8px;border-bottom:1px solid #efefef">71</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">572</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Leesburg 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$23,936</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$24,324</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$25,730</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$23,209</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$97,199</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$1,168,501</td></tr><tr style="background:#ffffff"><td style="padding:5px 8px;border-bottom:1px solid #efefef">72</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">758</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Belton</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$42,901</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$45,659</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$44,377</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$41,303</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$174,240</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td></tr><tr style="background:#ffffff"><td style="padding:5px 8px;border-bottom:1px solid #efefef">73</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">573</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Spring Hill</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$57,728</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$63,912</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$60,938</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$56,500</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$239,078</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td></tr><tr style="background:#ffffff"><td style="padding:5px 8px;border-bottom:1px solid #efefef">74</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">709</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Pampa</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$54,109</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$46,127</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$41,521</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$141,757</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td></tr><tr style="background:#ffffff"><td style="padding:5px 8px;border-bottom:1px solid #efefef">75</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">516</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Cleburne</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$63,733</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$59,824</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$55,325</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$178,883</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td></tr><tr style="background:#ffffff"><td style="padding:5px 8px;border-bottom:1px solid #efefef">76</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">711</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Waco</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$55,460</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$55,460</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td></tr><tr style="background:#ffffff"><td style="padding:5px 8px;border-bottom:1px solid #efefef">77</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">987</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">Norman 2</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$51,454</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">$51,454</td><td style="padding:5px 8px;border-bottom:1px solid #efefef">—</td></tr></tbody></table></div><div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">77 stores · Week ending 4/19/2026 · Pre-built from WBR text</div>';
-var devData           = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"><div style="background:#fff;border:1px solid #e2e2e2;border-top:3px solid #0056B4;border-radius:6px;padding:12px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0c0a0a">7</div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;line-height:1.3">Out to Bid</div></div><div style="background:#fff;border:1px solid #e2e2e2;border-top:3px solid #1a7a1a;border-radius:6px;padding:12px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0c0a0a">20</div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;line-height:1.3">Under Construction</div></div><div style="background:#fff;border:1px solid #e2e2e2;border-top:3px solid #cb2026;border-radius:6px;padding:12px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0c0a0a">5</div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;line-height:1.3">Bldg Drops Next 4 Wks</div></div></div><div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">🏗 Building Drops — Next 4 Weeks</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Building Drop Date</th></tr></thead><tbody><tr style="background:#fdecea"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Lubbock</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">04/24/26</td></tr><tr style="background:#fdecea"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Holiday</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">04/29/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">El Reno</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">05/13/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Fort Myers</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">05/13/26</td></tr></tbody></table></div><div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">🎉 Openings — Last 7 Days & Next 4 Weeks</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Open Date</th></tr></thead><tbody><tr style="background:#e8f5e8"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Panama City</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">05/04/26</td></tr><tr style="background:#f0faf0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Killeen</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">05/18/26</td></tr><tr style="background:#e8f5e8"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Lawton</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">05/18/26</td></tr><tr style="background:#f0faf0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Beverly Hills</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">05/18/26</td></tr></tbody></table></div><div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">📋 Full Construction Pipeline (20 locations)</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Est. Open Date</th></tr></thead><tbody><tr style="background:#fdecea"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Panama City</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">05/04/26</td></tr><tr style="background:#fdecea"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Killeen</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">05/18/26</td></tr><tr style="background:#fdecea"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Lawton</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">05/18/26</td></tr><tr style="background:#fdecea"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Beverly Hills</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">05/18/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Lynn Haven</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#b35c00;font-weight:700">06/01/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Mary Esther</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#b35c00;font-weight:700">06/01/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Brooksville</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#b35c00;font-weight:700">06/08/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Edmond</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#b35c00;font-weight:700">06/15/26</td></tr><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Fort Walton Beach</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">06/22/26</td></tr><tr style="background:#fafafa"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Canyon</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">06/22/26</td></tr><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">El Reno</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">06/29/26</td></tr><tr style="background:#fafafa"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Lubbock</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">07/27/26</td></tr><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Altus</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">08/03/26</td></tr><tr style="background:#fafafa"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Holiday</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">08/10/26</td></tr><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Granbury</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">08/10/26</td></tr><tr style="background:#fafafa"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Gulf Breeze</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">08/10/26</td></tr><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Pensacola</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">08/10/26</td></tr><tr style="background:#fafafa"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Fort Myers</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">08/17/26</td></tr><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Fort Myers</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">09/28/26</td></tr><tr style="background:#fafafa"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Snyder</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#374151;font-weight:400">09/28/26</td></tr></tbody></table></div><div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">📝 Out to Bid (7 sites)</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">Location</th></tr></thead><tbody><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">Waco, TX</td></tr><tr style="background:#fafafa"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OKC, OK</td></tr><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">Waco, TX</td></tr><tr style="background:#fafafa"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">Lubbock, TX</td></tr><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">North Port, FL</td></tr><tr style="background:#fafafa"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">Ocala, FL</td></tr><tr style="background:#fff"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">Norman, OK</td></tr></tbody></table></div><div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">✅ Bid Accepted — Not Yet Under Construction</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">Address</th></tr></thead><tbody><tr style="background:#e8f5e8"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">2917 SW 104th St, Oklahoma City, OK</td></tr></tbody></table></div><div style="font-size:11px;color:#6b7280;margin-top:10px;text-align:right">20 under construction · 7 out to bid · Week of Apr 21, 2026</div>';
+
+var wbrData           = '<div style="font-size:11px;padding:8px 12px;background:#f8f8f8;border-radius:4px;margin-bottom:10px;line-height:2">\n<strong style="color:#cb2026">Week Ending: 5/17/2026</strong> &nbsp;|&nbsp;\n<strong>YTD Sales:</strong> $65,133,661 &nbsp;|&nbsp;\n<strong>Avg Daily:</strong> $538,695 &nbsp;|&nbsp;\n<strong>Run Rate:</strong> $196,495,426 &nbsp;|&nbsp;\n<strong>Avg Ticket:</strong> $9.71 &nbsp;|&nbsp;\n<strong>Employees:</strong> 4,853\n</div><div style="font-size:11px;color:#6b7280;padding:12px;text-align:center;border:1px dashed var(--border);border-radius:6px">Upload the W.E. 5/17 WBR PDF above to load the full store rankings table.</div>';
+var devData           = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"><div style="background:#fff;border:1px solid #e2e2e2;border-top:3px solid #0056B4;border-radius:6px;padding:12px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0c0a0a">7</div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;line-height:1.3">Out to Bid</div></div><div style="background:#fff;border:1px solid #e2e2e2;border-top:3px solid #1a7a1a;border-radius:6px;padding:12px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0c0a0a">20</div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;line-height:1.3">Under Construction</div></div><div style="background:#fff;border:1px solid #e2e2e2;border-top:3px solid #cb2026;border-radius:6px;padding:12px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0c0a0a">5</div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;line-height:1.3">Bldg Drops Next 4 Wks</div></div></div><div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">🏗 Building Drops — Next 4 Weeks</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Building Drop Date</th></tr></thead><tbody><tr style="background:#fdecea"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Lubbock</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">04/24/26</td></tr><tr style="background:#fdecea"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Holiday</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">04/29/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">El Reno</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">05/13/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Fort Myers</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">05/13/26</td></tr></tbody></table></div><div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">🎉 Openings — Last 7 Days & Next 4 Weeks</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Open Date</th></tr></thead><tbody><tr style="background:#e8f5e8"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Panama City</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">05/04/26</td></tr><tr style="background:#f0faf0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Killeen</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">05/18/26</td></tr><tr style="background:#e8f5e8"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Lawton</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">05/18/26</td></tr><tr style="background:#f0faf0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Beverly Hills</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">05/18/26</td></tr></tbody></table></div><div style="font-size:11px;color:#6b7280;margin-top:10px;text-align:right">20 under construction · 7 out to bid · Week of May 17, 2026</div>';
 var wbrLoaded         = true;
 var devLoaded         = true;
-var digestCache       = null; /* cleared — new WBR + dev data loaded */
+var digestCache       = null;
 var digestDate        = null;
 
 var nearbyOrgId       = null;
@@ -330,11 +336,9 @@ function loadLocal(){
 /* ─── FETCH FROM SUPABASE ─── */
 function fetchFromSupa(){
   showSync('Loading...');
-  var localContactCount = contacts.length; /* remember how many we loaded from localStorage */
+  var localContactCount = contacts.length;
   supa('contacts?select=*&order=name')
     .then(function(rows){
-      /* SAFETY: only replace contacts if Supabase returned MORE than we have locally.
-         This prevents an empty/failed Supabase response from wiping localStorage data. */
       if(Array.isArray(rows) && rows.length >= localContactCount && rows.length > 0){
         contacts = rows.map(function(r){
           return {
@@ -348,7 +352,6 @@ function fetchFromSupa(){
           };
         });
       } else if(Array.isArray(rows) && rows.length > 0 && rows.length < localContactCount){
-        /* Supabase has fewer — merge: keep local contacts not in Supabase */
         var supaIds = rows.map(function(r){ return String(r.id); });
         var localOnly = contacts.filter(function(c){ return supaIds.indexOf(String(c.id))<0; });
         contacts = rows.map(function(r){
@@ -362,11 +365,9 @@ function fetchFromSupa(){
             documents:Array.isArray(r.documents)?r.documents:(r.documents?JSON.parse(r.documents):[])
           };
         }).concat(localOnly);
-        console.warn('Supa had fewer contacts than local — merged. Supabase:'+rows.length+' Local-only:'+localOnly.length);
-        /* Re-sync local-only contacts to Supabase */
+        console.warn('Supa had fewer contacts than local — merged.');
         localOnly.forEach(function(c){ upsertContact(c).catch(function(e){ console.error('Re-sync failed for',c.name,e); }); });
       }
-      /* If Supabase returned 0, keep local data untouched */
       return supa('orgs?select=*&order=name');
     })
     .then(function(rows){
@@ -417,16 +418,23 @@ function loadReportsFromSupa(){
     });
   }).catch(function(e){ console.log('Reports load:',e); });
 }
+
+/* ─── FIX 2: loadLiveMetrics now clears digestCache when fresh data arrives ─── */
 function loadLiveMetrics(){
   supa('metrics?id=eq.wbr_current&select=*').then(function(rows){
-    if(rows && rows.length) liveMetrics=rows[0];
+    if(rows && rows.length){
+      liveMetrics = rows[0];
+      digestCache = null; /* Force digest to regenerate with the latest Supabase metrics */
+      digestDate  = null;
+    }
   }).catch(function(e){ console.log('Metrics load:',e); });
 }
+
 function saveMetricsToSupa(metricsObj){
   var row = Object.assign({id:'wbr_current',updated_at:new Date().toISOString()}, metricsObj);
   supa('metrics?id=eq.wbr_current','DELETE').catch(function(){})
     .then(function(){ return supa('metrics','POST',row); })
-    .then(function(){ liveMetrics=row; toast('Metrics updated — Digest will use live data'); })
+    .then(function(){ liveMetrics=row; digestCache=null; digestDate=null; toast('Metrics updated — Digest will use live data'); })
     .catch(function(e){ console.error('Save metrics:',e); });
 }
 
@@ -507,8 +515,6 @@ function openMap(q){ window.open('https://www.google.com/maps/search/?api=1&quer
 function viewContact(id){
   var c=gc(id); if(!c) return;
   var av=c.photo?'<img src="'+c.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':ini(c.name);
-
-  /* Company tags */
   var tg='';
   for(var j=0;j<(c.companies||[]).length;j++){
     var coName=c.companies[j].name; var oid=findOrg(coName);
@@ -516,40 +522,30 @@ function viewContact(id){
       ? '<span class="tag co linked" onclick="viewOrg('+oid+')" style="cursor:pointer">'+coName+' &rsaquo;</span>'
       : '<span class="tag co">'+coName+'</span>';
   }
-
-  /* Quick-action contact buttons + visible info */
   var actions='<div style="margin:14px 0">';
-
   if(c.phone){
     actions+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;margin-bottom:8px">';
     actions+='<a href="tel:'+c.phone+'" style="display:flex;align-items:center;gap:6px;background:#16a34a;color:#fff;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;text-decoration:none;font-family:inherit;flex-shrink:0">📞 Call</a>';
     actions+='<span style="font-size:14px;font-weight:600;color:#374151;font-family:inherit;user-select:all">'+esc(c.phone)+'</span>';
     actions+='</div>';
   }
-
   if(c.email){
     actions+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;margin-bottom:8px">';
     actions+='<a href="mailto:'+c.email+'" style="display:flex;align-items:center;gap:6px;background:#0056B4;color:#fff;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;text-decoration:none;font-family:inherit;flex-shrink:0">✉ Email</a>';
     actions+='<span style="font-size:13px;font-weight:600;color:#374151;word-break:break-all;user-select:all">'+esc(c.email)+'</span>';
     actions+='</div>';
   }
-
   if(c.linkedin){
     actions+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8faff;border:1px solid #c7d2fe;border-radius:8px;margin-bottom:8px">';
     actions+='<a href="'+c.linkedin+'" target="_blank" style="display:flex;align-items:center;gap:6px;background:#4f46e5;color:#fff;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;text-decoration:none;font-family:inherit;flex-shrink:0">🔗 LinkedIn</a>';
     actions+='<span style="font-size:12px;color:#374151;word-break:break-all;user-select:all">'+esc(c.linkedin)+'</span>';
     actions+='</div>';
   }
-
   actions+='</div>';
-
-  /* Info pills row */
   var pills='';
   if(c.metAt)       pills+='<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:8px"><div style="font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Where we met</div><div style="font-size:13px;color:var(--black);font-weight:600">'+esc(c.metAt)+'</div></div>';
   if(c.lastContact) pills+='<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:8px"><div style="font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Last contact</div><div style="font-size:13px;color:var(--black);font-weight:600">'+esc(c.lastContact)+'</div></div>';
   if(c.website)     pills+='<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:8px"><div style="font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Website</div><a href="'+c.website+'" target="_blank" style="font-size:13px;color:var(--blue);font-weight:600;word-break:break-all">'+esc(c.website)+'</a></div>';
-
-  /* Notes — rendered as readable paragraphs */
   var nt='';
   if(c.notes){
     var paras=c.notes.trim().split(/\n\n+/);
@@ -561,8 +557,6 @@ function viewContact(id){
        '<div style="line-height:1.7">'+rendered+'</div>'+
        '</div>';
   }
-
-  /* Assistants */
   var ah='';
   if(c.assistants&&c.assistants.length){
     ah='<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">'+
@@ -579,11 +573,8 @@ function viewContact(id){
     }
     ah+='</div>';
   }
-
   document.getElementById('sheet-title').textContent='';
   document.getElementById('sheet-body').innerHTML=
-
-    /* Header — full width hero */
     '<div style="background:var(--black);margin:-16px -18px 0;padding:20px 18px 16px;border-radius:16px 16px 0 0">'+
       '<button class="back-btn" onclick="closeSheet()" style="color:#c0c2c4;margin-bottom:12px">&#8592; Back</button>'+
       '<div style="display:flex;align-items:center;gap:14px">'+
@@ -595,20 +586,10 @@ function viewContact(id){
         '</div>'+
       '</div>'+
     '</div>'+
-
-    /* Quick actions */
     '<div style="padding:0 0 4px">'+actions+'</div>'+
-
-    /* Info pills */
     (pills ? '<div style="margin-bottom:4px">'+pills+'</div>' : '')+
-
-    /* Notes section */
     (nt ? '<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px">'+nt+'</div>' : '')+
-
-    /* Assistants */
     ah+
-
-    /* Documents */
     (c.documents&&c.documents.length?
       '<div style="margin-top:4px"><div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-bottom:8px;border-top:1px solid var(--border);padding-top:14px">Documents &amp; Links</div>'+
       c.documents.map(function(doc){
@@ -623,14 +604,11 @@ function viewContact(id){
       }).join('')+
       '</div>'
     : '')+
-
-    /* Bottom actions */
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">'+
       '<button class="btn-sec" onclick="openEdit('+c.id+')" style="margin-top:0">✎ Edit</button>'+
       '<button class="btn-sec" onclick="researchContact('+c.id+')" style="margin-top:0;color:var(--blue);border-color:var(--blue)">🔍 Research</button>'+
     '</div>'+
     '<button class="btn-del" onclick="delContact('+c.id+')">Delete contact</button>';
-
   openSheet();
 }
 
@@ -701,7 +679,8 @@ function buildCF(c){
         '<div style="font-size:11px;color:var(--muted);margin-top:5px">JPG, PNG · Will be stored as link</div>'+
       '</div>'+
     '</div>'+
-    '<input type="hidden" id="fph" value="'+esc(c?c.photo||'':'')+'">'+'</div>'+    '<div class="divider">Company affiliations</div><div id="assoc-list">'+ch+'</div><button class="add-more" onclick="addA()">+ Add another company</button>'+
+    '<input type="hidden" id="fph" value="'+esc(c?c.photo||'':'')+'">'+'</div>'+
+    '<div class="divider">Company affiliations</div><div id="assoc-list">'+ch+'</div><button class="add-more" onclick="addA()">+ Add another company</button>'+
     '<div class="form-row"><label>Where you met</label><input id="fm" value="'+esc(c?c.metAt||'':'')+'" placeholder="e.g. Franchisee Summit 2024"></div>'+
     '<div class="form-row"><label>Last contact date</label><input id="flc" type="text" value="'+esc(c?c.lastContact||'':'')+'" placeholder="e.g. Talked at 7Brew Conference"></div>'+
     '<div class="form-row"><label>Notes</label><textarea id="fno">'+esc(c?c.notes||'':'')+'</textarea></div>'+
@@ -724,16 +703,13 @@ function handlePhotoUpload(input){
   var reader=new FileReader();
   reader.onload=function(e){
     var dataUrl=e.target.result;
-    /* Store in hidden input */
     var fph=document.getElementById('fph');
     if(fph) fph.value=dataUrl;
-    /* Update preview */
     var preview=document.getElementById('fph-preview');
     if(preview) preview.innerHTML='<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
   };
   reader.readAsDataURL(file);
 }
-
 function addA(){ var l=document.getElementById('assoc-list'); var d=document.createElement('div'); d.innerHTML=mAB({name:'',type:'Franchisee'},aIdx++); l.appendChild(d.firstChild); }
 function addB(){ var l=document.getElementById('asst-list'); var d=document.createElement('div'); d.innerHTML=mBB({name:'',role:'',phone:'',email:''},bIdx++); l.appendChild(d.firstChild); }
 
@@ -860,20 +836,14 @@ function handleNearbyTap(){ if(nearbyOrgId) viewOrg(nearbyOrgId); }
 /* ─── NAV SWITCHING ─── */
 function switchPrimary(p){
   currentPrimary = p;
-
-  // Update primary tab styles
   document.querySelectorAll('.ptab').forEach(function(b){
     var active = b.id==='ptab-'+p;
     b.style.color = active ? 'var(--red)' : 'var(--muted)';
     b.style.borderBottom = active ? '3px solid var(--red)' : '3px solid transparent';
   });
-
-  // Show/hide sub-navs
   document.getElementById('sub-nav-contacts').style.display  = p==='contacts'  ? 'flex'  : 'none';
   document.getElementById('sub-nav-meetings').style.display  = p==='meetings'  ? 'flex'  : 'none';
   document.getElementById('sub-nav-financial').style.display = p==='financial' ? 'flex'  : 'none';
-
-  // Route to first sub-tab
   if(p==='digest')    switchSub('digest');
   if(p==='contacts')  switchSub('contacts');
   if(p==='meetings')  switchSub('meetingprep');
@@ -882,26 +852,18 @@ function switchPrimary(p){
 
 function switchSub(t){
   currentSub = t;
-
-  // Show correct section
   var allSections=['digest','contacts','organizations','dashboard','meetingprep','debrief','wbr','development'];
   allSections.forEach(function(id){
     var sc=document.getElementById('sec-'+id);
     if(sc) sc.className = 'section' + (t===id ? ' active' : '');
   });
-
-  // Update sub-tab styles — only within the visible sub-nav
   document.querySelectorAll('.stab').forEach(function(b){
     var active = b.id==='stab-'+t;
     b.style.color = active ? 'var(--red)' : 'var(--muted)';
     b.style.borderBottom = active ? '2px solid var(--red)' : '2px solid transparent';
   });
-
-  // Search bar visibility
   var sb=document.getElementById('search-bar');
   if(sb) sb.style.display = (t==='contacts'||t==='organizations') ? 'flex' : 'none';
-
-  // Render target section
   if(t==='digest')       renderDigest();
   if(t==='dashboard')    renderDashboard();
   if(t==='meetingprep')  renderMeetingPrep();
@@ -914,8 +876,8 @@ function switchSub(t){
 
 <!-- ═══════════════════════════════════════════════════ AI / DASHBOARD JS -->
 <script>
-/* ─── CLAUDE API — with offline detection ─── */
-var CLAUDE_AVAILABLE = null; // null=untested, true=ok, false=offline
+/* ─── CLAUDE API ─── */
+var CLAUDE_AVAILABLE = null;
 
 async function callClaude(system, user, useSearch){
   var body={model:'claude-haiku-4-5-20251001',max_tokens:2000,system:system,messages:[{role:'user',content:user}]};
@@ -941,19 +903,6 @@ async function callClaudeLong(system, user, useSearch){
   return d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('').replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
 }
 
-async function callClaudeWithDoc(system, prompt, base64pdf){
-  /* Sonnet for PDF parsing — function caps max_tokens at 4096 to avoid timeout */
-  var body={model:'claude-sonnet-4-5',max_tokens:4096,system:system,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64pdf}},{type:'text',text:prompt}]}]};
-  var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  var rawText=await r.text();
-  var d;
-  try{ d=JSON.parse(rawText); }catch(e){ throw new Error('Non-JSON response (HTTP '+r.status+'): '+rawText.slice(0,300)); }
-  if(d.error) throw new Error('Anthropic error ('+r.status+'): '+JSON.stringify(d.error));
-  if(!d.content||!Array.isArray(d.content)) throw new Error('Unexpected response shape: '+rawText.slice(0,300));
-  CLAUDE_AVAILABLE=true;
-  return d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('').replace(/```html|```/g,'').trim();
-}
-
 /* Robust JSON extractor */
 function safeJSON(raw){
   if(!raw) throw new Error('Empty response from AI.');
@@ -975,46 +924,33 @@ function fileToBase64(file){
   });
 }
 
-function buildUploadPrompt(msg){
-  return '<div style="text-align:center;padding:40px 20px;color:#6b7280"><div style="font-size:36px;margin-bottom:12px">📄</div><div style="font-size:13px;font-weight:600;line-height:1.6;max-width:280px;margin:0 auto">'+msg+'</div></div>';
-}
-
-/* ─── DIGEST ─── */
-function buildDigestSkeleton(){
-  var s='background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;';
-  return '<div class="ai-section">'+
-    '<div style="'+s+'height:14px;width:40%;margin-bottom:8px"></div>'+
-    '<div style="'+s+'height:28px;width:70%;margin-bottom:16px"></div>'+
-    '<div style="'+s+'height:60px;border-radius:8px;margin-bottom:14px"></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+
-      '<div style="'+s+'height:70px;border-radius:6px"></div><div style="'+s+'height:70px;border-radius:6px"></div>'+
-      '<div style="'+s+'height:70px;border-radius:6px"></div><div style="'+s+'height:70px;border-radius:6px"></div>'+
-    '</div>'+
-    '<div style="'+s+'height:80px;border-radius:8px;margin-bottom:14px"></div>'+
-    '<div style="'+s+'height:60px;border-radius:6px;margin-bottom:14px"></div>'+
-    '<div style="'+s+'height:70px;border-radius:8px"></div>'+
-    '<div style="text-align:center;padding:20px 0 0;font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Building your digest...</div>'+
-  '</div>';
-}
-
-/* Static fallback — always has real content, never blank */
+/* ─── FIX 3: staticDigestData now flags both SWFL and NM negative SSS ─── */
 function staticDigestData(mx){
+  var negRegions=[];
+  var swflNum=parseFloat((mx.swfl_sss||'').replace('%',''));
+  var nmNum=parseFloat((mx.nm_sss||'').replace('%',''));
+  if(!isNaN(swflNum)&&swflNum<0) negRegions.push('SW Florida ('+mx.swfl_sss+' SSS)');
+  if(!isNaN(nmNum)&&nmNum<0) negRegions.push('New Mexico ('+mx.nm_sss+' SSS)');
+  var watchoutText = negRegions.length > 0
+    ? negRegions.join(' and ')+' are pulling against your company average and demand immediate investigation. Assess whether market conditions, operational issues, or unit economics need reassessment in each region. Bring a specific diagnostic to FEP.'
+    : 'All regions posting positive SSS. Monitor stores with week-over-week declines and bring a proactive plan to FEP.';
+
   return {
-    headline:'Run rate at '+mx.run_rate+' on YTD of '+mx.ytd_sales+'. Pipeline active with 20 under construction system-wide.',
+    headline:'Strong YTD momentum at '+mx.ytd_sales+' with a '+mx.run_rate+' run rate, though '+negRegions.length+' region'+(negRegions.length!==1?'s':'')+' require'+(negRegions.length===1?'s':'')+' immediate diagnostic attention.',
     numbers_snapshot:[
-      {label:'YTD Sales',        value:mx.ytd_sales,    trend:'up',   note:'Avg daily '+mx.avg_daily},
+      {label:'YTD Sales',        value:mx.ytd_sales,    trend:'up',   note:'Avg daily '+(mx.avg_daily||'—')},
       {label:'Run Rate',         value:mx.run_rate,     trend:'up',   note:'Week ending '+mx.week_ending},
-      {label:'Avg Weekly/Store', value:mx.avg_weekly,   trend:'flat', note:'Avg ticket '+mx.avg_ticket},
-      {label:'Employees',        value:mx.employees,    trend:'up',   note:'Google Reviews 4.7★'}
+      {label:'Avg Weekly/Store', value:mx.avg_weekly,   trend:'flat', note:'Avg ticket '+(mx.avg_ticket||'—')},
+      {label:'Team Members',     value:mx.employees,    trend:'up',   note:'Google Reviews 4.7★'}
     ],
-    openings_focus:'Panama City FL opens May 4; Killeen TX, Lawton OK, and Beverly Hills TX all open May 18. Building drops: Holiday FL Apr 29, Fort Myers FL May 13, El Reno OK May 13, Granbury TX May 20. 20 under construction across all regions.',
-    watchout:mx.watchout_text||'Monitor stores with negative SSS week-over-week. Bring a specific diagnostic on staffing, execution, and local market conditions to FEP.',
-    motivation:'Mature stores averaging '+mx.mature_weekly+'/week. Every time you open a store you are building something that will still be compounding years from now.',
-    board_prep:'Lead with YTD '+mx.ytd_sales+' and run rate '+mx.run_rate+'. Address any negative-SSS stores directly before FEP asks.'
+    openings_focus:'Panama City FL opened May 4; Killeen TX, Lawton OK, and Beverly Hills TX all opened May 18. Pipeline remains robust with 20 units under construction and 7 out to bid. Building drops in Lubbock TX (Apr 24), Holiday FL (Apr 29), El Reno OK and Fort Myers FL (May 13) keep momentum building.',
+    watchout: watchoutText,
+    motivation:'Central TX region leading the company at '+mx.ctx_weekly+'/wk avg ('+mx.ctx_sss+' SSS). Every new store that opens is compounding into that run rate — keep the pipeline moving.',
+    board_prep:'Lead with YTD '+mx.ytd_sales+' and run rate '+mx.run_rate+'. Address '+negRegions.join(' and ')+' diagnostics directly before FEP asks. Provide clarity on the 27 units in pipeline (20 under construction, 7 bid) with expected completion timelines.'
   };
 }
 
-/* Shared HTML builder — used by both AI and static paths */
+/* Shared HTML builder */
 function buildDigestHTML(d, mx, dateStr, greeting, now, aiPowered){
   var trendIcon=function(t){ return t==='up'?'<span style="color:#1a7a1a">▲</span>':t==='down'?'<span style="color:#cb2026">▼</span>':'<span style="color:#6b7280">—</span>'; };
   var html='<div class="ai-section" style="padding-bottom:60px">';
@@ -1075,6 +1011,23 @@ function buildDigestHTML(d, mx, dateStr, greeting, now, aiPowered){
   return html;
 }
 
+function buildDigestSkeleton(){
+  var s='background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;';
+  return '<div class="ai-section">'+
+    '<div style="'+s+'height:14px;width:40%;margin-bottom:8px"></div>'+
+    '<div style="'+s+'height:28px;width:70%;margin-bottom:16px"></div>'+
+    '<div style="'+s+'height:60px;border-radius:8px;margin-bottom:14px"></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+
+      '<div style="'+s+'height:70px;border-radius:6px"></div><div style="'+s+'height:70px;border-radius:6px"></div>'+
+      '<div style="'+s+'height:70px;border-radius:6px"></div><div style="'+s+'height:70px;border-radius:6px"></div>'+
+    '</div>'+
+    '<div style="'+s+'height:80px;border-radius:8px;margin-bottom:14px"></div>'+
+    '<div style="'+s+'height:60px;border-radius:6px;margin-bottom:14px"></div>'+
+    '<div style="'+s+'height:70px;border-radius:8px"></div>'+
+    '<div style="text-align:center;padding:20px 0 0;font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Building your digest...</div>'+
+  '</div>';
+}
+
 async function renderDigest(){
   var el=document.getElementById('sec-digest');
   if(!el) return;
@@ -1087,18 +1040,13 @@ async function renderDigest(){
   var hour=now.getHours();
   var greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
 
-  var mx=liveMetrics||{
-    ytd_sales:'$42.5M',run_rate:'$182.3M',avg_weekly:'$49,630',sss_overall:'+20.9%',
-    avg_ticket:'$9.73',employees:'4,542',wtx_weekly:'$52.3K',wtx_sss:'+23.7%',
-    ok_weekly:'$50.3K',ok_sss:'+23.8%',swfl_weekly:'$46.1K',swfl_sss:'-2.7%',
-    mature_weekly:'$58K',mature_sss:'+28.7%',week_ending:'Apr 5, 2026',raw_summary:''
-  };
+  var mx=liveMetrics;
 
-  /* Step 1 — show static content immediately, never blank */
+  /* Step 1 — show static content immediately */
   var staticHtml=buildDigestHTML(staticDigestData(mx),mx,dateStr,greeting,now,false);
   el.innerHTML=staticHtml;
 
-  /* Step 2 — try AI enhancement; fall back silently if unavailable */
+  /* Step 2 — try AI enhancement */
   el.innerHTML=buildDigestSkeleton();
 
   var metricsContext=[
@@ -1109,11 +1057,13 @@ async function renderDigest(){
     'WTX Region: '+mx.wtx_weekly+' weekly (SSS '+mx.wtx_sss+')',
     'OK Region:  '+mx.ok_weekly+' weekly (SSS '+mx.ok_sss+')',
     'SWFL Region:'+mx.swfl_weekly+' weekly (SSS '+mx.swfl_sss+')',
-    'Mature Stores: '+mx.mature_weekly+' weekly (SSS '+mx.mature_sss+')',
+    'NM Region:  '+mx.nm_weekly+' weekly (SSS '+mx.nm_sss+')',
+    'Central TX: '+mx.ctx_weekly+' weekly (SSS '+mx.ctx_sss+')',
+    'Pan. FL:    '+mx.pfl_weekly+' weekly (SSS '+mx.pfl_sss+')',
     mx.raw_summary?'Summary: '+mx.raw_summary:''
   ].join('\n');
 
-  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (75-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings: Panama City FL May 4, Killeen TX May 18, Lawton OK May 18, Beverly Hills TX May 18. Building drops: Lubbock TX Apr 24, Holiday FL Apr 29, El Reno OK May 13, Fort Myers FL May 13. 20 under construction, 7 out to bid.\n\nReturn ONLY valid JSON starting with { and ending with }, no markdown, no backticks:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and drops","watchout":"1-2 sentences on SWFL negative SSS","motivation":"specific non-cheesy motivational thought referencing the real business","board_prep":"one sentence on what to be ready to discuss with FEP"}';
+  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (77-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings completed: Panama City FL May 4, Killeen TX May 18, Lawton OK May 18, Beverly Hills TX May 18. Building drops: Lubbock TX Apr 24, Holiday FL Apr 29, El Reno OK May 13, Fort Myers FL May 13. 20 under construction, 7 out to bid.\n\nIMPORTANT: Both SW Florida (-1.2% SSS) AND New Mexico (-13.6% SSS) are showing negative same-store sales. New Mexico at -13.6% is the most urgent concern and must be called out prominently.\n\nReturn ONLY valid JSON starting with { and ending with }, no markdown, no backticks:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and pipeline","watchout":"2-3 sentences specifically addressing BOTH SWFL and NM negative SSS — NM at -13.6% is critical","motivation":"specific non-cheesy motivational thought referencing the real business data","board_prep":"one sentence on what to be ready to discuss with FEP — include both negative-SSS regions"}';
 
   try{
     var raw=await callClaudeLong(sysPrompt,'Generate the daily digest for Kendra. Return only the JSON object.',true);
@@ -1122,7 +1072,6 @@ async function renderDigest(){
     digestCache=aiHtml; digestDate=today;
     el.innerHTML=aiHtml;
   }catch(e){
-    /* AI unavailable — show static version, cache it so we don't retry every tab switch */
     CLAUDE_AVAILABLE=false;
     digestCache=staticHtml; digestDate=today;
     el.innerHTML=staticHtml;
@@ -1135,21 +1084,15 @@ function forceRefreshDigest(){ digestCache=null; digestDate=null; renderDigest()
 function renderDashboard(){
   var el=document.getElementById('sec-dashboard');
   if(!el) return;
-  var mx=liveMetrics||{
-    ytd_sales:'—',run_rate:'—',avg_weekly:'—',avg_ticket:'—',
-    employees:'—',week_ending:'—',
-    wtx_weekly:'—',wtx_sss:'—',
-    ok_weekly:'—',ok_sss:'—',
-    swfl_weekly:'—',swfl_sss:'—'
-  };
+  var mx=liveMetrics;
 
   el.innerHTML='<div class="ai-section">'+
     '<h2>7Crew Command Center</h2>'+
     '<div style="font-size:10px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;margin-top:-8px">Week ending <strong style="color:var(--black)">'+mx.week_ending+'</strong></div>'+
     '<div class="kpi-row">'+
-      '<div class="kpi-box"><div class="kpi-num">'+mx.ytd_sales+'</div><div class="kpi-lbl">YTD Sales</div><div class="kpi-sub">Avg daily '+mx.avg_daily+'</div></div>'+
+      '<div class="kpi-box"><div class="kpi-num">'+mx.ytd_sales+'</div><div class="kpi-lbl">YTD Sales</div><div class="kpi-sub">Avg daily '+(mx.avg_daily||'—')+'</div></div>'+
       '<div class="kpi-box"><div class="kpi-num">'+mx.run_rate+'</div><div class="kpi-lbl">Run Rate</div></div>'+
-      '<div class="kpi-box"><div class="kpi-num">'+mx.avg_weekly+'</div><div class="kpi-lbl">Avg Weekly / Store</div><div class="kpi-sub">Avg ticket '+mx.avg_ticket+'</div></div>'+
+      '<div class="kpi-box"><div class="kpi-num">'+mx.avg_weekly+'</div><div class="kpi-lbl">Avg Weekly / Store</div><div class="kpi-sub">Avg ticket '+(mx.avg_ticket||'—')+'</div></div>'+
       '<div class="kpi-box"><div class="kpi-num">'+mx.employees+'</div><div class="kpi-lbl">Team Members</div></div>'+
     '</div>'+
     '<div class="ai-card"><div class="ai-card-head">Region Performance<span class="badge-r">SSS%</span></div><div class="ai-card-body" id="db-regions"></div></div>'+
@@ -1158,7 +1101,7 @@ function renderDashboard(){
       '<div class="dev-box"><div class="dev-num">20</div><div class="dev-lbl">Under Construction</div></div>'+
       '<div class="dev-box"><div class="dev-num">4</div><div class="dev-lbl">Bldg Drops 4 Wks</div></div>'+
     '</div>'+
-    '<div class="ai-card"><div class="ai-card-head">Opening Next 4 Weeks</div><div class="ai-card-body">'+
+    '<div class="ai-card"><div class="ai-card-head">Opened — May 2026</div><div class="ai-card-body">'+
       '<div class="open-row"><span>Panama City, FL</span><span class="open-state">FL</span><span style="font-size:12px;color:#6b7280">May 4</span></div>'+
       '<div class="open-row"><span>Killeen, TX</span><span class="open-state">TX</span><span style="font-size:12px;color:#6b7280">May 18</span></div>'+
       '<div class="open-row"><span>Lawton, OK</span><span class="open-state">OK</span><span style="font-size:12px;color:#6b7280">May 18</span></div>'+
@@ -1170,14 +1113,13 @@ function renderDashboard(){
     '<div id="dash-ai-out"></div>'+
   '</div>';
 
-  /* Region cards — driven by liveMetrics */
   var regions=[
-    {n:'West Texas',    w:mx.wtx_weekly,  s:mx.wtx_sss},
-    {n:'Oklahoma',      w:mx.ok_weekly,   s:mx.ok_sss},
-    {n:'SW Florida',    w:mx.swfl_weekly, s:mx.swfl_sss},
-    {n:'New Mexico',    w:mx.nm_weekly||'—',  s:mx.nm_sss||'—'},
-    {n:'Central TX',    w:mx.ctx_weekly||'—', s:mx.ctx_sss||'—'},
-    {n:'Pan. Florida',  w:mx.pfl_weekly||'—', s:mx.pfl_sss||'—'}
+    {n:'West Texas',   w:mx.wtx_weekly,  s:mx.wtx_sss},
+    {n:'Oklahoma',     w:mx.ok_weekly,   s:mx.ok_sss},
+    {n:'SW Florida',   w:mx.swfl_weekly, s:mx.swfl_sss},
+    {n:'New Mexico',   w:mx.nm_weekly,   s:mx.nm_sss},
+    {n:'Central TX',   w:mx.ctx_weekly,  s:mx.ctx_sss},
+    {n:'Pan. Florida', w:mx.pfl_weekly,  s:mx.pfl_sss}
   ];
   var rh='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
   regions.forEach(function(r){
@@ -1196,33 +1138,47 @@ function renderDashboard(){
   rh+='</div>';
   document.getElementById('db-regions').innerHTML=rh;
 
-  /* Auto-insights from liveMetrics */
   var insights='';
-  if(mx.wtx_sss) insights+='<div class="insight-strip">WTX region: '+mx.wtx_weekly+'/wk avg ('+mx.wtx_sss+' SSS) — lead with this in investor conversations.</div>';
+  var ctxNum=parseFloat((mx.ctx_sss||'').replace('%','').replace('+',''));
+  if(!isNaN(ctxNum)&&ctxNum>0) insights+='<div class="insight-strip" style="border-left-color:#16a34a">🏆 Central TX leading the company at '+mx.ctx_weekly+'/wk ('+mx.ctx_sss+' SSS).</div>';
+  var nmNum=parseFloat((mx.nm_sss||'').replace('%',''));
+  if(!isNaN(nmNum)&&nmNum<0) insights+='<div class="insight-strip" style="border-left-color:var(--red)">🚨 New Mexico at '+mx.nm_sss+' SSS — most urgent region to diagnose before FEP.</div>';
+  var swflNum=parseFloat((mx.swfl_sss||'').replace('%',''));
+  if(!isNaN(swflNum)&&swflNum<0) insights+='<div class="insight-strip" style="border-left-color:var(--red)">⚠ SWFL at '+mx.swfl_sss+' SSS — address proactively with board alongside NM.</div>';
+  if(mx.wtx_sss) insights+='<div class="insight-strip">WTX region: '+mx.wtx_weekly+'/wk avg ('+mx.wtx_sss+' SSS).</div>';
   if(mx.ok_sss)  insights+='<div class="insight-strip">OK region: '+mx.ok_weekly+'/wk avg ('+mx.ok_sss+' SSS).</div>';
-  if(mx.swfl_sss){
-    var swflNum=parseFloat((mx.swfl_sss||'').replace('%','').replace('+',''));
-    if(!isNaN(swflNum)&&swflNum<0) insights+='<div class="insight-strip" style="border-left-color:var(--red)">⚠ SWFL at '+mx.swfl_sss+' SSS — address proactively with board.</div>';
-    else insights+='<div class="insight-strip">SWFL: '+mx.swfl_weekly+'/wk ('+mx.swfl_sss+' SSS).</div>';
-  }
   document.getElementById('db-insights').innerHTML=insights;
+}
+
+async function dashboardAI(){
+  var btn=document.getElementById('dash-ai-btn');
+  var out=document.getElementById('dash-ai-out');
+  if(!btn||!out) return;
+  btn.disabled=true; btn.textContent='Analyzing...';
+  out.innerHTML='<div class="loading-dots" style="margin-top:12px"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>Analyzing week ending '+liveMetrics.week_ending+'...</span></div>';
+  var mx=liveMetrics;
+  var sys='You are a sharp business analyst for 7Crew Enterprises (77-location 7Brew Coffee franchisee). Be direct, specific, and data-driven. Max 3 paragraphs.';
+  var user='Analyze this week\'s performance:\nYTD: '+mx.ytd_sales+'\nRun Rate: '+mx.run_rate+'\nAvg Weekly/Store: '+mx.avg_weekly+'\nWTX: '+mx.wtx_weekly+' ('+mx.wtx_sss+' SSS)\nOK: '+mx.ok_weekly+' ('+mx.ok_sss+' SSS)\nSWFL: '+mx.swfl_weekly+' ('+mx.swfl_sss+' SSS)\nNM: '+mx.nm_weekly+' ('+mx.nm_sss+' SSS)\nCentral TX: '+mx.ctx_weekly+' ('+mx.ctx_sss+' SSS)\nPan FL: '+mx.pfl_weekly+' ('+mx.pfl_sss+' SSS)\nWeek ending: '+mx.week_ending+'\n\nWhat are the 2-3 most important things Kendra should focus on this week?';
+  try{
+    var result=await callClaude(sys,user,false);
+    out.innerHTML='<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-top:12px;font-size:13px;color:var(--black);line-height:1.7">'+result.replace(/\n\n/g,'</p><p style="margin-top:10px">').replace(/\n/g,'<br>')+'</div>';
+  }catch(e){
+    out.innerHTML='<div style="padding:12px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:12px;color:#6b7280;margin-top:12px">AI unavailable — deploy to Netlify to enable this feature.</div>';
+  }
+  btn.disabled=false; btn.textContent='Ask AI about this week\'s numbers';
 }
 
 /* ─── RESEARCH FROM CONTACT ─── */
 function researchContact(id){
   var c=gc(id); if(!c) return;
   closeSheet();
-  /* Switch to meeting prep tab */
   switchPrimary('meetings');
-  /* Pre-fill the form with contact data */
   setTimeout(function(){
     var personEl=document.getElementById('mp-person');
     var companyEl=document.getElementById('mp-company');
     if(personEl) personEl.value=c.name;
     if(companyEl&&c.companies&&c.companies.length) companyEl.value=c.companies[0].name;
-    /* Store contact id so we can save back after research */
     window._researchContactId=c.id;
-    /* Show a note that results will save to this contact */
     var note=document.getElementById('mp-contact-note');
     if(note){
       note.innerHTML='<div style="background:#e8f4fd;border:1px solid #93c5fd;border-radius:5px;padding:8px 12px;font-size:11px;color:#0056B4;display:flex;align-items:center;gap:6px;margin-bottom:12px">'+
@@ -1235,8 +1191,7 @@ function researchContact(id){
 function renderMeetingPrep(){
   var el=document.getElementById('sec-meetingprep');
   if(!el||el.innerHTML.trim()) return;
-  window._researchContactId=null; /* clear any stale research link */
-  /* Build contact dropdown */
+  window._researchContactId=null;
   var ctOpts='<option value="">-- Select an existing contact --</option>';
   var sorted=contacts.slice().sort(function(a,b){return(a.name||'').localeCompare(b.name||'');});
   sorted.forEach(function(c){ ctOpts+='<option value="'+c.id+'">'+esc(c.name)+(c.companies&&c.companies.length?' — '+esc(c.companies[0].name):'')+'</option>'; });
@@ -1256,27 +1211,20 @@ function renderMeetingPrep(){
     '<div id="mp-out"></div>'+
   '</div>';
 }
+
 function fillFromContact(id){
   if(!id) return;
   var c=gc(parseInt(id)||id); if(!c) return;
   window._researchContactId=c.id;
-
   var pEl=document.getElementById('mp-person');
   var coEl=document.getElementById('mp-company');
   var noEl=document.getElementById('mp-notes');
-  var goalEl=document.getElementById('mp-goal');
-
   if(pEl) pEl.value=c.name;
   if(coEl&&c.companies&&c.companies.length) coEl.value=c.companies[0].name;
-  /* Clear notes textarea — existing notes go via the contact profile, not here */
   if(noEl) noEl.value='';
   if(noEl) noEl.placeholder='Add any specific context for THIS meeting (existing contact notes will be included automatically)...';
-
-  /* Build rich context banner */
-  /* Build rich context banner */
   var hasNotes = c.notes && c.notes.trim().length > 0;
   var preview = hasNotes ? esc(c.notes.trim().slice(0,300))+(c.notes.length>300?'...':'') : '';
-
   var note=document.getElementById('mp-contact-note');
   if(note) note.innerHTML=
     '<div style="background:#e8f4fd;border:1px solid #93c5fd;border-radius:6px;padding:12px;margin-bottom:10px">'+
@@ -1301,7 +1249,6 @@ function fillFromContact(id){
     '</div>';
 }
 
-
 async function generateBrief(){
   var person=(document.getElementById('mp-person').value||'').trim();
   var company=(document.getElementById('mp-company').value||'').trim();
@@ -1311,17 +1258,14 @@ async function generateBrief(){
   var btn=document.getElementById('mp-btn');
   btn.disabled=true; btn.textContent='Researching & building...';
   document.getElementById('mp-out').innerHTML='<div class="loading-dots" style="margin-top:12px"><div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div><span>Researching '+esc(person)+'...</span></div>';
-  var sys='You are a sharp executive research assistant for Kendra Burris, CEO of 7Crew Enterprises (75-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Use web search to research the person and BUILD ON any existing notes provided — do not repeat what is already known, add to it. Return ONLY valid JSON starting with { ending with }: {"researched_bio":"string — combine web research with existing notes into one updated bio","snapshot":"string — why this person matters and what to focus on","talking_points":["string — specific, actionable, reference existing relationship context"],"numbers_to_know":[{"label":"string","value":"string"}],"things_to_watch":"string","suggested_questions":["string — build on prior conversations if notes exist"],"research_sources":["string"]}. No markdown, no backticks.';
-  /* Pull existing contact data if one is selected */
+  var sys='You are a sharp executive research assistant for Kendra Burris, CEO of 7Crew Enterprises (77-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Use web search to research the person and BUILD ON any existing notes provided — do not repeat what is already known, add to it. Return ONLY valid JSON starting with { ending with }: {"researched_bio":"string — combine web research with existing notes into one updated bio","snapshot":"string — why this person matters and what to focus on","talking_points":["string — specific, actionable, reference existing relationship context"],"numbers_to_know":[{"label":"string","value":"string"}],"things_to_watch":"string","suggested_questions":["string — build on prior conversations if notes exist"],"research_sources":["string"]}. No markdown, no backticks.';
   var existingContact = window._researchContactId ? gc(window._researchContactId) : null;
   var existingNotes = existingContact && existingContact.notes ? existingContact.notes : (notes||'');
   var existingLastContact = existingContact && existingContact.lastContact ? existingContact.lastContact : '';
   var existingMetAt = existingContact && existingContact.metAt ? existingContact.metAt : '';
-
   var user='Research and build a meeting prep brief. Use the existing notes as the foundation — build on them, do not repeat what we already know.'+
     '\nName: '+person+
     '\nCompany: '+(company||'Unknown')+
-    
     '\nMeeting goal: '+(goal||'General')+
     (existingMetAt ? '\nHow we know them: '+existingMetAt : '')+
     (existingLastContact ? '\nLast contact: '+existingLastContact : '')+
@@ -1341,8 +1285,6 @@ async function generateBrief(){
     html+='<div class="brief-sec-label">Watch out for</div><div class="alert-strip">'+d.things_to_watch+'</div>';
     html+='</div></div>';
     window._lastBriefData={name:person,company:company,bio:d.researched_bio||'',snapshot:d.snapshot||'',talking_points:(d.talking_points||[]).join('\n'),things_to_watch:d.things_to_watch||''};
-
-    /* Auto-save to contact if one was selected */
     if(window._researchContactId){
       var notesText='[Meeting Brief — '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+']\n\n'+
         (d.researched_bio||'')+'\n\nTalking points:\n'+(d.talking_points||[]).join('\n')+'\n\nWatch out for: '+(d.things_to_watch||'');
@@ -1360,7 +1302,7 @@ async function generateBrief(){
     }
     document.getElementById('mp-out').innerHTML=html;
   }catch(e){
-    document.getElementById('mp-out').innerHTML='<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280"><strong style="color:var(--red);display:block;margin-bottom:6px">AI unavailable</strong>This feature requires the Netlify function to be deployed. When running locally as a static file, AI research is not available.</div>';
+    document.getElementById('mp-out').innerHTML='<div style="padding:16px;background:#fff8f8;border-left:3px solid var(--red);border-radius:6px;font-size:13px;color:#6b7280"><strong style="color:var(--red);display:block;margin-bottom:6px">AI unavailable</strong>This feature requires the Netlify function to be deployed.</div>';
   }
   btn.disabled=false; btn.textContent='Research & build brief ↗';
 }
@@ -1381,7 +1323,7 @@ function saveBriefToContact(){
     }
   }
   editId=null; sMode='contact'; document.getElementById('sheet-title').textContent='Save to Contacts';
-  buildCF({name:bd.name,role:'',phone:'',email:'',linkedin:'',website:'',photo:'',metAt:selectedMeetType,lastContact:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),notes:notesText,companies:bd.company?[{name:bd.company,type:'Other'}]:[],assistants:[]});
+  buildCF({name:bd.name,role:'',phone:'',email:'',linkedin:'',website:'',photo:'',metAt:'',lastContact:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),notes:notesText,companies:bd.company?[{name:bd.company,type:'Other'}]:[],assistants:[]});
   openSheet(); toast('Review and tap Save contact to add to your CRM.');
 }
 
@@ -1469,10 +1411,10 @@ function saveDebrief(topic,attendees,htmlContent){ supa('debriefs','POST',{topic
 function renderWBR(){
   var el=document.getElementById('sec-wbr');
   if(!el) return;
-  var weekLabel=(liveMetrics&&liveMetrics.week_ending)?liveMetrics.week_ending:'Pre-loaded';
+  var weekLabel=(liveMetrics&&liveMetrics.week_ending)?liveMetrics.week_ending:'W.E. 5/17';
   el.innerHTML='<div class="ai-section"><h2>Weekly Business Review</h2>'+
     '<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">'+
-    '<div id="wbr-status" style="font-size:11px;color:#6b7280;font-weight:600">Week ending <strong style="color:var(--black)">'+weekLabel+'</strong> · 78 stores</div>'+
+    '<div id="wbr-status" style="font-size:11px;color:#6b7280;font-weight:600">Week ending <strong style="color:var(--black)">'+weekLabel+'</strong></div>'+
     '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt,.pdf" style="display:none" onchange="processWBR(this)"></label>'+
     '</div>'+
     '<div id="wbr-content">'+(wbrData||'')+'</div>'+
@@ -1493,9 +1435,7 @@ async function processWBR(input){
 
   try{
     var pdfText = '';
-
     if(file.name.toLowerCase().endsWith('.txt')){
-      /* TXT file — read directly, no PDF extraction needed */
       setStatus('Step 1 of 2 — Reading text file...');
       pdfText = await new Promise(function(resolve,reject){
         var reader=new FileReader();
@@ -1504,7 +1444,6 @@ async function processWBR(input){
         reader.readAsText(file);
       });
     } else {
-      /* PDF file — extract text with PDF.js */
       setStatus('Step 1 of 2 — Reading PDF...');
       pdfText = await extractPDFText(file);
     }
@@ -1512,15 +1451,6 @@ async function processWBR(input){
     if(!pdfText || pdfText.length < 100) throw new Error('Could not extract text from file — try copying and pasting the WBR content into a .txt file.');
 
     setStatus('Parsing WBR data...');
-
-    /* ── WBR PARSER ────────────────────────────────────────────────────────
-       FORMAT A (ranks 1-34): jammed block between "ARR/T13" and "P5 W3"
-         Each entry: RANK(1-2d)+STAND(3-4d)+Name+numbers$  (no spaces between entries)
-         e.g. "1121Odessa 273,424$ 74,576$ ... 2425Pensacola61,660$ ..."
-       FORMAT B (ranks 35-78): individual CRLF lines, $ before each number
-         e.g. "35 949 Weatherford (TX) $ 49,034 $ 50,537 ..."
-       New stores (72+): Format B but fewer columns, treated as is_new
-       ──────────────────────────────────────────────────────────────────── */
 
     var txt = pdfText;
     var stores = [];
@@ -1538,17 +1468,15 @@ async function processWBR(input){
       return r;
     };
 
-    /* ── STEP 1: FORMAT A — ranks 1-34 from the jammed block ── */
+    /* FORMAT A — ranks 1-34 from jammed block */
     var arrIdx = txt.indexOf('ARR/T13');
-  var p5Idx = txt.indexOf('P5 W4');
-if(p5Idx < 0) p5Idx = txt.indexOf('P5 W3');
-if(arrIdx >= 0 && p5Idx > arrIdx) {
+    var p5Idx = txt.indexOf('P5 W4');
+    if(p5Idx < 0) p5Idx = txt.indexOf('P5 W3');
+    if(arrIdx >= 0 && p5Idx > arrIdx) {
       var jamBlock = txt.slice(arrIdx + 7, p5Idx).replace(/[\r\n]/g, ' ');
-      /* Split at each entry boundary: 1-2 digit rank immediately followed by 3-4 digit stand then a letter */
       var parts = jamBlock.split(/(?=\b\d{1,2}\d{3,4}[A-Za-z])/);
       parts.forEach(function(part) {
         part = part.trim();
-        /* Match: rank(1-2d) stand(3-4d) name(non-$ non-digit chars) first-number */
         var m = part.match(/^(\d{1,2})(\d{3,4})([^$\d]+?)\s*(\d[\d,]+)/);
         if(!m) return;
         var rank = parseInt(m[1]);
@@ -1567,8 +1495,7 @@ if(arrIdx >= 0 && p5Idx > arrIdx) {
       });
     }
 
-    /* ── STEP 2: FORMAT B — ranks 35-78 from individual lines ──
-       Key fix: use [^$]+ for name so it stops cleanly at the first $ sign */
+    /* FORMAT B — ranks 35-78 from individual lines */
     txt.split('\n').forEach(function(rawLine) {
       var line = rawLine.replace(/\r/,'').trim();
       var m = line.match(/^(\d{1,3})\s+(\d{2,4})\s+([^$]+?)\s*\$\s*(\d)/);
@@ -1583,9 +1510,7 @@ if(arrIdx >= 0 && p5Idx > arrIdx) {
     });
 
     stores.sort(function(a,b){return a.rank-b.rank;});
-    console.log('WBR JS parser found '+stores.length+' stores');
 
-    /* ── KPIs — regex from raw string ── */
     var kpis={}, week_dates=['','','',''];
     var weM=txt.match(/(\d{1,2}\/\d{1,2}\/\d{4})Ranking/); if(weM) kpis.week_ending=weM[1];
     var ytdM=txt.match(/\$([\d,]+)\s*YTD Sales/i); if(ytdM) kpis.ytd='$'+ytdM[1];
@@ -1599,12 +1524,10 @@ if(arrIdx >= 0 && p5Idx > arrIdx) {
     if(datesM) week_dates=['W.E '+datesM[1],'W.E '+datesM[2],'W.E '+datesM[3],'W.E '+datesM[4]];
 
     var parsed = { kpis: kpis, week_dates: week_dates, stores: stores };
-
     if(!parsed.stores||!parsed.stores.length) throw new Error('No stores found in response');
 
     setStatus('Building report ('+parsed.stores.length+' stores)...');
 
-    /* Build HTML client-side */
     var kp=parsed.kpis||{};
     var html='<div style="font-size:11px;padding:8px 12px;background:#f8f8f8;border-radius:4px;margin-bottom:10px;line-height:2">';
     if(kp.week_ending) html+='<strong style="color:var(--red)">Week Ending: '+esc(kp.week_ending)+'</strong> &nbsp;|&nbsp; ';
@@ -1613,7 +1536,6 @@ if(arrIdx >= 0 && p5Idx > arrIdx) {
           ].filter(function(p){return p[1];}).map(function(p){return '<strong>'+p[0]+':</strong> '+esc(p[1]);}).join(' &nbsp;|&nbsp; ');
     html+='</div>';
 
-    /* Legend */
     html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">';
     [['Elite','#e8f5e8','#1a7a1a'],['High Perform','#e8f0fb','#0056B4'],['On Track','#fdf3e3','#854F0B'],['Needs Growth','#fff3e0','#b35c00'],['At Risk','#fdecea','#cb2026'],['New Store','#fff','#6b7280']].forEach(function(t){
       html+='<span style="background:'+t[1]+';color:'+t[2]+';padding:3px 8px;border-radius:3px;border:1px solid #e2e2e2">'+t[0]+'</span>';
@@ -1628,7 +1550,7 @@ if(arrIdx >= 0 && p5Idx > arrIdx) {
     });
     html+='</tr></thead><tbody>';
 
-    parsed.stores.forEach(function(s,i){
+    parsed.stores.forEach(function(s){
       var l4aNum=parseFloat((s.l4a||'').toString().replace(/[$,]/g,''))||0;
       var wkly=l4aNum/4;
       var bg;
@@ -1638,8 +1560,6 @@ if(arrIdx >= 0 && p5Idx > arrIdx) {
       else if(wkly>=47500)   bg='#fdf3e3';
       else if(wkly>=42500)   bg='#fff3e0';
       else                   bg='#fdecea';
-      if(i%2!==0){ /* slightly stripe */ }
-
       var addDollar=function(v){if(!v||v==='—')return '—';var sv=String(v).replace(/^\$/,'');return /^[\d,]+$/.test(sv)?'$'+sv:sv;};
       html+='<tr style="background:'+bg+'">';
       [s.rank,s.name,addDollar(s.we1),addDollar(s.we2),addDollar(s.we3),addDollar(s.we4),s.sss,addDollar(s.l4a),addDollar(s.arr)].forEach(function(v){
@@ -1650,20 +1570,18 @@ if(arrIdx >= 0 && p5Idx > arrIdx) {
 
     html+='</tbody></table></div>';
     html+='<div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">'+
-          parsed.stores.length+' stores · '+new Date().toLocaleTimeString()+'</div>';
+          parsed.stores.length+' stores · Week ending '+(kp.week_ending||'—')+'</div>';
 
     wbrData=html; wbrLoaded=true;
     document.getElementById('wbr-content').innerHTML=html;
-    /* Reset status bar to show week/store count now that parsing is complete */
     var _wsEl=document.getElementById('wbr-status');
     if(_wsEl) _wsEl.innerHTML='Week ending <strong style="color:var(--black)">'+(kp.week_ending||'—')+'</strong> · '+parsed.stores.length+' stores loaded';
     saveReportToSupa('wbr',html,file.name);
 
-    /* Extract metrics directly from parsed data — no API call needed */
     var metrics = extractMetricsFromParsed(parsed, kp, pdfText);
     saveMetricsToSupa(metrics);
     liveMetrics = metrics;
-    digestCache = null; /* force digest to regenerate with new data */
+    digestCache = null; digestDate = null;
     toast('WBR loaded — Digest updated with live data!');
 
   }catch(e){
@@ -1676,9 +1594,7 @@ if(arrIdx >= 0 && p5Idx > arrIdx) {
   }
 }
 
-/* Extract text from PDF using PDF.js loaded from CDN */
 async function extractPDFText(file){
-  /* Load PDF.js if not already loaded */
   if(!window.pdfjsLib){
     await new Promise(function(resolve,reject){
       var s=document.createElement('script');
@@ -1689,7 +1605,6 @@ async function extractPDFText(file){
     window.pdfjsLib.GlobalWorkerOptions.workerSrc=
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   }
-
   var arrayBuffer=await file.arrayBuffer();
   var pdf=await window.pdfjsLib.getDocument({data:arrayBuffer}).promise;
   var fullText='';
@@ -1702,15 +1617,8 @@ async function extractPDFText(file){
   return fullText;
 }
 
-
-function shadeColor(hex,pct){
-  return hex;
-}
-
-/* Extract live metrics from parsed WBR JSON + raw text */
 function extractMetricsFromParsed(parsed, kp, rawText){
   var stores = parsed.stores || [];
-
   function regionAvgSSS(keywords){
     var list=stores.filter(function(s){return keywords.some(function(k){return(s.name||'').toLowerCase().indexOf(k)>=0;})&&s.sss&&s.sss!=='';});
     if(!list.length)return'';
@@ -1723,27 +1631,23 @@ function extractMetricsFromParsed(parsed, kp, rawText){
     var avg=list.reduce(function(sum,s){return sum+(parseFloat((s.l4a||'').replace(/[$,]/g,''))||0)/4;},0)/list.length;
     return'$'+Math.round(avg/1000*10)/10+'K';
   }
-
   var wtxKeys=['lubbock','midland','odessa','abilene','san angelo','big spring','andrews','plainview','brownwood','stephenville','copperas cove','mineral wells','decatur','benbrook','burleson','wichita falls','pampa','levelland','dumas','cleburne','belton','waco','temple','bryan','weatherford'];
   var okKeys=['edmond','norman','oklahoma city','lawton','ardmore','ada','yukon','enid','duncan','gatesville'];
   var swflKeys=['bradenton','sarasota','port charlotte','leesburg','belleview','spring hill','tampa'];
-  var nmKeys=['hobbs','clovis','roswell','carlsbad','artesia','artesia'];
+  var nmKeys=['hobbs','clovis','roswell','carlsbad','artesia'];
   var ctxKeys=['amarillo','bellmead','bryan','burleson'];
   var pflKeys=['pensacola','crestview','milton','navarre','niceville','gulf breeze','ft. walton','fort walton','pace'];
-
-  /* Negative SSS stores for watchout */
   var negStores=stores.filter(function(s){
     var n=parseFloat((s.sss||'').replace('%',''));
     return!isNaN(n)&&n<0;
   }).map(function(s){return s.name+' ('+s.sss+')';});
   var watchoutText=negStores.length?'Stores with negative SSS this week: '+negStores.slice(0,5).join(', ')+'. Bring a diagnostic to FEP.':'All regions posting positive SSS this week.';
-
   return {
-    ytd_sales:   kp.ytd    ? '$'+kp.ytd     : '',
-    avg_daily:   kp.daily  ? '$'+kp.daily   : '',
-    run_rate:    kp.run_rate?'$'+kp.run_rate : '',
-    avg_weekly:  kp.l4a    ? '$'+Math.round(parseFloat((kp.l4a||'').replace(/[$,]/g,''))/Math.max(stores.filter(function(s){return!s.is_new;}).length,1)/4).toLocaleString() : '—',
-    avg_ticket:  kp.ticket ? '$'+kp.ticket  : '',
+    ytd_sales:   kp.ytd     || '',
+    avg_daily:   kp.daily   || '',
+    run_rate:    kp.run_rate|| '',
+    avg_weekly:  kp.l4a     ? '$'+Math.round(parseFloat((kp.l4a||'').replace(/[$,]/g,''))/Math.max(stores.filter(function(s){return!s.is_new;}).length,1)/4).toLocaleString() : '—',
+    avg_ticket:  kp.ticket  || '',
     employees:   kp.employees||'',
     wtx_weekly:  regionAvgWeekly(wtxKeys),
     wtx_sss:     regionAvgSSS(wtxKeys),
@@ -1764,26 +1668,13 @@ function extractMetricsFromParsed(parsed, kp, rawText){
   };
 }
 
-async function extractMetricsFromWBR(b64){
-  var sys='Extract key financial metrics from this 7Brew Coffee franchisee WBR. Return ONLY valid JSON: {"ytd_sales":"string","run_rate":"string","avg_weekly":"string","sss_overall":"string","avg_ticket":"string","employees":"string","wtx_weekly":"string","wtx_sss":"string","ok_weekly":"string","ok_sss":"string","swfl_weekly":"string","swfl_sss":"string","mature_weekly":"string","mature_sss":"string","week_ending":"string","raw_summary":"string"}. No markdown.';
-  try{
-    var body={model:'claude-haiku-4-5-20251001',max_tokens:1000,system:sys,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:'Extract the metrics. Return only JSON.'}]}]};
-    var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(!r.ok) return;
-    var d=await r.json();
-    if(!d.content) return;
-    var raw=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
-    var metrics=safeJSON(raw); saveMetricsToSupa(metrics);
-  }catch(e){ /* non-fatal */ }
-}
-
 /* ─── DEVELOPMENT ─── */
 function renderDevelopment(){
   var el=document.getElementById('sec-development');
   if(!el) return;
   el.innerHTML='<div class="ai-section"><h2>Development Report</h2>'+
     '<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">'+
-    '<div id="dev-status" style="font-size:11px;color:#6b7280;font-weight:600">Week of <strong style="color:var(--black)">Apr 28, 2026</strong> · 20 under construction</div>'+
+    '<div id="dev-status" style="font-size:11px;color:#6b7280;font-weight:600">Week of <strong style="color:var(--black)">May 17, 2026</strong> · 20 under construction</div>'+
     '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt,.pdf" style="display:none" onchange="processDev(this)"></label>'+
     '</div>'+
     '<div id="dev-content">'+(devData||'')+'</div>'+
@@ -1794,14 +1685,12 @@ async function processDev(input){
   if(!input.files||!input.files[0]) return;
   var file=input.files[0];
   var _ds=document.getElementById('dev-status'); if(_ds) _ds.textContent='Processing: '+file.name+'...';
-
   var setDevStatus=function(msg){
     document.getElementById('dev-content').innerHTML=
       '<div class="loading-dots" style="padding:20px 0">'+
       '<div class="dot-r"></div><div class="dot-r"></div><div class="dot-r"></div>'+
       '<span>'+msg+'</span></div>';
   };
-
   try{
     var devText='';
     if(file.name.toLowerCase().endsWith('.txt')){
@@ -1816,34 +1705,21 @@ async function processDev(input){
       setDevStatus('Reading PDF...');
       devText=await extractPDFText(file);
     }
-
     if(!devText||devText.length<50) throw new Error('Could not extract text — try saving as .txt first');
-
     setDevStatus('Parsing development report (~15 seconds)...');
-
     var body={
       model:'claude-haiku-4-5-20251001',
       max_tokens:8192,
       system:'You are parsing a 7Crew Enterprises Weekly Development Review. Return ONLY valid JSON, no markdown: {"stats":{"out_to_bid":0,"under_construction":0,"recent_openings":0},"building_drops":[{"city":"","state":"","date":""}],"openings":[{"city":"","state":"","date":""}],"pipeline":[{"city":"","state":"","est_open":"","days_out":0}],"stand_count":[{"phase":"","count":0}]}. Exclude any entries where the developer is Red Sky. Include every location.',
       messages:[{role:'user',content:'Parse this development report: '+devText.slice(0,50000)}]
     };
-
-    var r=await fetch('/.netlify/functions/claude',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
+    var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     var rawText=await r.text();
     var d=JSON.parse(rawText);
     if(d.error) throw new Error('API error: '+JSON.stringify(d.error));
-
     var jsonText=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
     var parsed=safeJSON(jsonText);
-
-    /* Build HTML client-side */
     var html='';
-
-    /* Stat boxes */
     var st=parsed.stats||{};
     html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">';
     [{l:'Out to Bid',v:st.out_to_bid||0},{l:'Under Construction',v:st.under_construction||0},{l:'Recent Openings',v:st.recent_openings||0}].forEach(function(b){
@@ -1852,8 +1728,7 @@ async function processDev(input){
             '<div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px">'+b.l+'</div></div>';
     });
     html+='</div>';
-
-    function makeTable(title, rows, cols, colorFn){
+    function makeTable(title, rows, cols){
       if(!rows||!rows.length) return '';
       var h='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">'+title+'</div>';
       h+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">';
@@ -1861,10 +1736,9 @@ async function processDev(input){
       cols.forEach(function(c){h+='<th style="padding:6px 10px;text-align:left;font-weight:700">'+c+'</th>';});
       h+='</tr></thead><tbody>';
       rows.forEach(function(row,i){
-        var bg=colorFn?colorFn(row):(i%2===0?'#fff':'#fafafa');
-        h+='<tr style="background:'+bg+'">';
+        h+='<tr style="background:'+(i%2===0?'#fff':'#fafafa')+'">';
         Object.values(row).forEach(function(v){
-          if(typeof v==='number'&&cols.indexOf('Days Out')>=0) return; // skip days_out raw number
+          if(typeof v==='number') return;
           h+='<td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">'+esc(String(v||'—'))+'</td>';
         });
         h+='</tr>';
@@ -1872,11 +1746,8 @@ async function processDev(input){
       h+='</tbody></table>';
       return h;
     }
-
-    html+=makeTable('Building Drops — Next 4 Weeks', parsed.building_drops, ['City','State','Drop Date'], null);
-    html+=makeTable('Recent & Upcoming Openings', parsed.openings, ['City','State','Open Date'], null);
-
-    /* Pipeline with color coding */
+    html+=makeTable('Building Drops — Next 4 Weeks', parsed.building_drops, ['City','State','Drop Date']);
+    html+=makeTable('Recent & Upcoming Openings', parsed.openings, ['City','State','Open Date']);
     if(parsed.pipeline&&parsed.pipeline.length){
       html+='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">Full Construction Pipeline ('+parsed.pipeline.length+' locations)</div>';
       html+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">';
@@ -1887,19 +1758,12 @@ async function processDev(input){
       });
       html+='</tbody></table>';
     }
-
-    if(parsed.stand_count&&parsed.stand_count.length){
-      html+=makeTable('Stand Count by Phase', parsed.stand_count, ['Phase','Count'], null);
-    }
-
     html+='<div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">'+
           (parsed.pipeline?parsed.pipeline.length:0)+' in pipeline · Built '+new Date().toLocaleTimeString()+'</div>';
-
     devData=html; devLoaded=true;
     document.getElementById('dev-content').innerHTML=html;
     saveReportToSupa('dev',html,file.name);
     toast('Development report loaded!');
-
   }catch(e){
     console.error('Dev error:',e);
     document.getElementById('dev-content').innerHTML=
@@ -1913,9 +1777,9 @@ async function processDev(input){
 
 /* ─── INIT ─── */
 loadLocal();
-fetchFromSupa();       /* silent fail — uses local data if network unavailable */
-loadReportsFromSupa(); /* silent fail — shows upload prompt if unavailable */
-loadLiveMetrics();     /* silent fail — uses defaults */
+fetchFromSupa();
+loadReportsFromSupa();
+loadLiveMetrics();
 checkNearby();
 
 switchPrimary('digest');
