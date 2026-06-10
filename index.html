@@ -1137,9 +1137,13 @@ function loadDevMetrics(){
     if(rows && rows.length && rows[0].html){
       try{
         devMetrics = JSON.parse(rows[0].html);
+        /* Always bust the digest cache so it rebuilds with fresh dev data,
+           regardless of which tab is currently active */
         digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
-        if(currentSub==='digest')    renderDigest();
-        if(currentSub==='dashboard') renderDashboard();
+        /* Re-render whichever views are currently visible, and pre-render
+           the others so they're ready with correct data when the user switches */
+        renderDigest();
+        renderDashboard();
       }catch(e){ console.log('dev_metrics parse error:',e); }
     }
   }).catch(function(e){ console.log('loadDevMetrics:',e); });
