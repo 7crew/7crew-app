@@ -301,6 +301,25 @@ var digestCache       = null;
 var digestDate        = null;
 var digestWeek        = null;
 
+/* ─── DEV METRICS: structured data mirroring liveMetrics for dev report ─── */
+var devMetrics = {
+  out_to_bid:         7,
+  under_construction: 20,
+  bldg_drops_4wk:     4,
+  recent_openings:    [
+    {city:'Panama City', state:'FL', date:'05/04/26'},
+    {city:'Killeen',     state:'TX', date:'05/18/26'},
+    {city:'Lawton',      state:'OK', date:'05/18/26'},
+    {city:'Beverly Hills',state:'TX',date:'05/18/26'}
+  ],
+  building_drops:     [
+    {city:'Lubbock',   state:'TX', date:'04/24/26'},
+    {city:'Holiday',   state:'FL', date:'04/29/26'},
+    {city:'El Reno',   state:'OK', date:'05/13/26'},
+    {city:'Fort Myers',state:'FL', date:'05/13/26'}
+  ]
+};
+
 var nearbyOrgId       = null;
 
 /* ─── SUPABASE ─── */
@@ -416,6 +435,9 @@ function loadReportsFromSupa(){
     rows.forEach(function(r){
       if(r.id==='wbr' && r.html){ wbrData=r.html; wbrLoaded=true; }
       if(r.id==='dev' && r.html){ devData=r.html; devLoaded=true; }
+      if(r.id==='dev_metrics' && r.html){
+        try{ devMetrics=JSON.parse(r.html); }catch(e){ console.log('dev_metrics parse error:',e); }
+      }
     });
   }).catch(function(e){ console.log('Reports load:',e); });
 }
@@ -952,10 +974,18 @@ function staticDigestData(mx){
       {label:'Avg Weekly/Store', value:mx.avg_weekly,   trend:'flat', note:'Avg ticket '+(mx.avg_ticket||'—')},
       {label:'Team Members',     value:mx.employees,    trend:'up',   note:'Google Reviews 4.7★'}
     ],
-    openings_focus:'Panama City FL opened May 4; Killeen TX, Lawton OK, and Beverly Hills TX all opened May 18. Pipeline remains robust with 20 units under construction and 7 out to bid. Building drops in Lubbock TX (Apr 24), Holiday FL (Apr 29), El Reno OK and Fort Myers FL (May 13) keep momentum building.',
+    openings_focus:(function(){
+      var dm=devMetrics;
+      var opens=(dm.recent_openings||[]).map(function(o){ return o.city+' '+o.state; }).join('; ');
+      var drops=(dm.building_drops||[]).map(function(o){ return o.city+' '+o.state+' ('+o.date+')'; }).join(', ');
+      return (opens||'No recent openings on record')+'. Pipeline remains robust with '+dm.under_construction+' units under construction and '+dm.out_to_bid+' out to bid.'+(drops?' Building drops: '+drops+' keep momentum building.':'');
+    })(),
     watchout: watchoutText,
     motivation:'Central TX region leading the company at '+mx.ctx_weekly+'/wk avg ('+mx.ctx_sss+' SSS). Every new store that opens is compounding into that run rate — keep the pipeline moving.',
-    board_prep:'Lead with YTD '+mx.ytd_sales+' and run rate '+mx.run_rate+'. Address '+negRegions.join(' and ')+' diagnostics directly before FEP asks. Provide clarity on the 27 units in pipeline (20 under construction, 7 bid) with expected completion timelines.'
+    board_prep:(function(){
+      var dm=devMetrics; var total=dm.under_construction+dm.out_to_bid;
+      return 'Lead with YTD '+mx.ytd_sales+' and run rate '+mx.run_rate+'. Address '+negRegions.join(' and ')+' diagnostics directly before FEP asks. Provide clarity on the '+total+' units in pipeline ('+dm.under_construction+' under construction, '+dm.out_to_bid+' bid) with expected completion timelines.';
+    })()
   };
 }
 
@@ -992,14 +1022,21 @@ function buildDigestHTML(d, mx, dateStr, greeting, now, aiPowered){
 
   html+='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">🏗 Openings &amp; Pipeline</div>';
   html+='<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--black);line-height:1.6">'+d.openings_focus+'</div>';
-  html+='<div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px">'+
-    '<div style="flex-shrink:0;background:var(--black);color:#fff;border-radius:6px;padding:9px 14px;min-width:115px"><div style="font-size:11px;font-weight:800">Panama City, FL</div><div style="font-size:10px;color:#c0c2c4;margin-top:2px">Opening May 4</div></div>'+
-    '<div style="flex-shrink:0;background:var(--black);color:#fff;border-radius:6px;padding:9px 14px;min-width:110px"><div style="font-size:11px;font-weight:800">Killeen, TX</div><div style="font-size:10px;color:#c0c2c4;margin-top:2px">Opening May 18</div></div>'+
-    '<div style="flex-shrink:0;background:var(--black);color:#fff;border-radius:6px;padding:9px 14px;min-width:110px"><div style="font-size:11px;font-weight:800">Lawton, OK</div><div style="font-size:10px;color:#c0c2c4;margin-top:2px">Opening May 18</div></div>'+
-    '<div style="flex-shrink:0;background:var(--black);color:#fff;border-radius:6px;padding:9px 14px;min-width:120px"><div style="font-size:11px;font-weight:800">Beverly Hills, TX</div><div style="font-size:10px;color:#c0c2c4;margin-top:2px">Opening May 18</div></div>'+
-    '<div style="flex-shrink:0;background:#1a1a1a;border:1px solid #444;color:#fff;border-radius:6px;padding:9px 14px;min-width:110px"><div style="font-size:10px;color:#cb2026;font-weight:700;margin-bottom:1px">Bldg Drop</div><div style="font-size:11px;font-weight:800">Lubbock, TX</div><div style="font-size:10px;color:#c0c2c4;margin-top:1px">Apr 24</div></div>'+
-    '<div style="flex-shrink:0;background:#1a1a1a;border:1px solid #444;color:#fff;border-radius:6px;padding:9px 14px;min-width:110px"><div style="font-size:10px;color:#cb2026;font-weight:700;margin-bottom:1px">Bldg Drop</div><div style="font-size:11px;font-weight:800">Holiday, FL</div><div style="font-size:10px;color:#c0c2c4;margin-top:1px">Apr 29</div></div>'+
-  '</div>';
+  html+='<div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px">'+(function(){
+    var chips='';
+    (devMetrics.recent_openings||[]).forEach(function(o){
+      chips+='<div style="flex-shrink:0;background:var(--black);color:#fff;border-radius:6px;padding:9px 14px;min-width:100px">'+
+        '<div style="font-size:11px;font-weight:800">'+esc(o.city)+', '+esc(o.state)+'</div>'+
+        '<div style="font-size:10px;color:#c0c2c4;margin-top:2px">Opening '+esc(o.date)+'</div></div>';
+    });
+    (devMetrics.building_drops||[]).slice(0,2).forEach(function(o){
+      chips+='<div style="flex-shrink:0;background:#1a1a1a;border:1px solid #444;color:#fff;border-radius:6px;padding:9px 14px;min-width:100px">'+
+        '<div style="font-size:10px;color:#cb2026;font-weight:700;margin-bottom:1px">Bldg Drop</div>'+
+        '<div style="font-size:11px;font-weight:800">'+esc(o.city)+', '+esc(o.state)+'</div>'+
+        '<div style="font-size:10px;color:#c0c2c4;margin-top:1px">'+esc(o.date)+'</div></div>';
+    });
+    return chips || '<div style="font-size:12px;color:#6b7280;padding:9px 0">Upload Dev Report for opening chips.</div>';
+  })()+'</div>';
 
   html+='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">⚠ On Your Radar</div>';
   html+='<div style="background:#fff8f8;border:1px solid #f5c6c6;border-left:4px solid var(--red);border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--black);line-height:1.6">'+d.watchout+'</div>';
@@ -1071,7 +1108,7 @@ async function renderDigest(){
     mx.raw_summary?'Summary: '+mx.raw_summary:''
   ].join('\n');
 
-  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (77-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings completed: Panama City FL May 4, Killeen TX May 18, Lawton OK May 18, Beverly Hills TX May 18. Building drops: Lubbock TX Apr 24, Holiday FL Apr 29, El Reno OK May 13, Fort Myers FL May 13. 20 under construction, 7 out to bid.\n\nIMPORTANT: Both SW Florida (-1.2% SSS) AND New Mexico (-13.6% SSS) are showing negative same-store sales. New Mexico at -13.6% is the most urgent concern and must be called out prominently.\n\nReturn ONLY valid JSON starting with { and ending with }, no markdown, no backticks:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and pipeline","watchout":"2-3 sentences specifically addressing BOTH SWFL and NM negative SSS — NM at -13.6% is critical","motivation":"specific non-cheesy motivational thought referencing the real business data","board_prep":"one sentence on what to be ready to discuss with FEP — include both negative-SSS regions"}';
+  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (77-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings completed: '+(devMetrics.recent_openings||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. Building drops upcoming: '+(devMetrics.building_drops||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. '+devMetrics.under_construction+' under construction, '+devMetrics.out_to_bid+' out to bid.\n\nIMPORTANT: Both SW Florida (-1.2% SSS) AND New Mexico (-13.6% SSS) are showing negative same-store sales. New Mexico at -13.6% is the most urgent concern and must be called out prominently.\n\nReturn ONLY valid JSON starting with { and ending with }, no markdown, no backticks:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and pipeline","watchout":"2-3 sentences specifically addressing BOTH SWFL and NM negative SSS — NM at -13.6% is critical","motivation":"specific non-cheesy motivational thought referencing the real business data","board_prep":"one sentence on what to be ready to discuss with FEP — include both negative-SSS regions"}';
 
   (async function(){
     try{
@@ -1110,15 +1147,15 @@ function renderDashboard(){
     '</div>'+
     '<div class="ai-card"><div class="ai-card-head">Region Performance<span class="badge-r">SSS%</span></div><div class="ai-card-body" id="db-regions"></div></div>'+
     '<div class="dev-row">'+
-      '<div class="dev-box"><div class="dev-num">7</div><div class="dev-lbl">Out to Bid</div></div>'+
-      '<div class="dev-box"><div class="dev-num">20</div><div class="dev-lbl">Under Construction</div></div>'+
-      '<div class="dev-box"><div class="dev-num">4</div><div class="dev-lbl">Bldg Drops 4 Wks</div></div>'+
+      '<div class="dev-box"><div class="dev-num">'+devMetrics.out_to_bid+'</div><div class="dev-lbl">Out to Bid</div></div>'+
+      '<div class="dev-box"><div class="dev-num">'+devMetrics.under_construction+'</div><div class="dev-lbl">Under Construction</div></div>'+
+      '<div class="dev-box"><div class="dev-num">'+devMetrics.bldg_drops_4wk+'</div><div class="dev-lbl">Bldg Drops 4 Wks</div></div>'+
     '</div>'+
-    '<div class="ai-card"><div class="ai-card-head">Opened — May 2026</div><div class="ai-card-body">'+
-      '<div class="open-row"><span>Panama City, FL</span><span class="open-state">FL</span><span style="font-size:12px;color:#6b7280">May 4</span></div>'+
-      '<div class="open-row"><span>Killeen, TX</span><span class="open-state">TX</span><span style="font-size:12px;color:#6b7280">May 18</span></div>'+
-      '<div class="open-row"><span>Lawton, OK</span><span class="open-state">OK</span><span style="font-size:12px;color:#6b7280">May 18</span></div>'+
-      '<div class="open-row"><span>Beverly Hills, TX</span><span class="open-state">TX</span><span style="font-size:12px;color:#6b7280">May 18</span></div>'+
+    '<div class="ai-card"><div class="ai-card-head">Opened — Recent &amp; Upcoming</div><div class="ai-card-body">'+(function(){
+      var rows=(devMetrics.recent_openings||[]);
+      if(!rows.length) return '<div style="font-size:12px;color:#6b7280;padding:4px 0">Upload Dev Report to see openings.</div>';
+      return rows.map(function(o){ return '<div class="open-row"><span>'+esc(o.city)+', '+esc(o.state)+'</span><span class="open-state">'+esc(o.state)+'</span><span style="font-size:12px;color:#6b7280">'+esc(o.date)+'</span></div>'; }).join('');
+    })()+
     '</div></div>'+
     '<h2 style="margin-top:4px">Quick Insights</h2>'+
     '<div id="db-insights"></div>'+
@@ -1774,6 +1811,17 @@ async function processDev(input){
     html+='<div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">'+
           (parsed.pipeline?parsed.pipeline.length:0)+' in pipeline · Built '+new Date().toLocaleTimeString()+'</div>';
     devData=html; devLoaded=true;
+    /* ── Save structured dev metrics so dashboard & digest stay in sync ── */
+    devMetrics = {
+      out_to_bid:         st.out_to_bid         || 0,
+      under_construction: st.under_construction  || 0,
+      bldg_drops_4wk:     (parsed.building_drops||[]).length,
+      recent_openings:    parsed.openings        || [],
+      building_drops:     parsed.building_drops  || []
+    };
+    saveReportToSupa('dev_metrics', JSON.stringify(devMetrics), 'dev_metrics');
+    /* Force digest & dashboard to re-render with new dev data */
+    digestCache=null; digestDate=null; digestWeek=null;
     document.getElementById('dev-content').innerHTML=html;
     saveReportToSupa('dev',html,file.name);
     toast('Development report loaded!');
