@@ -432,29 +432,28 @@ function saveReportToSupa(id, html, filename){
 function loadReportsFromSupa(){
   supa('reports?select=*').then(function(rows){
     if(!Array.isArray(rows)) return;
-    var devMetricsUpdated=false;
     rows.forEach(function(r){
       if(r.id==='wbr' && r.html){ wbrData=r.html; wbrLoaded=true; }
       if(r.id==='dev' && r.html){ devData=r.html; devLoaded=true; }
-      if(r.id==='dev_metrics' && r.html){
-        try{
-          var fresh=JSON.parse(r.html);
-          if(fresh.out_to_bid!==devMetrics.out_to_bid||
-             fresh.under_construction!==devMetrics.under_construction||
-             (fresh.recent_openings||[]).length!==(devMetrics.recent_openings||[]).length){
-            devMetricsUpdated=true;
-          }
-          devMetrics=fresh;
-        }catch(e){ console.log('dev_metrics parse error:',e); }
-      }
     });
-    /* Re-render views that depend on devMetrics — same pattern as loadLiveMetrics */
-    if(devMetricsUpdated){
-      digestCache=null; digestDate=null; digestWeek=null;
-      if(currentSub==='digest')    renderDigest();
-      if(currentSub==='dashboard') renderDashboard();
-    }
   }).catch(function(e){ console.log('Reports load:',e); });
+  /* Load dev metrics via its own dedicated query — same pattern as loadLiveMetrics */
+  loadDevMetrics();
+}
+
+/* ─── Dedicated dev metrics loader — mirrors loadLiveMetrics pattern exactly ─── */
+function loadDevMetrics(){
+  supa('reports?id=eq.dev_metrics&select=*').then(function(rows){
+    if(rows && rows.length && rows[0].html){
+      try{
+        devMetrics = JSON.parse(rows[0].html);
+        /* Always bust digest cache and re-render whichever view is active */
+        digestCache=null; digestDate=null; digestWeek=null;
+        if(currentSub==='digest')    renderDigest();
+        if(currentSub==='dashboard') renderDashboard();
+      }catch(e){ console.log('dev_metrics parse error:',e); }
+    }
+  }).catch(function(e){ console.log('loadDevMetrics:',e); });
 }
 
 /* ─── FIX 2: loadLiveMetrics fetches fresh metrics then re-renders digest ─── */
@@ -1835,13 +1834,13 @@ async function processDev(input){
       building_drops:     parsed.building_drops  || []
     };
     saveReportToSupa('dev_metrics', JSON.stringify(devMetrics), 'dev_metrics');
-    /* Force digest & dashboard to re-render with new dev data */
+    /* Force digest & dashboard to re-render immediately with new dev data */
     digestCache=null; digestDate=null; digestWeek=null;
     document.getElementById('dev-content').innerHTML=html;
     saveReportToSupa('dev',html,file.name);
-    /* Immediately update other views that were already rendered */
-    if(currentSub==='dashboard') renderDashboard();
-    if(currentSub==='digest')    renderDigest();
+    /* Re-render other views right now using the just-parsed devMetrics */
+    renderDashboard();
+    renderDigest();
     toast('Development report loaded! Dashboard & Digest updated.');
   }catch(e){
     console.error('Dev error:',e);
