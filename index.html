@@ -437,24 +437,8 @@ function loadReportsFromSupa(){
       if(r.id==='dev' && r.html){ devData=r.html; devLoaded=true; }
     });
   }).catch(function(e){ console.log('Reports load:',e); });
-  /* Load dev metrics via its own dedicated query — same pattern as loadLiveMetrics */
-  loadDevMetrics();
 }
 
-/* ─── Dedicated dev metrics loader — mirrors loadLiveMetrics pattern exactly ─── */
-function loadDevMetrics(){
-  supa('reports?id=eq.dev_metrics&select=*').then(function(rows){
-    if(rows && rows.length && rows[0].html){
-      try{
-        devMetrics = JSON.parse(rows[0].html);
-        /* Always bust digest cache and re-render whichever view is active */
-        digestCache=null; digestDate=null; digestWeek=null;
-        if(currentSub==='digest')    renderDigest();
-        if(currentSub==='dashboard') renderDashboard();
-      }catch(e){ console.log('dev_metrics parse error:',e); }
-    }
-  }).catch(function(e){ console.log('loadDevMetrics:',e); });
-}
 
 /* ─── FIX 2: loadLiveMetrics fetches fresh metrics then re-renders digest ─── */
 function loadLiveMetrics(){
@@ -1142,7 +1126,22 @@ async function renderDigest(){
   })();
 }
 
+
 function forceRefreshDigest(){ digestCache=null; digestDate=null; digestWeek=null; renderDigest(); }
+
+/* ─── Dedicated dev metrics loader — in second script block so renderDigest/renderDashboard exist ─── */
+function loadDevMetrics(){
+  supa('reports?id=eq.dev_metrics&select=*').then(function(rows){
+    if(rows && rows.length && rows[0].html){
+      try{
+        devMetrics = JSON.parse(rows[0].html);
+        digestCache=null; digestDate=null; digestWeek=null;
+        if(currentSub==='digest')    renderDigest();
+        if(currentSub==='dashboard') renderDashboard();
+      }catch(e){ console.log('dev_metrics parse error:',e); }
+    }
+  }).catch(function(e){ console.log('loadDevMetrics:',e); });
+}
 
 /* ─── DASHBOARD ─── */
 function renderDashboard(){
@@ -1857,6 +1856,7 @@ async function processDev(input){
 loadLocal();
 fetchFromSupa();
 loadReportsFromSupa();
+loadDevMetrics();
 loadLiveMetrics();
 checkNearby();
 
