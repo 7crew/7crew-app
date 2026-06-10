@@ -432,13 +432,28 @@ function saveReportToSupa(id, html, filename){
 function loadReportsFromSupa(){
   supa('reports?select=*').then(function(rows){
     if(!Array.isArray(rows)) return;
+    var devMetricsUpdated=false;
     rows.forEach(function(r){
       if(r.id==='wbr' && r.html){ wbrData=r.html; wbrLoaded=true; }
       if(r.id==='dev' && r.html){ devData=r.html; devLoaded=true; }
       if(r.id==='dev_metrics' && r.html){
-        try{ devMetrics=JSON.parse(r.html); }catch(e){ console.log('dev_metrics parse error:',e); }
+        try{
+          var fresh=JSON.parse(r.html);
+          if(fresh.out_to_bid!==devMetrics.out_to_bid||
+             fresh.under_construction!==devMetrics.under_construction||
+             (fresh.recent_openings||[]).length!==(devMetrics.recent_openings||[]).length){
+            devMetricsUpdated=true;
+          }
+          devMetrics=fresh;
+        }catch(e){ console.log('dev_metrics parse error:',e); }
       }
     });
+    /* Re-render views that depend on devMetrics — same pattern as loadLiveMetrics */
+    if(devMetricsUpdated){
+      digestCache=null; digestDate=null; digestWeek=null;
+      if(currentSub==='digest')    renderDigest();
+      if(currentSub==='dashboard') renderDashboard();
+    }
   }).catch(function(e){ console.log('Reports load:',e); });
 }
 
@@ -1824,7 +1839,10 @@ async function processDev(input){
     digestCache=null; digestDate=null; digestWeek=null;
     document.getElementById('dev-content').innerHTML=html;
     saveReportToSupa('dev',html,file.name);
-    toast('Development report loaded!');
+    /* Immediately update other views that were already rendered */
+    if(currentSub==='dashboard') renderDashboard();
+    if(currentSub==='digest')    renderDigest();
+    toast('Development report loaded! Dashboard & Digest updated.');
   }catch(e){
     console.error('Dev error:',e);
     document.getElementById('dev-content').innerHTML=
