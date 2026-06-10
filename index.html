@@ -300,6 +300,7 @@ var devLoaded         = true;
 var digestCache       = null;
 var digestDate        = null;
 var digestWeek        = null;
+var digestDevKey      = null;  /* fingerprint so dev report changes bust the cache */
 
 /* ─── DEV METRICS: structured data mirroring liveMetrics for dev report ─── */
 var devMetrics = {
@@ -1077,8 +1078,9 @@ async function renderDigest(){
   if(!el) return;
 
   var today=new Date().toDateString();
-  /* Bust cache if the week_ending from Supabase has changed since last render */
-  if(digestCache && digestDate===today && digestWeek===liveMetrics.week_ending){ el.innerHTML=digestCache; return; }
+  var devKey=devMetrics.out_to_bid+'|'+devMetrics.under_construction+'|'+(devMetrics.recent_openings||[]).length;
+  /* Bust cache if week changed OR dev metrics changed since last render */
+  if(digestCache && digestDate===today && digestWeek===liveMetrics.week_ending && digestDevKey===devKey){ el.innerHTML=digestCache; return; }
 
   var now=new Date();
   var dateStr=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
@@ -1115,19 +1117,19 @@ async function renderDigest(){
       var raw=await callClaudeLong(sysPrompt,'Generate the daily digest for Kendra. Return only the JSON object.',true);
       var d=safeJSON(raw);
       var aiHtml=buildDigestHTML(d,mx,dateStr,greeting,now,true);
-      digestCache=aiHtml; digestDate=today; digestWeek=mx.week_ending;
+      digestCache=aiHtml; digestDate=today; digestWeek=mx.week_ending; digestDevKey=devKey;
       el.innerHTML=aiHtml;
     }catch(e){
       /* AI unavailable — restore static content, never leave blank */
       CLAUDE_AVAILABLE=false;
-      digestCache=staticHtml; digestDate=today; digestWeek=mx.week_ending;
+      digestCache=staticHtml; digestDate=today; digestWeek=mx.week_ending; digestDevKey=devKey;
       el.innerHTML=staticHtml;
     }
   })();
 }
 
 
-function forceRefreshDigest(){ digestCache=null; digestDate=null; digestWeek=null; renderDigest(); }
+function forceRefreshDigest(){ digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null; renderDigest(); }
 
 /* ─── Dedicated dev metrics loader — in second script block so renderDigest/renderDashboard exist ─── */
 function loadDevMetrics(){
@@ -1135,7 +1137,7 @@ function loadDevMetrics(){
     if(rows && rows.length && rows[0].html){
       try{
         devMetrics = JSON.parse(rows[0].html);
-        digestCache=null; digestDate=null; digestWeek=null;
+        digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
         if(currentSub==='digest')    renderDigest();
         if(currentSub==='dashboard') renderDashboard();
       }catch(e){ console.log('dev_metrics parse error:',e); }
@@ -1834,7 +1836,7 @@ async function processDev(input){
     };
     saveReportToSupa('dev_metrics', JSON.stringify(devMetrics), 'dev_metrics');
     /* Force digest & dashboard to re-render immediately with new dev data */
-    digestCache=null; digestDate=null; digestWeek=null;
+    digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
     document.getElementById('dev-content').innerHTML=html;
     saveReportToSupa('dev',html,file.name);
     /* Re-render other views right now using the just-parsed devMetrics */
