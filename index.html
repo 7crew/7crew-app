@@ -1564,13 +1564,15 @@ async function processWBR(input){
       });
     }
 
-    /* FORMAT B — ranks from individual lines (handles optional leading store ID) */
+    /* FORMAT B — ranks from individual lines */
+    /* Handles optional leading store ID: "697  62  6/12/2023  Enid 2  $..." */
+    /* And standard format:                    "1   6/12/2023  Odessa 2  $..." */
     txt.split('\n').forEach(function(rawLine) {
       var line = rawLine.replace(/\r/,'').trim();
-      /* Some exports prefix a store number before the rank, e.g. "697  62  8/18/2025 ..." */
-      /* Detect: first token is 3+ digits, second token is 1-2 digits → skip first token */
-      var stripped = line.replace(/^(\d{3,})\s+(?=\d{1,2}\s)/, '');
-      var m = stripped.match(/^(\d{1,3})\s+(\d{2,4})\s+([^$]+?)\s*\$\s*(\d)/);
+      /* Strip leading store ID if present: 3+ digit number before a 1-3 digit rank */
+      var stripped = line.replace(/^\d{3,}\s+(?=\d{1,3}\s+\d{1,2}\/\d{1,2}\/\d{4})/, '');
+      /* Match: rank  date  name  $sales */
+      var m = stripped.match(/^(\d{1,3})\s+(\d{1,2}\/\d{1,2}\/\d{4})\s+([^$]+?)\s*\$\s*(\d)/);
       if(!m) return;
       var rank = parseInt(m[1]);
       if(rank < 1 || rank > 300 || seen[rank]) return;
