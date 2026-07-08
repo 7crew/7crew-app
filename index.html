@@ -1539,8 +1539,9 @@ async function processWBR(input){
 
     /* FORMAT A — ranks 1-34 from jammed block */
     var arrIdx = txt.indexOf('ARR/T13');
-    var p5Idx = txt.indexOf('P5 W4');
-    if(p5Idx < 0) p5Idx = txt.indexOf('P5 W3');
+    var p5Idx = -1;
+    var pWMatch = txt.match(/P\d+\s*W\d+/);
+    if(pWMatch) p5Idx = txt.indexOf(pWMatch[0]);
     if(arrIdx >= 0 && p5Idx > arrIdx) {
       var jamBlock = txt.slice(arrIdx + 7, p5Idx).replace(/[\r\n]/g, ' ');
       var parts = jamBlock.split(/(?=\b\d{1,2}\d{3,4}[A-Za-z])/);
@@ -1572,7 +1573,7 @@ async function processWBR(input){
       /* Strip leading store ID if present: 3+ digit number before a 1-3 digit rank */
       var stripped = line.replace(/^\d{3,}\s+(?=\d{1,3}\s+\d{1,2}\/\d{1,2}\/\d{4})/, '');
       /* Match: rank  date  name  $sales */
-      var m = stripped.match(/^(\d{1,3})\s+(\d{1,2}\/\d{1,2}\/\d{4})\s+([^$]+?)\s*\$\s*(\d)/);
+      var m = stripped.match(/^(\d{1,3})\s+(?:\d{2,4}\s+)?(\d{1,2}\/\d{1,2}\/\d{4})\s+([^$]+?)\s*\$\s*(\d)/);
       if(!m) return;
       var rank = parseInt(m[1]);
       if(rank < 1 || rank > 300 || seen[rank]) return;
@@ -1587,6 +1588,7 @@ async function processWBR(input){
 
     var kpis={}, week_dates=['','','',''];
     var weM=txt.match(/(\d{1,2}\/\d{1,2}\/\d{4})Ranking/); if(weM) kpis.week_ending=weM[1];
+    if(!kpis.week_ending){ var weM2=txt.match(/P\d+\s*W\d+\s*(\d{1,2}\/\d{1,2}\/\d{4})/); if(weM2) kpis.week_ending=weM2[1]; }
     var ytdM=txt.match(/\$([\d,]+)\s*YTD Sales/i); if(ytdM) kpis.ytd='$'+ytdM[1];
     var dailyM=txt.match(/\$([\d,]+)\s*(?:AVG Daily|Avg Daily)/i); if(dailyM) kpis.daily='$'+dailyM[1];
     var rrM=txt.match(/\$([\d,]+)\s*(?:7Crew Run Rate|Run Rate)/i); if(rrM) kpis.run_rate='$'+rrM[1];
@@ -1784,7 +1786,14 @@ async function processDev(input){
     var body={
       model:'claude-haiku-4-5-20251001',
       max_tokens:8192,
-      system:'You are parsing a 7Crew Enterprises Weekly Development Review. Return ONLY valid JSON, no markdown: {"stats":{"out_to_bid":0,"under_construction":0,"recent_openings":0},"building_drops":[{"city":"","state":"","date":""}],"openings":[{"city":"","state":"","date":""}],"pipeline":[{"city":"","state":"","est_open":"","days_out":0}],"stand_count":[{"phase":"","count":0}]}. Exclude any entries where the developer is Red Sky. Include every location.',
+      system:'You are parsing a 7Crew Enterprises Weekly Development Review. The report has these distinct sections — map each to the correct JSON field and do not mix them up:\n'+
+        '1. "Projects out to Bid" / "Out to Bid" table -> stats.out_to_bid = the header count. These rows are NOT under construction and must NOT appear in the pipeline array.\n'+
+        '2. "Bid Accepted - Not under Construction" table -> ignore, not part of this schema.\n'+
+        '3. "Projects under Construction" / "Under Construction" table (rows are City + Open Date only, no state column) -> this IS the pipeline array. stats.under_construction = the header count, and pipeline.length should equal it. For each row output {city, state: infer the US state from the city name, est_open: the open date exactly as given, days_out: number of days from today (' + new Date().toISOString().slice(0,10) + ') to est_open}.\n'+
+        '4. "BLDG Drops Next 4 Weeks" table -> building_drops array {city,state,date}.\n'+
+        '5. "Openings Last 7 days & Next 4 Weeks" / "Recent & Upcoming Openings" table -> openings array {city,state,date}, and stats.recent_openings = count of these rows.\n'+
+        '6. "Stand Count" bar list (e.g. "3. LOI Negotiations", counts) -> stand_count array {phase,count}.\n'+
+        'Return ONLY valid JSON, no markdown, matching: {"stats":{"out_to_bid":0,"under_construction":0,"recent_openings":0},"building_drops":[{"city":"","state":"","date":""}],"openings":[{"city":"","state":"","date":""}],"pipeline":[{"city":"","state":"","est_open":"","days_out":0}],"stand_count":[{"phase":"","count":0}]}. Exclude any entries where the developer is Red Sky. Include every location in each section.',
       messages:[{role:'user',content:'Parse this development report: '+devText.slice(0,50000)}]
     };
     var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -1847,6 +1856,8 @@ async function processDev(input){
     /* Force digest & dashboard to re-render immediately with new dev data */
     digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
     document.getElementById('dev-content').innerHTML=html;
+    var _dsEl=document.getElementById('dev-status');
+    if(_dsEl) _dsEl.innerHTML=(st.out_to_bid||0)+' out to bid · '+(st.under_construction||0)+' under construction · '+(st.recent_openings||0)+' recent openings';
     saveReportToSupa('dev',html,file.name);
     /* Re-render other views right now using the just-parsed devMetrics */
     renderDashboard();
