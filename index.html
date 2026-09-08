@@ -324,6 +324,7 @@ var devMetrics = {
     {city:'Winter Haven',state:'FL', date:'06/17/26'}
   ]
 };
+var lastDevParsed = null; /* full structured parse from the last dev report upload, used to merge in a standalone Stand Count screenshot */
 
 var nearbyOrgId       = null;
 
@@ -441,6 +442,7 @@ function loadReportsFromSupa(){
       if(r.id==='wbr' && r.html){ wbrData=r.html; wbrLoaded=true; }
       if(r.id==='dev' && r.html){ devData=r.html; devLoaded=true; }
       if(r.id==='digest_notes'){ digestNotes=r.html||''; }
+      if(r.id==='dev_parsed' && r.html){ try{ lastDevParsed=JSON.parse(r.html); }catch(e){} }
     });
     /* Notes just arrived from Supabase — bust the digest cache so they get woven in */
     digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
@@ -1785,9 +1787,13 @@ function renderDevelopment(){
   var el=document.getElementById('sec-development');
   if(!el) return;
   el.innerHTML='<div class="ai-section"><h2>Development Report</h2>'+
-    '<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">'+
+    '<div style="background:#f8f8f8;border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">'+
     '<div id="dev-status" style="font-size:11px;color:#6b7280;font-weight:600">Week of <strong style="color:var(--black)">May 17, 2026</strong> · 20 under construction</div>'+
     '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt,.pdf" style="display:none" onchange="processDev(this)"></label>'+
+    '</div>'+
+    '<div style="background:#fff8f8;border:1px solid #f5c6c6;border-radius:6px;padding:8px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px">'+
+    '<div style="font-size:11px;color:#6b7280;line-height:1.4">Chart didn\'t come through as text (e.g. pasted from Smartsheet)? Screenshot just the <strong>Stand Count</strong> chart and add it here.</div>'+
+    '<label style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit;white-space:nowrap">↑ Add Chart<input type="file" accept="image/*" style="display:none" onchange="processStandCountImage(this)"></label>'+
     '</div>'+
     '<div id="dev-content">'+(devData||'')+'</div>'+
   '</div>';
@@ -1818,6 +1824,73 @@ async function renderPDFPagesToImages(file, maxPages){
     images.push(canvas.toDataURL('image/jpeg',0.72).split(',')[1]);
   }
   return images;
+}
+
+function buildDevHTML(parsed){
+  parsed=parsed||{};
+  var html='';
+  var st=parsed.stats||{};
+  var standCount = parsed.stand_count||[];
+  /* Fallback: if the source report has no dedicated "Stand Count" chart (or it couldn't
+     be read), synthesize one from the categories we already parsed so this section is
+     never empty */
+  if(!standCount.length){
+    standCount=[
+      {phase:'Out to Bid',         count: st.out_to_bid||0},
+      {phase:'Under Construction', count: st.under_construction||0},
+      {phase:'Recent Openings',    count: (parsed.openings||[]).length}
+    ].filter(function(s){ return s.count>0; });
+  }
+  var standTotal = standCount.reduce(function(sum,s){ return sum + (parseInt(s.count)||0); },0);
+  if(standCount.length){
+    html+='<div style="background:#0c0a0a;border-radius:8px;padding:14px 16px;margin-bottom:16px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'+
+        '<div style="font-size:10px;font-weight:800;color:#c0c2c4;text-transform:uppercase;letter-spacing:.08em">Stand Count</div>'+
+        '<div style="font-size:24px;font-weight:800;color:#fff">'+standTotal+'</div>'+
+      '</div>';
+    var standMax = standCount.reduce(function(m,s){ return Math.max(m, parseInt(s.count)||0); },1);
+    standCount.forEach(function(s){
+      var pct = standMax ? Math.round(((parseInt(s.count)||0)/standMax)*100) : 0;
+      html+='<div style="margin-bottom:8px">'+
+        '<div style="display:flex;justify-content:space-between;font-size:11px;color:#fff;margin-bottom:3px"><span>'+esc(s.phase||'')+'</span><span style="font-weight:700">'+(s.count||0)+'</span></div>'+
+        '<div style="background:#333;border-radius:3px;height:5px;overflow:hidden"><div style="background:var(--red);height:100%;width:'+pct+'%"></div></div>'+
+      '</div>';
+    });
+    html+='</div>';
+  }
+  function makeTable(title, rows, cols){
+    if(!rows||!rows.length) return '';
+    var h='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">'+title+'</div>';
+    h+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">';
+    h+='<thead><tr style="background:#0c0a0a;color:#fff">';
+    cols.forEach(function(c){h+='<th style="padding:6px 10px;text-align:left;font-weight:700">'+c+'</th>';});
+    h+='</tr></thead><tbody>';
+    rows.forEach(function(row,i){
+      h+='<tr style="background:'+(i%2===0?'#fff':'#fafafa')+'">';
+      Object.values(row).forEach(function(v){
+        if(typeof v==='number') return;
+        h+='<td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">'+esc(String(v||'—'))+'</td>';
+      });
+      h+='</tr>';
+    });
+    h+='</tbody></table>';
+    return h;
+  }
+  html+=makeTable('Building Drops — Next 4 Weeks', parsed.building_drops, ['City','State','Drop Date']);
+  html+=makeTable('Recent & Upcoming Openings', parsed.openings, ['City','State','Open Date']);
+  if(parsed.pipeline&&parsed.pipeline.length){
+    html+='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">Full Construction Pipeline ('+parsed.pipeline.length+' locations)</div>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">';
+    html+='<thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Est. Open</th></tr></thead><tbody>';
+    parsed.pipeline.forEach(function(p,i){
+      var bg=p.days_out<=30?'#fdecea':p.days_out<=60?'#fff3e0':(i%2===0?'#fff':'#fafafa');
+      html+='<tr style="background:'+bg+'"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">'+esc(p.city||'')+'</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">'+esc(p.state||'')+'</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:'+(p.days_out<=30?'#cb2026':p.days_out<=60?'#b35c00':'#374151')+';font-weight:'+(p.days_out<=60?'700':'400')+'">'+esc(p.est_open||'')+'</td></tr>';
+    });
+    html+='</tbody></table>';
+  }
+  html+='<div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">'+
+        (parsed.pipeline?parsed.pipeline.length:0)+' in pipeline · Built '+new Date().toLocaleTimeString()+'</div>';
+  return {html:html, standCount:standCount, standTotal:standTotal, st:st};
 }
 
 async function processDev(input){
@@ -1877,75 +1950,10 @@ async function processDev(input){
     if(d.error) throw new Error('API error: '+JSON.stringify(d.error));
     var jsonText=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
     var parsed=safeJSON(jsonText);
-    var html='';
-    var st=parsed.stats||{};
-    html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">';
-    [{l:'Out to Bid',v:st.out_to_bid||0},{l:'Under Construction',v:st.under_construction||0},{l:'Recent Openings',v:st.recent_openings||0}].forEach(function(b){
-      html+='<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center">'+
-            '<div style="font-size:28px;font-weight:800;color:var(--black)">'+b.v+'</div>'+
-            '<div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px">'+b.l+'</div></div>';
-    });
-    html+='</div>';
-    var standCount = parsed.stand_count||[];
-    /* Fallback: if the source report has no dedicated "Stand Count" chart (or it couldn't
-       be read), synthesize one from the categories we already parsed so this section is
-       never empty */
-    if(!standCount.length){
-      standCount=[
-        {phase:'Out to Bid',         count: st.out_to_bid||0},
-        {phase:'Under Construction', count: st.under_construction||0},
-        {phase:'Recent Openings',    count: (parsed.openings||[]).length}
-      ].filter(function(s){ return s.count>0; });
-    }
-    var standTotal = standCount.reduce(function(sum,s){ return sum + (parseInt(s.count)||0); },0);
-    if(standCount.length){
-      html+='<div style="background:#0c0a0a;border-radius:8px;padding:14px 16px;margin-bottom:16px">'+
-        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'+
-          '<div style="font-size:10px;font-weight:800;color:#c0c2c4;text-transform:uppercase;letter-spacing:.08em">Stand Count</div>'+
-          '<div style="font-size:24px;font-weight:800;color:#fff">'+standTotal+'</div>'+
-        '</div>';
-      var standMax = standCount.reduce(function(m,s){ return Math.max(m, parseInt(s.count)||0); },1);
-      standCount.forEach(function(s){
-        var pct = standMax ? Math.round(((parseInt(s.count)||0)/standMax)*100) : 0;
-        html+='<div style="margin-bottom:8px">'+
-          '<div style="display:flex;justify-content:space-between;font-size:11px;color:#fff;margin-bottom:3px"><span>'+esc(s.phase||'')+'</span><span style="font-weight:700">'+(s.count||0)+'</span></div>'+
-          '<div style="background:#333;border-radius:3px;height:5px;overflow:hidden"><div style="background:var(--red);height:100%;width:'+pct+'%"></div></div>'+
-        '</div>';
-      });
-      html+='</div>';
-    }
-    function makeTable(title, rows, cols){
-      if(!rows||!rows.length) return '';
-      var h='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">'+title+'</div>';
-      h+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">';
-      h+='<thead><tr style="background:#0c0a0a;color:#fff">';
-      cols.forEach(function(c){h+='<th style="padding:6px 10px;text-align:left;font-weight:700">'+c+'</th>';});
-      h+='</tr></thead><tbody>';
-      rows.forEach(function(row,i){
-        h+='<tr style="background:'+(i%2===0?'#fff':'#fafafa')+'">';
-        Object.values(row).forEach(function(v){
-          if(typeof v==='number') return;
-          h+='<td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">'+esc(String(v||'—'))+'</td>';
-        });
-        h+='</tr>';
-      });
-      h+='</tbody></table>';
-      return h;
-    }
-    html+=makeTable('Building Drops — Next 4 Weeks', parsed.building_drops, ['City','State','Drop Date']);
-    html+=makeTable('Recent & Upcoming Openings', parsed.openings, ['City','State','Open Date']);
-    if(parsed.pipeline&&parsed.pipeline.length){
-      html+='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">Full Construction Pipeline ('+parsed.pipeline.length+' locations)</div>';
-      html+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">';
-      html+='<thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Est. Open</th></tr></thead><tbody>';
-      parsed.pipeline.forEach(function(p,i){
-        var bg=p.days_out<=30?'#fdecea':p.days_out<=60?'#fff3e0':(i%2===0?'#fff':'#fafafa');
-        html+='<tr style="background:'+bg+'"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">'+esc(p.city||'')+'</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">'+esc(p.state||'')+'</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:'+(p.days_out<=30?'#cb2026':p.days_out<=60?'#b35c00':'#374151')+';font-weight:'+(p.days_out<=60?'700':'400')+'">'+esc(p.est_open||'')+'</td></tr>';
-      });
-      html+='</tbody></table>';
-    }
-    html+='<div style="font-size:11px;color:#6b7280;margin-top:8px;text-align:right">'+
-          (parsed.pipeline?parsed.pipeline.length:0)+' in pipeline · Built '+new Date().toLocaleTimeString()+'</div>';
+    var built=buildDevHTML(parsed);
+    var html=built.html, standCount=built.standCount, standTotal=built.standTotal, st=built.st;
+    lastDevParsed=parsed;
+    saveReportToSupa('dev_parsed', JSON.stringify(parsed), 'dev_parsed');
     devData=html; devLoaded=true;
     /* ── Save structured dev metrics so dashboard & digest stay in sync ── */
     devMetrics = {
@@ -1976,6 +1984,74 @@ async function processDev(input){
       '<div style="font-size:12px;color:#6b7280;font-family:monospace;word-break:break-all">'+esc(e.message)+'</div>'+
       '<div style="font-size:12px;color:#6b7280;margin-top:8px">Tip: Save the PDF as a .txt file first for best results.</div>'+
       '</div>';
+  }
+}
+
+async function processStandCountImage(input){
+  if(!input.files||!input.files[0]) return;
+  var file=input.files[0];
+  var _ds=document.getElementById('dev-status'); if(_ds) _ds.textContent='Reading chart image: '+file.name+'...';
+  try{
+    var base64=await new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(e){ resolve(e.target.result.split(',')[1]); };
+      reader.onerror=reject;
+      reader.readAsDataURL(file);
+    });
+    var mediaType = file.type && file.type.indexOf('image/')===0 ? file.type : 'image/png';
+    if(_ds) _ds.textContent='Reading Stand Count chart...';
+    var body={
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:2048,
+      system:'You are reading a "Stand Count" horizontal bar chart from a 7Crew Enterprises development dashboard (e.g. Smartsheet). Read every bar directly from the image. Bars are typically labeled with numbered phases such as "LOI Negotiations", "Due Diligence Period", "Design Phase", "Permitting Phase", "Construction Phase", "Open", and "Opened in <year>" (exact wording/order can vary). For each bar output {phase,count}, using the full label text (strip any leading number like "3.") and the number printed at or near the end of the bar. Include every bar shown, even large ones like "Open". Return ONLY valid JSON, no markdown: {"stand_count":[{"phase":"","count":0}]}',
+      messages:[{role:'user',content:[
+        {type:'image', source:{type:'base64', media_type:mediaType, data:base64}},
+        {type:'text', text:'Read the Stand Count chart in this image and return the JSON.'}
+      ]}]
+    };
+    var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var rawText=await r.text();
+    var d=JSON.parse(rawText);
+    if(d.error) throw new Error('API error: '+JSON.stringify(d.error));
+    var jsonText=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    var result=safeJSON(jsonText);
+    var newStandCount=result.stand_count||[];
+    if(!newStandCount.length) throw new Error('Could not read any bars from that image — try a clearer/closer screenshot of just the chart.');
+
+    /* Merge into whatever we already know about this dev report, so the rest of the
+       report (Out to Bid, Under Construction, tables) is preserved */
+    if(!lastDevParsed){
+      lastDevParsed={
+        stats:{ out_to_bid:devMetrics.out_to_bid||0, under_construction:devMetrics.under_construction||0, recent_openings:(devMetrics.recent_openings||[]).length },
+        building_drops: devMetrics.building_drops||[],
+        openings: devMetrics.recent_openings||[],
+        pipeline: []
+      };
+    }
+    lastDevParsed.stand_count=newStandCount;
+    saveReportToSupa('dev_parsed', JSON.stringify(lastDevParsed), 'dev_parsed');
+
+    var built=buildDevHTML(lastDevParsed);
+    devData=built.html; devLoaded=true;
+    devMetrics=Object.assign({}, devMetrics, {
+      out_to_bid:         built.st.out_to_bid||devMetrics.out_to_bid||0,
+      under_construction: built.st.under_construction||devMetrics.under_construction||0,
+      stand_count:        built.standCount,
+      stand_total:        built.standTotal
+    });
+    saveReportToSupa('dev_metrics', JSON.stringify(devMetrics), 'dev_metrics');
+    saveReportToSupa('dev', built.html, 'dev');
+    digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
+    document.getElementById('dev-content').innerHTML=built.html;
+    var _dsEl=document.getElementById('dev-status');
+    if(_dsEl) _dsEl.innerHTML=built.standTotal+' total stands · '+(built.st.out_to_bid||0)+' out to bid · '+(built.st.under_construction||0)+' under construction · '+(built.st.recent_openings||(lastDevParsed.openings||[]).length||0)+' recent openings';
+    renderDashboard();
+    renderDigest();
+    toast('Stand Count chart added!');
+  }catch(e){
+    console.error('Stand count image error:',e);
+    toast('Could not read that chart — try a clearer screenshot.');
+    if(document.getElementById('dev-status')) renderDevelopment();
   }
 }
 
