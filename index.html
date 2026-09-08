@@ -309,6 +309,8 @@ var devMetrics = {
   out_to_bid:         10,
   under_construction: 19,
   bldg_drops_4wk:     3,
+  stand_count:        [],
+  stand_total:        0,
   recent_openings:    [
     {city:'Edmond',      state:'OK', date:'06/22/26'},
     {city:'Altus',       state:'OK', date:'06/22/26'},
@@ -1114,9 +1116,14 @@ async function renderDigest(){
     mx.raw_summary?'Summary: '+mx.raw_summary:''
   ].join('\n');
 
-  var notesBlock = digestNotes ? ('\n\nMANAGER COMMENTARY (pasted this week from the WBR discussion — treat this as ground truth color on WHY the numbers moved; weave the relevant facts and events from it into the headline, openings_focus, watchout, motivation, and board_prep in your own words — do not quote it verbatim, but keep it factually accurate to what is written here):\n"""\n'+digestNotes+'\n"""') : '';
+  var notesBlock = digestNotes ? ('\n\nMANAGER COMMENTARY (pasted this week from the WBR discussion — this is ground truth on WHY the numbers moved). Weave the relevant facts from it into headline, openings_focus, watchout, motivation, and board_prep, in your own words — but you MUST follow these accuracy rules exactly:\n'+
+    '1. Every number, date, and location must stay attached to the exact same subject it describes below. A system-wide/company-wide figure (e.g. total sales across all stores on a given day) must NEVER be reworded as if it belongs to one specific store, and a single store\'s figure must NEVER be generalized to the whole system.\n'+
+    '2. Preserve direction exactly. If the commentary says a location or metric DROPPED or is DOWN, your summary must say it dropped/is down — never flip a decline into a gain, and never omit a decline in favor of a nearby positive number.\n'+
+    '3. Do not merge two separate data points into one claim unless the commentary explicitly connects them (e.g. do not attribute a system-wide total to an individual store just because both appear near each other in the text).\n'+
+    '4. If you are not fully certain which subject a specific number belongs to, leave that number out rather than guess.\n'+
+    '5. The commentary may raise concerns as well as wins — reflect both. Do not launder a concern into pure positivity.\n\nCOMMENTARY:\n"""\n'+digestNotes+'\n"""') : '';
 
-  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (77-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings completed: '+(devMetrics.recent_openings||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. Building drops upcoming: '+(devMetrics.building_drops||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. '+devMetrics.under_construction+' under construction, '+devMetrics.out_to_bid+' out to bid.\n\nIMPORTANT: Both SW Florida (-1.3% SSS) AND New Mexico (-9.7% SSS) are showing negative same-store sales. New Mexico at -9.7% is the most urgent concern and must be called out prominently.'+notesBlock+'\n\nReturn ONLY valid JSON starting with { and ending with }, no markdown, no backticks:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and pipeline, incorporating any relevant manager commentary above","watchout":"2-3 sentences specifically addressing BOTH SWFL and NM negative SSS — NM at -9.7% is critical — plus any other watch-out items raised in the manager commentary","motivation":"specific non-cheesy motivational thought referencing the real business data and any wins called out in the manager commentary","board_prep":"one sentence on what to be ready to discuss with FEP — include both negative-SSS regions and any notable items from the manager commentary"}';
+  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (77-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings completed: '+(devMetrics.recent_openings||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. Building drops upcoming: '+(devMetrics.building_drops||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. '+devMetrics.under_construction+' under construction, '+devMetrics.out_to_bid+' out to bid.\n\nIMPORTANT: Both SW Florida (-1.3% SSS) AND New Mexico (-9.7% SSS) are showing negative same-store sales. New Mexico at -9.7% is the most urgent concern and must be called out prominently.'+notesBlock+'\n\nReturn ONLY valid JSON starting with { and ending with }, no markdown, no backticks:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and pipeline, incorporating any relevant manager commentary above","watchout":"2-3 sentences specifically addressing BOTH SWFL and NM negative SSS — NM at -9.7% is critical — plus any declines, drops, or concerns raised in the manager commentary (state them as declines, do not spin them positive)","motivation":"specific non-cheesy thought referencing the real business data — include genuine wins from the manager commentary, but do not misattribute figures or paper over concerns to force positivity","board_prep":"one sentence on what to be ready to discuss with FEP — include both negative-SSS regions and any notable items (wins or concerns) from the manager commentary"}';
 
   (async function(){
     try{
@@ -1840,6 +1847,23 @@ async function processDev(input){
             '<div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px">'+b.l+'</div></div>';
     });
     html+='</div>';
+    var standCount = parsed.stand_count||[];
+    var standTotal = standCount.reduce(function(sum,s){ return sum + (parseInt(s.count)||0); },0);
+    if(standCount.length){
+      html+='<div style="background:#0c0a0a;border-radius:8px;padding:14px 16px;margin-bottom:16px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'+
+          '<div style="font-size:10px;font-weight:800;color:#c0c2c4;text-transform:uppercase;letter-spacing:.08em">Total Stand Count</div>'+
+          '<div style="font-size:24px;font-weight:800;color:#fff">'+standTotal+'</div>'+
+        '</div>';
+      standCount.forEach(function(s){
+        var pct = standTotal ? Math.round(((parseInt(s.count)||0)/standTotal)*100) : 0;
+        html+='<div style="margin-bottom:8px">'+
+          '<div style="display:flex;justify-content:space-between;font-size:11px;color:#fff;margin-bottom:3px"><span>'+esc(s.phase||'')+'</span><span style="font-weight:700">'+(s.count||0)+'</span></div>'+
+          '<div style="background:#333;border-radius:3px;height:5px;overflow:hidden"><div style="background:var(--red);height:100%;width:'+pct+'%"></div></div>'+
+        '</div>';
+      });
+      html+='</div>';
+    }
     function makeTable(title, rows, cols){
       if(!rows||!rows.length) return '';
       var h='<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">'+title+'</div>';
@@ -1879,14 +1903,16 @@ async function processDev(input){
       under_construction: st.under_construction  || 0,
       bldg_drops_4wk:     (parsed.building_drops||[]).length,
       recent_openings:    parsed.openings        || [],
-      building_drops:     parsed.building_drops  || []
+      building_drops:     parsed.building_drops  || [],
+      stand_count:        standCount,
+      stand_total:        standTotal
     };
     saveReportToSupa('dev_metrics', JSON.stringify(devMetrics), 'dev_metrics');
     /* Force digest & dashboard to re-render immediately with new dev data */
     digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
     document.getElementById('dev-content').innerHTML=html;
     var _dsEl=document.getElementById('dev-status');
-    if(_dsEl) _dsEl.innerHTML=(st.out_to_bid||0)+' out to bid · '+(st.under_construction||0)+' under construction · '+(st.recent_openings||0)+' recent openings';
+    if(_dsEl) _dsEl.innerHTML=standTotal+' total stands · '+(st.out_to_bid||0)+' out to bid · '+(st.under_construction||0)+' under construction · '+(st.recent_openings||0)+' recent openings';
     saveReportToSupa('dev',html,file.name);
     /* Re-render other views right now using the just-parsed devMetrics */
     renderDashboard();
