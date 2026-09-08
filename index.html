@@ -1793,6 +1793,33 @@ function renderDevelopment(){
   '</div>';
 }
 
+async function renderPDFPagesToImages(file, maxPages){
+  if(!window.pdfjsLib){
+    await new Promise(function(resolve,reject){
+      var s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload=resolve; s.onerror=reject;
+      document.head.appendChild(s);
+    });
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc=
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+  var arrayBuffer=await file.arrayBuffer();
+  var pdf=await window.pdfjsLib.getDocument({data:arrayBuffer}).promise;
+  var images=[];
+  var n=Math.min(pdf.numPages, maxPages||6);
+  for(var i=1;i<=n;i++){
+    var page=await pdf.getPage(i);
+    var viewport=page.getViewport({scale:1.4});
+    var canvas=document.createElement('canvas');
+    canvas.width=viewport.width; canvas.height=viewport.height;
+    var ctx=canvas.getContext('2d');
+    await page.render({canvasContext:ctx, viewport:viewport}).promise;
+    images.push(canvas.toDataURL('image/jpeg',0.72).split(',')[1]);
+  }
+  return images;
+}
+
 async function processDev(input){
   if(!input.files||!input.files[0]) return;
   var file=input.files[0];
@@ -1805,6 +1832,7 @@ async function processDev(input){
   };
   try{
     var devText='';
+    var pageImages=[];
     if(file.name.toLowerCase().endsWith('.txt')){
       setDevStatus('Reading text file...');
       devText=await new Promise(function(resolve,reject){
@@ -1816,9 +1844,20 @@ async function processDev(input){
     } else {
       setDevStatus('Reading PDF...');
       devText=await extractPDFText(file);
+      try{
+        setDevStatus('Capturing charts from PDF...');
+        pageImages=await renderPDFPagesToImages(file, 6);
+      }catch(imgErr){
+        console.warn('Page image render failed, continuing with text only:', imgErr);
+      }
     }
     if(!devText||devText.length<50) throw new Error('Could not extract text — try saving as .txt first');
     setDevStatus('Parsing development report (~15 seconds)...');
+    var userContent=[];
+    pageImages.forEach(function(img){
+      userContent.push({type:'image', source:{type:'base64', media_type:'image/jpeg', data:img}});
+    });
+    userContent.push({type:'text', text:'Parse this development report. Page images of the report (if provided above) are the source of truth for any bar-chart / graphic sections — read bar labels and values directly off the image. Extracted text follows for the plain tables:\n\n'+devText.slice(0,50000)});
     var body={
       model:'claude-haiku-4-5-20251001',
       max_tokens:8192,
@@ -1828,9 +1867,9 @@ async function processDev(input){
         '3. "Projects under Construction" / "Under Construction" table (rows are City + Open Date only, no state column) -> this IS the pipeline array. stats.under_construction = the header count, and pipeline.length should equal it. For each row output {city, state: infer the US state from the city name, est_open: the open date exactly as given, days_out: number of days from today (' + new Date().toISOString().slice(0,10) + ') to est_open}.\n'+
         '4. "BLDG Drops Next 4 Weeks" table -> building_drops array {city,state,date}.\n'+
         '5. "Openings Last 7 days & Next 4 Weeks" / "Recent & Upcoming Openings" table -> openings array {city,state,date}, and stats.recent_openings = count of these rows.\n'+
-        '6. "Stand Count" bar list (e.g. "3. LOI Negotiations", counts) -> stand_count array {phase,count}.\n'+
+        '6. A "Stand Count" horizontal bar chart — this is a GRAPHIC, so read it directly from the page image, not just the extracted text. Its bars are typically labeled with numbered phases such as "LOI Negotiations", "Due Diligence Period", "Design Phase", "Permitting Phase", "Construction Phase", "Open", and "Opened in <year>" (exact wording/order can vary slightly). Output one {phase,count} entry per bar shown, using the full label text (strip any leading number like "3.") and the number printed at the end of the bar. Include every single bar in the chart, even large ones like "Open".\n'+
         'Return ONLY valid JSON, no markdown, matching: {"stats":{"out_to_bid":0,"under_construction":0,"recent_openings":0},"building_drops":[{"city":"","state":"","date":""}],"openings":[{"city":"","state":"","date":""}],"pipeline":[{"city":"","state":"","est_open":"","days_out":0}],"stand_count":[{"phase":"","count":0}]}. Exclude any entries where the developer is Red Sky. Include every location in each section.',
-      messages:[{role:'user',content:'Parse this development report: '+devText.slice(0,50000)}]
+      messages:[{role:'user',content:userContent}]
     };
     var r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     var rawText=await r.text();
@@ -1848,8 +1887,9 @@ async function processDev(input){
     });
     html+='</div>';
     var standCount = parsed.stand_count||[];
-    /* Fallback: if the source report has no dedicated "Stand Count" table, synthesize
-       one from the categories we already parsed so this section is never empty */
+    /* Fallback: if the source report has no dedicated "Stand Count" chart (or it couldn't
+       be read), synthesize one from the categories we already parsed so this section is
+       never empty */
     if(!standCount.length){
       standCount=[
         {phase:'Out to Bid',         count: st.out_to_bid||0},
@@ -1861,11 +1901,12 @@ async function processDev(input){
     if(standCount.length){
       html+='<div style="background:#0c0a0a;border-radius:8px;padding:14px 16px;margin-bottom:16px">'+
         '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'+
-          '<div style="font-size:10px;font-weight:800;color:#c0c2c4;text-transform:uppercase;letter-spacing:.08em">Total Stands in Pipeline</div>'+
+          '<div style="font-size:10px;font-weight:800;color:#c0c2c4;text-transform:uppercase;letter-spacing:.08em">Stand Count</div>'+
           '<div style="font-size:24px;font-weight:800;color:#fff">'+standTotal+'</div>'+
         '</div>';
+      var standMax = standCount.reduce(function(m,s){ return Math.max(m, parseInt(s.count)||0); },1);
       standCount.forEach(function(s){
-        var pct = standTotal ? Math.round(((parseInt(s.count)||0)/standTotal)*100) : 0;
+        var pct = standMax ? Math.round(((parseInt(s.count)||0)/standMax)*100) : 0;
         html+='<div style="margin-bottom:8px">'+
           '<div style="display:flex;justify-content:space-between;font-size:11px;color:#fff;margin-bottom:3px"><span>'+esc(s.phase||'')+'</span><span style="font-weight:700">'+(s.count||0)+'</span></div>'+
           '<div style="background:#333;border-radius:3px;height:5px;overflow:hidden"><div style="background:var(--red);height:100%;width:'+pct+'%"></div></div>'+
@@ -1921,7 +1962,7 @@ async function processDev(input){
     digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
     document.getElementById('dev-content').innerHTML=html;
     var _dsEl=document.getElementById('dev-status');
-    if(_dsEl) _dsEl.innerHTML=standTotal+' in pipeline · '+(st.out_to_bid||0)+' out to bid · '+(st.under_construction||0)+' under construction · '+(st.recent_openings||0)+' recent openings';
+    if(_dsEl) _dsEl.innerHTML=standTotal+' total stands · '+(st.out_to_bid||0)+' out to bid · '+(st.under_construction||0)+' under construction · '+(st.recent_openings||0)+' recent openings';
     saveReportToSupa('dev',html,file.name);
     /* Re-render other views right now using the just-parsed devMetrics */
     renderDashboard();
