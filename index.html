@@ -297,6 +297,8 @@ var wbrData           = '<div style="font-size:11px;padding:8px 12px;background:
 var devData           = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"><div style="background:#fff;border:1px solid #e2e2e2;border-top:3px solid #0056B4;border-radius:6px;padding:12px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0c0a0a">10</div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;line-height:1.3">Out to Bid</div></div><div style="background:#fff;border:1px solid #e2e2e2;border-top:3px solid #1a7a1a;border-radius:6px;padding:12px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0c0a0a">19</div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;line-height:1.3">Under Construction</div></div><div style="background:#fff;border:1px solid #e2e2e2;border-top:3px solid #cb2026;border-radius:6px;padding:12px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0c0a0a">3</div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;line-height:1.3">Bldg Drops Next 4 Wks</div></div></div><div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">🏗 Building Drops — Next 4 Weeks</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Building Drop Date</th></tr></thead><tbody><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Fort Myers</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">06/10/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Granbury</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">06/10/26</td></tr><tr style="background:#fff3e0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Winter Haven</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#cb2026;font-weight:700">06/17/26</td></tr></tbody></table></div><div style="font-size:10px;font-weight:800;color:#cb2026;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px">🎉 Openings — Recent &amp; Upcoming</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px"><thead><tr style="background:#0c0a0a;color:#fff"><th style="padding:6px 10px;text-align:left;font-weight:700">City</th><th style="padding:6px 10px;text-align:left;font-weight:700">State</th><th style="padding:6px 10px;text-align:left;font-weight:700">Open Date</th></tr></thead><tbody><tr style="background:#e8f5e8"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Edmond</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">06/22/26</td></tr><tr style="background:#f0faf0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Altus</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">OK</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">06/22/26</td></tr><tr style="background:#e8f5e8"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Lynn Haven</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">FL</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">06/29/26</td></tr><tr style="background:#f0faf0"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Canyon</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">06/29/26</td></tr><tr style="background:#e8f5e8"><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;font-weight:600">Lubbock</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1">TX</td><td style="padding:6px 10px;border-bottom:1px solid #f1f1f1;color:#1a7a1a;font-weight:700">07/06/26</td></tr></tbody></table></div><div style="font-size:11px;color:#6b7280;margin-top:10px;text-align:right">19 under construction · 10 out to bid · Week of May 17, 2026</div>';
 var wbrLoaded         = true;
 var devLoaded         = true;
+var digestNotes       = '';   /* free-text manager commentary pasted in each WBR — feeds the AI digest */
+try{ digestNotes = localStorage.getItem('digestNotes') || ''; }catch(e){}
 var digestCache       = null;
 var digestDate        = null;
 var digestWeek        = null;
@@ -436,7 +438,11 @@ function loadReportsFromSupa(){
     rows.forEach(function(r){
       if(r.id==='wbr' && r.html){ wbrData=r.html; wbrLoaded=true; }
       if(r.id==='dev' && r.html){ devData=r.html; devLoaded=true; }
+      if(r.id==='digest_notes'){ digestNotes=r.html||''; }
     });
+    /* Notes just arrived from Supabase — bust the digest cache so they get woven in */
+    digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
+    if(currentSub==='digest') renderDigest();
   }).catch(function(e){ console.log('Reports load:',e); });
 }
 
@@ -1108,7 +1114,9 @@ async function renderDigest(){
     mx.raw_summary?'Summary: '+mx.raw_summary:''
   ].join('\n');
 
-  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (77-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings completed: '+(devMetrics.recent_openings||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. Building drops upcoming: '+(devMetrics.building_drops||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. '+devMetrics.under_construction+' under construction, '+devMetrics.out_to_bid+' out to bid.\n\nIMPORTANT: Both SW Florida (-1.3% SSS) AND New Mexico (-9.7% SSS) are showing negative same-store sales. New Mexico at -9.7% is the most urgent concern and must be called out prominently.\n\nReturn ONLY valid JSON starting with { and ending with }, no markdown, no backticks:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and pipeline","watchout":"2-3 sentences specifically addressing BOTH SWFL and NM negative SSS — NM at -9.7% is critical","motivation":"specific non-cheesy motivational thought referencing the real business data","board_prep":"one sentence on what to be ready to discuss with FEP — include both negative-SSS regions"}';
+  var notesBlock = digestNotes ? ('\n\nMANAGER COMMENTARY (pasted this week from the WBR discussion — treat this as ground truth color on WHY the numbers moved; weave the relevant facts and events from it into the headline, openings_focus, watchout, motivation, and board_prep in your own words — do not quote it verbatim, but keep it factually accurate to what is written here):\n"""\n'+digestNotes+'\n"""') : '';
+
+  var sysPrompt='You are the executive assistant AI for Kendra Burris, CEO of 7Crew Enterprises (77-location 7Brew Coffee franchisee, acquired by Franchise Equity Partners). Today is '+dateStr+'. Kendra is high-energy, people-focused, former Vice Chancellor at Texas Tech, on the Red Raider Facilities Foundation board. Median employee age 19.5.\n\n'+metricsContext+'\n\nOpenings completed: '+(devMetrics.recent_openings||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. Building drops upcoming: '+(devMetrics.building_drops||[]).map(function(o){return o.city+' '+o.state+' '+o.date;}).join(', ')+'. '+devMetrics.under_construction+' under construction, '+devMetrics.out_to_bid+' out to bid.\n\nIMPORTANT: Both SW Florida (-1.3% SSS) AND New Mexico (-9.7% SSS) are showing negative same-store sales. New Mexico at -9.7% is the most urgent concern and must be called out prominently.'+notesBlock+'\n\nReturn ONLY valid JSON starting with { and ending with }, no markdown, no backticks:\n{"headline":"one punchy sentence on state of business","numbers_snapshot":[{"label":"string","value":"string","trend":"up|down|flat","note":"string"}],"openings_focus":"2-3 sentences on openings and pipeline, incorporating any relevant manager commentary above","watchout":"2-3 sentences specifically addressing BOTH SWFL and NM negative SSS — NM at -9.7% is critical — plus any other watch-out items raised in the manager commentary","motivation":"specific non-cheesy motivational thought referencing the real business data and any wins called out in the manager commentary","board_prep":"one sentence on what to be ready to discuss with FEP — include both negative-SSS regions and any notable items from the manager commentary"}';
 
   (async function(){
     try{
@@ -1487,7 +1495,28 @@ function renderWBR(){
     '<label style="display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-family:inherit">↑ Update<input type="file" accept=".txt,.pdf" style="display:none" onchange="processWBR(this)"></label>'+
     '</div>'+
     '<div id="wbr-content">'+(wbrData||'')+'</div>'+
+    '<div style="margin-top:16px;padding-top:14px;border-top:2px solid var(--red)">'+
+      '<div style="font-size:10px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">📝 Manager Commentary (feeds the Digest)</div>'+
+      '<div style="font-size:11px;color:#6b7280;margin-bottom:8px;line-height:1.5">Paste the color from this week\'s WBR — sales drivers, notable events, watch-outs, openings context, etc. The Digest will pull from this so it reads with the same context, in Kendra\'s voice. It does not need to be word-for-word.</div>'+
+      '<textarea id="digest-notes-input" placeholder="e.g. SSS for mature stands are 10.7%... AWS rebounded to $45.9k because of Sips for Kicks and the College Pendants giveaway..." style="width:100%;min-height:180px;padding:11px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;line-height:1.6;font-family:inherit;background:#fff;color:var(--black);resize:vertical" onchange="">'+esc(digestNotes||'')+'</textarea>'+
+      '<div style="display:flex;gap:8px;margin-top:8px">'+
+        '<button class="btn-save" style="margin-top:0" onclick="saveDigestNotes()">Save &amp; Update Digest</button>'+
+      '</div>'+
+      (digestNotes?'<div style="font-size:10px;color:#6b7280;margin-top:6px;font-weight:600">✓ Saved commentary is in use for the current Digest.</div>':'')+
+    '</div>'+
   '</div>';
+}
+
+function saveDigestNotes(){
+  var ta=document.getElementById('digest-notes-input');
+  if(!ta) return;
+  digestNotes = ta.value || '';
+  saveReportToSupa('digest_notes', digestNotes, 'digest_notes');
+  try{ localStorage.setItem('digestNotes', digestNotes); }catch(e){}
+  digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
+  renderWBR();
+  if(currentSub==='digest') renderDigest();
+  toast('Commentary saved — Digest updating!');
 }
 
 async function processWBR(input){
