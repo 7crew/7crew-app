@@ -1848,11 +1848,20 @@ async function processDev(input){
     });
     html+='</div>';
     var standCount = parsed.stand_count||[];
+    /* Fallback: if the source report has no dedicated "Stand Count" table, synthesize
+       one from the categories we already parsed so this section is never empty */
+    if(!standCount.length){
+      standCount=[
+        {phase:'Out to Bid',         count: st.out_to_bid||0},
+        {phase:'Under Construction', count: st.under_construction||0},
+        {phase:'Recent Openings',    count: (parsed.openings||[]).length}
+      ].filter(function(s){ return s.count>0; });
+    }
     var standTotal = standCount.reduce(function(sum,s){ return sum + (parseInt(s.count)||0); },0);
     if(standCount.length){
       html+='<div style="background:#0c0a0a;border-radius:8px;padding:14px 16px;margin-bottom:16px">'+
         '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'+
-          '<div style="font-size:10px;font-weight:800;color:#c0c2c4;text-transform:uppercase;letter-spacing:.08em">Total Stand Count</div>'+
+          '<div style="font-size:10px;font-weight:800;color:#c0c2c4;text-transform:uppercase;letter-spacing:.08em">Total Stands in Pipeline</div>'+
           '<div style="font-size:24px;font-weight:800;color:#fff">'+standTotal+'</div>'+
         '</div>';
       standCount.forEach(function(s){
@@ -1912,7 +1921,7 @@ async function processDev(input){
     digestCache=null; digestDate=null; digestWeek=null; digestDevKey=null;
     document.getElementById('dev-content').innerHTML=html;
     var _dsEl=document.getElementById('dev-status');
-    if(_dsEl) _dsEl.innerHTML=standTotal+' total stands · '+(st.out_to_bid||0)+' out to bid · '+(st.under_construction||0)+' under construction · '+(st.recent_openings||0)+' recent openings';
+    if(_dsEl) _dsEl.innerHTML=standTotal+' in pipeline · '+(st.out_to_bid||0)+' out to bid · '+(st.under_construction||0)+' under construction · '+(st.recent_openings||0)+' recent openings';
     saveReportToSupa('dev',html,file.name);
     /* Re-render other views right now using the just-parsed devMetrics */
     renderDashboard();
