@@ -2115,3 +2115,16 @@ function editStandCount(phase){
   applyStandCount(updated);
   toast(phase+' updated to '+n);
 }
+
+/* ─── INIT ─── */
+loadLocal();
+fetchFromSupa();
+loadReportsFromSupa();
+loadDevMetrics();
+loadLiveMetrics();
+checkNearby();
+
+switchPrimary('digest');
+</script>
+</body>
+</html>
